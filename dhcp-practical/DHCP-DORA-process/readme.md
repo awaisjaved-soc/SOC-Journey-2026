@@ -1,6 +1,6 @@
 IN this practical we will see how the dhcp dora process works in real time in wire shark 
 
-first of all write ipconfig in the command prompt to see your ip address 
+first of all write ipconfig in the command prompt to see your ip address or iwconfig for linux systems
 
 ```ipconfig```
 
