@@ -1,1 +1,57 @@
 
+TCP (Transmission Control Protocol) and UDP (User Datagram Protocol) are the two main transport layer protocols in networking. TCP is reliable, connection-oriented, and ensures ordered delivery of data, while UDP is faster, connectionless, and best suited for real-time applications where speed matters more than reliability.
+
+🔹 Transmission Control Protocol (TCP)
+Type: Connection-oriented
+
+Reliability: Ensures accurate and ordered delivery of data packets
+
+Error Handling: Uses acknowledgments (ACKs), retransmissions, and checksums
+
+Flow Control: Implements congestion control and windowing to avoid overload
+
+Speed: Slower due to overhead but dependable
+
+Use Cases:
+
+Web browsing (HTTP/HTTPS)
+
+Email (SMTP, IMAP, POP3)
+
+File transfers (FTP)
+
+Remote login (SSH, Telnet)
+
+Example: When you download a file, TCP ensures every packet arrives correctly and in order. If a packet is lost, TCP retransmits it.
+
+🔹 User Datagram Protocol (UDP)
+Type: Connectionless
+
+Reliability: No guarantee of delivery, order, or error correction
+
+Error Handling: Minimal — only checksum for basic error detection
+
+Flow Control: None, packets are sent without congestion management
+
+Speed: Faster, lightweight, low overhead
+
+Use Cases:
+
+Video streaming (YouTube, Netflix)
+
+Voice over IP (VoIP)
+
+Online gaming
+
+DNS queries
+
+Example: In a live video call, UDP sends packets quickly. If a packet is lost, it’s skipped rather than retransmitted, avoiding delays.
+
+| Feature | TCP | UDP |
+| --- | --- | --- |
+| **Connection** | Connection-oriented (handshake) | Connectionless |
+| **Reliability** | Reliable, ordered delivery | Unreliable, no order guarantee |
+| **Speed** | Slower (more overhead) | Faster (less overhead) |
+| **Error Handling** | Retransmission, ACKs, checksums | Only checksum |
+| **Flow Control** | Yes (congestion control) | No |
+| **Use Cases** | Web, email, file transfer | Streaming, gaming, VoIP, DNS |
