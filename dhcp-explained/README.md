@@ -72,5 +72,3 @@ The process has **four key steps**:
 - **RFC 2131**: Defines DHCP standards.  
 
 ---
-
-Would you like me to create a **ready-made README.md template** for your `dhcp-explained` folder, with this detailed explanation plus a code block showing DHCP configuration commands (like Linux `dhcpd.conf` setup)? That way, you can directly push it to your GitHub repo.
