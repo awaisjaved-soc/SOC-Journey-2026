@@ -1,6 +1,6 @@
 
-1. What is FTP and Why Does It Exist? (Purpose in Real Life)
-FTP = File Transfer Protocol
+ # ` What is FTP and Why Does It Exist? (Purpose in Real Life)`
+## ` FTP = File Transfer Protocol`
 Its only job is: Send and receive files between two computers over the network.
 Real-life uses (where you see it every day):
 
