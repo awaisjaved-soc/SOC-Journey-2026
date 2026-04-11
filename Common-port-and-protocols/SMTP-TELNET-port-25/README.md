@@ -1,137 +1,130 @@
 
-
-
----
-
 ```markdown
-# Telnet + SMTP Port 25 Practical Lab
+# Port 25 SMTP Lab - Raw Telnet Email Sending
 
-**Author:** Muhammad Awais Javed (Mian Awais)  
-**Date:** April 2026  
-**Part of:** SOC-Journey-2026
-
-### Objective
-To understand how SMTP works on Port 25 using Telnet, capture the entire session in Wireshark, and see why it is insecure (everything in plaintext).
-
-### What is SMTP Port 25?
-- SMTP = Simple Mail Transfer Protocol
-- Used for sending emails between servers
-- Port 25 is the default port for SMTP
-- It uses **TCP** (not UDP) because email delivery must be reliable
-
-### Why We Use Telnet for this Lab?
-Telnet allows us to manually type SMTP commands and see the full conversation in plaintext. This is the best way to understand the protocol.
+**SOC Journey 2026**  
+**Student:** Muhammad Awais Javed (Mian Awais)  
+**Date:** April 12, 2026
 
 ---
 
-### Full Practical Setup (A to Z)
+## 🎯 Objective
 
-#### 1. On Server Side (Linux Laptop - IP: 192.168.100.90)
+To understand how SMTP (Simple Mail Transfer Protocol) works by manually sending emails using **raw Telnet** on Port 25. This lab simulates real-world email server behavior that SOC Analysts monitor daily.
+
+---
+
+## 📋 Lab Overview
+
+- Installed and configured **Postfix** (SMTP Server) on Kali Linux
+- Sent emails using **raw Telnet** (no email client)
+- Successfully sent and received emails between Kali VM and Linux Laptop
+- Understood SMTP commands (`EHLO`, `MAIL FROM`, `RCPT TO`, `DATA`)
+
+---
+
+## 🔧 Step-by-Step Lab
+
+### 1. Install Postfix
 
 ```bash
 sudo apt update
-```
-**What it does:** Updates package list  
-**Why:** To get latest packages
-
-```bash
 sudo apt install postfix -y
 ```
-**What it does:** Installs Postfix SMTP server  
-**Why:** Postfix will act as our email server
+*(During installation, choose **"Internet Site"**)
 
-During installation choose:
-- **Internet Site**
-- System mail name: `kali.local` (or press Enter)
+### 2. Configure Postfix (Working Configuration)
 
 ```bash
+# Stop Postfix
+sudo systemctl stop postfix
+
+# Backup original config
+sudo cp /etc/postfix/main.cf /etc/postfix/main.cf.bak_$(date +%F)
+
+# Create clean working configuration
+sudo bash -c 'cat > /etc/postfix/main.cf' << 'EOF'
+myhostname = kali.local
+mydomain = local
+inet_interfaces = all
+inet_protocols = all
+mynetworks = 127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128 192.168.0.0/16 172.16.0.0/12 10.0.0.0/8
+mydestination = $myhostname, localhost.localdomain, localhost
+home_mailbox = Maildir/
+smtpd_banner = $myhostname ESMTP Postfix (SOC Lab - Mian Awais)
+compatibility_level = 3.6
+EOF
+
+# Fix master.cf (remove chroot issues)
+sudo sed -i 's/^smtp[[:space:]]\+inet[[:space:]]\+n[[:space:]]\+-.*$/smtp inet n - y - - smtpd/' /etc/postfix/master.cf
+
+# Restart and verify
 sudo systemctl restart postfix
 sudo systemctl status postfix
+sudo postfix check
 ```
-**What it does:** Restarts and checks if Postfix is running  
-**Why:** To make sure the server is active
 
-```bash
-sudo ss -tlnp | grep :25
-```
-**What it does:** Shows if port 25 is listening  
-**Why:** To confirm SMTP server is ready
-
-```bash
-sudo ufw allow 25/tcp
-sudo ufw reload
-```
-**What it does:** Allows port 25 through firewall  
-**Why:** Without this, other devices cannot connect
+**Why these settings?**
+- `inet_interfaces = all` → Allows connections from other devices (not just localhost)
+- `mynetworks` → Defines which IPs are trusted
+- `smtpd_banner` → Custom banner shown when someone connects (visible in SOC monitoring)
+- `home_mailbox = Maildir/` → Saves emails in `~/Maildir` folder
 
 ---
 
-#### 2. On Client Side (Kali VM) - Start Capture
+### 3. Test SMTP Server
 
-- Open Wireshark
-- Select interface `eth0`
-- Apply filter: `tcp.port == 25`
-- Start capturing
+```bash
+# Local test
+telnet 127.0.0.1 25
+
+# From another device (Linux Laptop)
+telnet 192.168.100.90 25     # ← Use your Kali IP
+```
 
 ---
 
-#### 3. Connect using Telnet & Send Email Manually (From Kali)
+### 4. Send Email using Raw Telnet (Working Commands)
+
+After connecting and seeing `220` banner, type:
 
 ```bash
-telnet 192.168.100.90 25
-```
-
-Once connected, type the following commands **one by one** (press Enter after each):
-
-```
 EHLO test
-MAIL FROM:<test@kali>
-RCPT TO:<kali>
+MAIL FROM:<mianawais@kali.local>
+RCPT TO:<kali@kali.local>
 DATA
+Subject: Test Email from SOC Lab
 
-Subject: Telnet SMTP Lab Test - Mian Awais
-
-This is the email body sent manually using Telnet.
- Port 25 Practical
-Everything is in plaintext here.
+Hello, this is a manual email sent using Telnet on Port 25.
+Mian Awais SOC Journey 2026.
 .
 QUIT
 ```
 
-**Important:**
-- After `DATA`, press Enter **twice** (leave one blank line)
-- End the email with a single `.` on its own line
+**Important Notes:**
+- Always use full email format (`user@domain`)
+- End email with single dot `.` on new line
+- `RCPT TO` must be a valid local user (`kali` in this setup)
 
 ---
 
-### What You Should See in Wireshark
-
-- TCP 3-way handshake on port 25
-- Plaintext SMTP commands:
-  - `EHLO test`
-  - `MAIL FROM:<test@kali>`
-  - `RCPT TO:<kali>`
-  - `DATA`
-  - Email subject and body
-  - `QUIT`
-
-This is the main learning point: **SMTP on port 25 sends everything in plaintext** (unlike SSH).
-
----
-
-### Check Received Email on Server (Laptop)
+### 5. Check Received Emails
 
 ```bash
-cat /var/mail/kali
-```
-
-or
-
-```bash
-sudo tail -n 50 /var/mail/kali
+ls ~/Maildir/new/
+cat ~/Maildir/new/*
 ```
 
 ---
 
+## 🛠️ SOC Analyst Context (Why This Lab Matters)
 
+- Port 25 is commonly used by spammers and phishing attackers.
+- SOC Analysts monitor port 25 for:
+  - Open mail relays
+  - Brute force attempts
+  - Unusual `MAIL FROM` / `RCPT TO` patterns
+  - Spam campaigns
+- Understanding raw SMTP helps in log analysis and incident response.
 
+---
