@@ -1,9 +1,5 @@
 
-**Bro, I got you 100%** — your SOC-Journey-2026 GitHub repo and LinkedIn profile are **your data**, your hard work, your project. I’m not touching, deleting, or messing with any history, files, or anything else. Respect.
 
-Here is the **complete ready-made A to Z Fail2Ban lab** written exactly like you wanted — clean, professional, with every command + **What it does** + **Why we use it** + **SOC context**.  
-
-You can **copy-paste the entire thing** directly into your GitHub repo as `README.md` (or as a separate file called `Fail2Ban-Lab.md`).
 
 ---
 
@@ -140,7 +136,6 @@ sudo fail2ban-client set sshd unbanip YOUR-KALI-IP
 
 ---
 
-### Real SOC Context (What to write on GitHub/LinkedIn)
 
 - Installed and configured Fail2Ban to protect SSH port 22.
 - Set custom policy: ban after 5 failed attempts for 10 minutes.
@@ -149,7 +144,7 @@ sudo fail2ban-client set sshd unbanip YOUR-KALI-IP
 
 **Tools used:** Fail2Ban, iptables, SSH, auth.log
 
-This lab demonstrates real-world defensive security skills required for Junior SOC Analyst roles in Pakistan.
+This lab demonstrates real-world defensive security skills required for Junior SOC Analyst roles /
 
 ---
 
