@@ -1,7 +1,5 @@
 
-Here’s your **entire README text in one single block**, formatted with headings (`#`, `##`) and fenced code blocks (```) exactly as you asked. All IPs are replaced with **`ip`** and your username is shown as **`@mian`**:
 
----
 
 ```markdown
 # SSH Port 22 Full Commands Sheet 
