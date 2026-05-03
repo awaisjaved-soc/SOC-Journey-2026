@@ -178,6 +178,10 @@ sudo setfacl -b /srv/samba/AwaisShare/*
 - Session Setup (NTLM)
 - Tree Connect
 - Create / Read / Write
+- ```bash
+  nmap -p 445 -sV --script smb-os-discovery,smb-security-mode 192.168.100.91
+  nmap -p 445 192.168.100.91
+  ```
 
 **SOC Takeaways:** Monitor port 445 for lateral movement and ransomware. Plaintext SMB leaks data.
 
