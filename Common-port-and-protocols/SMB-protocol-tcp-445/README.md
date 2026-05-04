@@ -172,6 +172,26 @@ sudo setfacl -b /srv/samba/AwaisShare/*
 - `ntlmssp` → Authentication packets
 - here you can see the traffic flow when you upload or download a file.If the file is large there will be a big flowof packets.
 - the encryption is disabled thats why you can see the name of the file you upload or download if the encryption will enalble maybe thats file name is not visible you can only see all the encrypted messages flowing in the wireshark.
+- <img width="1440" height="783" alt="if encrypted" src="https://github.com/user-attachments/assets/99b298aa-bdbd-47ea-b61a-fb694efc7465" />
+
+Like this picture all the packets are encrypted now you can only see the flow.
+**To use encrypted the setting of globel config will be**
+```bash
+[global]
+   workgroup = WORKGROUP
+   server string = Kali SMB Server
+   netbios name = kali
+   security = user
+   map to guest = bad user
+   smb encrypt = required
+   server min protocol = SMB3
+   server max protocol = SMB3
+   client min protocol = SMB3
+   client max protocol = SMB3
+   log level = 3
+   dns proxy = no
+```
+
 
 **Key packets to observe:**
 - Negotiate Protocol
@@ -184,4 +204,6 @@ sudo setfacl -b /srv/samba/AwaisShare/*
   ```
 
 **SOC Takeaways:** Monitor port 445 for lateral movement and ransomware. Plaintext SMB leaks data.
+
+
 
