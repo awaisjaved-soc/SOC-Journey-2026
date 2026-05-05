@@ -142,6 +142,9 @@ whoami
 ls /srv/samba/AwaisShare
 exit
 ```
+scp -o GSSAPIAuthentication=yes awais@kdc.lab.local:/srv/samba/AwaisShare/filename .    
+ssh -v kali@192.168.100.91
+sudo chown awais:awais /srv/samba/AwaisShar/filename 
 
 ---
 
