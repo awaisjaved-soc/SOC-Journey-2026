@@ -52,6 +52,7 @@ nmap -sV -p 3389 ip
 # Aggressive scan
 nmap -sS -sV -O -p ip
 ```
+<img width="712" height="712" alt="open-port-rdp-scan" src="https://github.com/user-attachments/assets/6c2a5c7d-fa88-4795-bcfd-a905510efc0e" />
 
 ---
 
@@ -93,11 +94,19 @@ When an attacker uses wrong passwords repeatedly:
 - Short-lived connections with **TCP RST** (Reset) packets from the server
 - RDP Negotiation packets followed by immediate disconnection
 - No full TLS handshake on failed attempts
+- <img width="1896" height="995" alt="bruteforce-pass-wrong-packets" src="https://github.com/user-attachments/assets/350239b4-9a51-4438-b58f-880efa07b7a0" />
+
 
 When the correct password is entered:
 - Full RDP handshake completes
 - TLS encryption starts
 - Application data flows normally
+<img width="1917" height="1000" alt="connected-rdp-packets" src="https://github.com/user-attachments/assets/cd10e0c2-4a3d-437b-9aa0-9b5d45f0d34f" />
+
+##  After disconnecting rdp the last red-line is the last packet after ack..
+
+<img width="1914" height="300" alt="disconnecting-rdp-packet" src="https://github.com/user-attachments/assets/6c9522d5-6465-4d29-8bc2-a1819d4a1a81" />
+
 
 ---
 
