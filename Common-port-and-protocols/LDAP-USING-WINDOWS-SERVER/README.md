@@ -724,9 +724,9 @@ ATTACK PATH IDENTIFIED
 TOOLS USED
   nmap, ldapsearch (ldap-utils), Wireshark, Kali Linux
 ════════════════════════════════════════════════════════
-```
 
----
+
+
 
 
 
