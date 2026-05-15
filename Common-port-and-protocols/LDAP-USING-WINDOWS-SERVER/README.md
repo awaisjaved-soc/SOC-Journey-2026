@@ -729,10 +729,3 @@ TOOLS USED
 
 
 
-
-#CyberSecurity #SOCAnalyst #ActiveDirectory #LDAP #EthicalHacking 
-#PenTesting #BlueTeam #RedTeam #HomeLab #SecurityAnalyst #Pakistan 
-#CyberSecurityPakistan #InfoSec #NetworkSecurity
-```
-
----
