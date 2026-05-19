@@ -154,7 +154,7 @@ Set-ADDefaultDomainPasswordPolicy -Identity "techcorp.local" `
 ```
 ---
 
-```
+```powershell
 Log Name:      Security
 Source:        Microsoft-Windows-Security-Auditing
 Date:          5/19/2026 7:15:19 PM
