@@ -49,7 +49,7 @@ Get-WinEvent -FilterHashtable @{
 
 <img width="754" height="531" alt="image" src="https://github.com/user-attachments/assets/0e2d1437-16f9-4dde-a461-e08d03bff438" />
 
-```
+```powershell
 Log Name:      Security
 Source:        Microsoft-Windows-Security-Auditing
 Date:          5/19/2026 6:22:36 PM
