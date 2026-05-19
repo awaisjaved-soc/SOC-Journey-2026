@@ -43,6 +43,9 @@ New-ADUser -Name "TestUser01" `
    - User logon name: `testuser02`
 4. Set password → Finish
 
+<img width="818" height="530" alt="image" src="https://github.com/user-attachments/assets/a62a4c30-9084-4723-86d0-ec780f9cdf73" />
+
+
 ---
 
 # Detection Command for 4720
@@ -61,6 +64,7 @@ Get-WinEvent -FilterHashtable @{
     }
 } | Format-Table -AutoSize
 ```
+<img width="736" height="443" alt="image" src="https://github.com/user-attachments/assets/a72dde19-d8a5-46d5-89c4-55faae92135c" />
 
 
 or using mannual way apply filter or specific event to see only desired or identify from the list about the specific event in the event viewer.
