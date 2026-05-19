@@ -50,7 +50,7 @@ Get-WinEvent -FilterHashtable @{
 
 ---
 
-```
+```powershell
 Log Name:      Security
 Source:        Microsoft-Windows-Security-Auditing
 Date:          5/19/2026 6:20:47 PM
