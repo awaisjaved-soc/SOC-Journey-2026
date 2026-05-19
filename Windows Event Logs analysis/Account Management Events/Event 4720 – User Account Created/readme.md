@@ -49,7 +49,7 @@ New-ADUser -Name "TestUser01" `
 ---
 
 # Detection Command for 4720
-```
+```powershell
 Get-WinEvent -FilterHashtable @{
     LogName = 'Security'
     -Id = 4720 
@@ -86,7 +86,7 @@ or using mannual way apply filter or specific event to see only desired or ident
 
 
 
-``` Log Name:      Security
+``````powershell Log Name:      Security
 Source:        Microsoft-Windows-Security-Auditing
 Date:          5/19/2026 6:12:58 PM
 Event ID:      4720
