@@ -112,6 +112,7 @@ Event Xml:
 </Event>
 
 ```
-These images are mixed method is same in the images group names are different and in command the names are different its because i pratice these things so the screenshots and commands are mixed !!
+These images are mixed and the method is same.
+In the images group names are different and in command the names are different its because i practice these things so the screenshots and commands are mixed !!
 ---
 
