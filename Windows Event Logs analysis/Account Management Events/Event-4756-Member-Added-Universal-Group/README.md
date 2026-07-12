@@ -35,6 +35,10 @@ Add-ADGroupMember -Identity "UniversalTestGroup" -Members "testuser01"
 
 ---
 
+<img width="401" height="457" alt="image" src="https://github.com/user-attachments/assets/77ca2de5-1501-4b30-8be3-b1ad7ceb21e7" />
+
+---
+
 ## Detection Command
 
 Run this on your **Domain Controller** to detect Event 4756:
