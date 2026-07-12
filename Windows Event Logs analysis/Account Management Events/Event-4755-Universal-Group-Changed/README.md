@@ -22,6 +22,14 @@ Universal Groups are commonly used in **multi-domain Active Directory environmen
 
 ---
 
+<img width="626" height="437" alt="image" src="https://github.com/user-attachments/assets/4bd47aed-1818-4f49-868c-c5edfb524025" />
+
+---
+
+<img width="636" height="186" alt="WhatsApp Image 2026-07-12 at 4 23 21 PM" src="https://github.com/user-attachments/assets/7bb7f56f-07d7-4318-84d5-fe568cde8879" />
+
+---
+
 ## Lab Method 2 – PowerShell
 
 ```powershell
@@ -49,8 +57,74 @@ ForEach-Object {
     }
 } | Format-Table -AutoSize
 ```
+---
+
+<img width="981" height="512" alt="WhatsApp Image 2026-07-12 at 4 24 05 PM" src="https://github.com/user-attachments/assets/f908c21b-3028-4064-bf30-fa1baa0f8db6" />
 
 ---
+
+```powershell
+Log Name:      Security
+Source:        Microsoft-Windows-Security-Auditing
+Date:          7/12/2026 3:08:41 PM
+Event ID:      4755
+Task Category: Security Group Management
+Level:         Information
+Keywords:      Audit Success
+User:          N/A
+Computer:      WIN-G2FL349UD7V.techcorp.local
+Description:
+A security-enabled universal group was changed.
+
+Subject:
+	Security ID:		TECHCORP\Administrator
+	Account Name:		Administrator
+	Account Domain:		TECHCORP
+	Logon ID:		0x9745A
+
+Group:
+	Security ID:		TECHCORP\Enterprise Admins
+	Group Name:		Enterprise Admins
+	Group Domain:		TECHCORP
+
+Changed Attributes:
+	SAM Account Name:	-
+	SID History:		-
+
+Additional Information:
+	Privileges:		-
+Event Xml:
+<Event xmlns="http://schemas.microsoft.com/win/2004/08/events/event">
+  <System>
+    <Provider Name="Microsoft-Windows-Security-Auditing" Guid="{54849625-5478-4994-a5ba-3e3b0328c30d}" />
+    <EventID>4755</EventID>
+    <Version>0</Version>
+    <Level>0</Level>
+    <Task>13826</Task>
+    <Opcode>0</Opcode>
+    <Keywords>0x8020000000000000</Keywords>
+    <TimeCreated SystemTime="2026-07-12T22:08:41.7763402Z" />
+    <EventRecordID>5245</EventRecordID>
+    <Correlation />
+    <Execution ProcessID="688" ThreadID="1128" />
+    <Channel>Security</Channel>
+    <Computer>WIN-G2FL349UD7V.techcorp.local</Computer>
+    <Security />
+  </System>
+  <EventData>
+    <Data Name="TargetUserName">Enterprise Admins</Data>
+    <Data Name="TargetDomainName">TECHCORP</Data>
+    <Data Name="TargetSid">S-1-5-21-2093721230-1860313452-4243889928-519</Data>
+    <Data Name="SubjectUserSid">S-1-5-21-2093721230-1860313452-4243889928-500</Data>
+    <Data Name="SubjectUserName">Administrator</Data>
+    <Data Name="SubjectDomainName">TECHCORP</Data>
+    <Data Name="SubjectLogonId">0x9745a</Data>
+    <Data Name="PrivilegeList">-</Data>
+    <Data Name="SamAccountName">-</Data>
+    <Data Name="SidHistory">-</Data>
+  </EventData>
+</Event>
+```
 
 ## What to Look For (SOC Analyst Tips)
 - Changes to Universal Groups that control **cross-domain access**
