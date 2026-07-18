@@ -24,6 +24,10 @@ This event **pairs with Event 4624** to give a complete picture of how long a us
 
 ---
 
+<img width="629" height="436" alt="image" src="https://github.com/user-attachments/assets/e6b5e52c-ddfd-4b19-a190-88ba9a2cad9a" />
+
+---
+
 ## Lab Method 2 – PowerShell
 
 ```powershell
@@ -44,8 +48,61 @@ ForEach-Object {
     }
 } | Format-Table -AutoSize
 ```
+---
+
+<img width="986" height="513" alt="image" src="https://github.com/user-attachments/assets/171e8e82-57cd-44b8-94a0-48c640938727" />
 
 ---
+
+```powershell
+Log Name:      Security
+Source:        Microsoft-Windows-Security-Auditing
+Date:          7/18/2026 8:09:44 AM
+Event ID:      4634
+Task Category: Logoff
+Level:         Information
+Keywords:      Audit Success
+User:          N/A
+Computer:      WIN-KAHJ94DKN9V.techcorp.local
+Description:
+An account was logged off.
+
+Subject:
+	Security ID:		TECHCORP\Administrator
+	Account Name:		Administrator
+	Account Domain:		TECHCORP
+	Logon ID:		0x1CDCD9
+
+Logon Type:			7
+
+This event is generated when a logon session is destroyed. It may be positively correlated with a logon event using the Logon ID value. Logon IDs are only unique between reboots on the same computer.
+Event Xml:
+<Event xmlns="http://schemas.microsoft.com/win/2004/08/events/event">
+  <System>
+    <Provider Name="Microsoft-Windows-Security-Auditing" Guid="{54849625-5478-4994-a5ba-3e3b0328c30d}" />
+    <EventID>4634</EventID>
+    <Version>0</Version>
+    <Level>0</Level>
+    <Task>12545</Task>
+    <Opcode>0</Opcode>
+    <Keywords>0x8020000000000000</Keywords>
+    <TimeCreated SystemTime="2026-07-18T15:09:44.6006661Z" />
+    <EventRecordID>1877</EventRecordID>
+    <Correlation />
+    <Execution ProcessID="652" ThreadID="4404" />
+    <Channel>Security</Channel>
+    <Computer>WIN-KAHJ94DKN9V.techcorp.local</Computer>
+    <Security />
+  </System>
+  <EventData>
+    <Data Name="TargetUserSid">S-1-5-21-2896402138-2534863141-3184233234-500</Data>
+    <Data Name="TargetUserName">Administrator</Data>
+    <Data Name="TargetDomainName">TECHCORP</Data>
+    <Data Name="TargetLogonId">0x1cdcd9</Data>
+    <Data Name="LogonType">7</Data>
+  </EventData>
+</Event>
+```
 
 ## What to Look For (SOC Analyst Tips)
 - Sessions with **very short duration** (login and logoff within seconds)
