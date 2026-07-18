@@ -23,6 +23,10 @@ Event 4647 is generated when a **user manually initiates a logoff** by clicking 
 
 ---
 
+<img width="625" height="439" alt="image" src="https://github.com/user-attachments/assets/1c88ea00-abf0-44a1-83b9-928f22ac8966" />
+
+---
+
 ## Lab Method 2 – PowerShell
 
 ```powershell
@@ -43,8 +47,58 @@ ForEach-Object {
     }
 } | Format-Table -AutoSize
 ```
+---
+
+<img width="975" height="515" alt="image" src="https://github.com/user-attachments/assets/f660c6fb-03de-474e-b836-31b62426a0e5" />
 
 ---
+
+```powershell
+Log Name:      Security
+Source:        Microsoft-Windows-Security-Auditing
+Date:          7/18/2026 9:01:01 AM
+Event ID:      4647
+Task Category: Logoff
+Level:         Information
+Keywords:      Audit Success
+User:          N/A
+Computer:      WIN-KAHJ94DKN9V.techcorp.local
+Description:
+User initiated logoff:
+
+Subject:
+	Security ID:		TECHCORP\alexrivera
+	Account Name:		alexrivera
+	Account Domain:		TECHCORP
+	Logon ID:		0x2DF2A3
+
+This event is generated when a logoff is initiated. No further user-initiated activity can occur. This event can be interpreted as a logoff event.
+Event Xml:
+<Event xmlns="http://schemas.microsoft.com/win/2004/08/events/event">
+  <System>
+    <Provider Name="Microsoft-Windows-Security-Auditing" Guid="{54849625-5478-4994-a5ba-3e3b0328c30d}" />
+    <EventID>4647</EventID>
+    <Version>0</Version>
+    <Level>0</Level>
+    <Task>12545</Task>
+    <Opcode>0</Opcode>
+    <Keywords>0x8020000000000000</Keywords>
+    <TimeCreated SystemTime="2026-07-18T16:01:01.1218111Z" />
+    <EventRecordID>3281</EventRecordID>
+    <Correlation ActivityID="{423bbde8-16cb-0001-15be-3b42cb16dd01}" />
+    <Execution ProcessID="648" ThreadID="8576" />
+    <Channel>Security</Channel>
+    <Computer>WIN-KAHJ94DKN9V.techcorp.local</Computer>
+    <Security />
+  </System>
+  <EventData>
+    <Data Name="TargetUserSid">S-1-5-21-2896402138-2534863141-3184233234-1114</Data>
+    <Data Name="TargetUserName">alexrivera</Data>
+    <Data Name="TargetDomainName">TECHCORP</Data>
+    <Data Name="TargetLogonId">0x2df2a3</Data>
+  </EventData>
+</Event>
+```
 
 ## What to Look For (SOC Analyst Tips)
 - 4647 appearing for **admin accounts at odd hours** (attacker signing out after work)
