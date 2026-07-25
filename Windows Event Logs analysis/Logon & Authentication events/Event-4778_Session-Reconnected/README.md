@@ -49,6 +49,10 @@ Add-LocalGroupMember -Group "Remote Desktop Users" -Member "Administrator" -Erro
 # Disable NLA temporarily (helps with connection issues)
 Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -Name "UserAuthentication" -Value 0
 ```
+---
+<img width="1252" height="372" alt="image" src="https://github.com/user-attachments/assets/fd992bc4-bce3-4765-809b-5fcdade8542a" />
+
+---
 
 **Step 2 – Enable Required Audit Policy:**
 ```powershell
@@ -57,7 +61,10 @@ auditpol /set /subcategory:"Logon" /success:enable /failure:enable
 auditpol /set /subcategory:"Logoff" /success:enable /failure:enable
 gpupdate /force
 ```
+---
+<img width="942" height="657" alt="image" src="https://github.com/user-attachments/assets/f9ecc096-eceb-47bc-999f-cc98d13e8f71" />
 
+---
 **Step 3 – Connect via RDP from Host:**
 1. Press `Win + R` → type `mstsc` → press Enter
 2. Computer: `<Server IP>` (get with `ipconfig` on server)
@@ -81,6 +88,61 @@ ForEach-Object {
         SourceIP = ($xml.Event.EventData.Data | Where {$_.Name -eq 'IpAddress'}).'#text'
     }
 } | Format-Table -AutoSize
+```
+---
+```powershell
+Log Name:      Security
+Source:        Microsoft-Windows-Security-Auditing
+Date:          7/25/2026 10:50:54 PM
+Event ID:      4778
+Task Category: Other Logon/Logoff Events
+Level:         Information
+Keywords:      Audit Success
+User:          N/A
+Computer:      WIN-LFHCJK09RND.techcorp.local
+Description:
+A session was reconnected to a Window Station.
+
+Subject:
+	Account Name:		administrator
+	Account Domain:		TECHCORP
+	Logon ID:		0x440D1
+
+Session:
+	Session Name:		RDP-Tcp#0
+
+Additional Information:
+	Client Name:		DESKTOP-7I433PO
+	Client Address:		192.168.100.27
+
+This event is generated when a user reconnects to an existing Terminal Services session, or when a user switches to an existing desktop using Fast User Switching.
+Event Xml:
+<Event xmlns="http://schemas.microsoft.com/win/2004/08/events/event">
+  <System>
+    <Provider Name="Microsoft-Windows-Security-Auditing" Guid="{54849625-5478-4994-a5ba-3e3b0328c30d}" />
+    <EventID>4778</EventID>
+    <Version>0</Version>
+    <Level>0</Level>
+    <Task>12551</Task>
+    <Opcode>0</Opcode>
+    <Keywords>0x8020000000000000</Keywords>
+    <TimeCreated SystemTime="2026-07-26T05:50:54.1208543Z" />
+    <EventRecordID>6597</EventRecordID>
+    <Correlation ActivityID="{722bbdeb-1cc0-0002-febd-2b72c01cdd01}" />
+    <Execution ProcessID="660" ThreadID="868" />
+    <Channel>Security</Channel>
+    <Computer>WIN-LFHCJK09RND.techcorp.local</Computer>
+    <Security />
+  </System>
+  <EventData>
+    <Data Name="AccountName">administrator</Data>
+    <Data Name="AccountDomain">TECHCORP</Data>
+    <Data Name="LogonID">0x440d1</Data>
+    <Data Name="SessionName">RDP-Tcp#0</Data>
+    <Data Name="ClientName">DESKTOP-7I433PO</Data>
+    <Data Name="ClientAddress">192.168.100.27</Data>
+  </EventData>
+</Event>
 ```
 
 ### Verify Audit Policy is Enabled
