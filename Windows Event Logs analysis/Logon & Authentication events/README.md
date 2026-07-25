@@ -14,6 +14,11 @@ Each folder contains a dedicated README with:
 
 | Event ID | Name | SOC Importance |
 |----------|------|---------------|
+| [4624](./Event-4624-Successful-Logon/) | Successful Logon | 🔴 High |
+| [4625](./Event-4625-Failed-Logon/) | Failed Logon | 🔴 High |
+| [4634](./Event-4634-Logoff/) | Logoff | 🟢 Low |
+| [4647](./Event-4647-User-Initiated-Logoff/) | User Initiated Logoff | 🟢 Low |
+| [4648](./Event-4648-Logon-Explicit-Credentials/) | Logon with Explicit Credentials | 🔴 High |
 | [4672](./Event-4672_Special-Privileges-Assigned/) | Special Privileges Assigned | 🔴 High |
 | [4768](./Event-4768_Kerberos-TGT-Requested/) | Kerberos TGT Requested | 🟡 Medium |
 | [4769](./Event-4769_Kerberos-Service-Ticket-Requested/) | Kerberos Service Ticket Requested | 🔴 High |
@@ -39,10 +44,14 @@ Each folder contains a dedicated README with:
 
 When triaging alerts, focus on these events first:
 
-1. **4672** – Special Privileges (privilege escalation)
-2. **4769** – Kerberos Service Tickets (Kerberoasting)
-3. **4771** – Kerberos Pre-Auth Failed (brute force)
-4. **4776** – NTLM Credential Validation (password attacks)
-5. **4768** – Kerberos TGT (abnormal login patterns)
-6. **4778/4779** – RDP Sessions (lateral movement)
-7. **4800/4801** – Workstation Lock/Unlock (activity timeline)
+1. **4624** – Successful Logon (baseline for all activity)
+2. **4625** – Failed Logon (brute force detection)
+3. **4648** – Explicit Credentials (Pass-the-Hash, lateral movement)
+4. **4672** – Special Privileges (privilege escalation)
+5. **4769** – Kerberos Service Tickets (Kerberoasting)
+6. **4771** – Kerberos Pre-Auth Failed (password attacks)
+7. **4776** – NTLM Credential Validation (password attacks)
+8. **4768** – Kerberos TGT (abnormal login patterns)
+9. **4778/4779** – RDP Sessions (lateral movement tracking)
+10. **4634/4647** – Logoff (session timeline)
+11. **4800/4801** – Workstation Lock/Unlock (activity timeline)
