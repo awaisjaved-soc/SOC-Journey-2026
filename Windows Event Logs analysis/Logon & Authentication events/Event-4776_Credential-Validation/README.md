@@ -21,6 +21,10 @@ This event is different from Kerberos events (4768/4769). Event 4776 specificall
 - Applications using NTLM instead of Kerberos
 
 ---
+<img width="934" height="653" alt="image" src="https://github.com/user-attachments/assets/f7fe5dcc-d517-49a7-8d0b-828568205c50" />
+
+---
+
 
 ## Event Fields Explained
 
@@ -33,6 +37,49 @@ This event is different from Kerberos events (4768/4769). Event 4776 specificall
 | **Time** | 7/25/2026 10:57:56 PM | When the validation happened |
 
 ---
+```powershell
+Log Name:      Security
+Source:        Microsoft-Windows-Security-Auditing
+Date:          7/25/2026 10:57:56 PM
+Event ID:      4776
+Task Category: Credential Validation
+Level:         Information
+Keywords:      Audit Success
+User:          N/A
+Computer:      WIN-LFHCJK09RND.techcorp.local
+Description:
+The computer attempted to validate the credentials for an account.
+
+Authentication Package:	MICROSOFT_AUTHENTICATION_PACKAGE_V1_0
+Logon Account:	Administrator
+Source Workstation:	DESKTOP-7I433PO
+Error Code:	0x0
+Event Xml:
+<Event xmlns="http://schemas.microsoft.com/win/2004/08/events/event">
+  <System>
+    <Provider Name="Microsoft-Windows-Security-Auditing" Guid="{54849625-5478-4994-a5ba-3e3b0328c30d}" />
+    <EventID>4776</EventID>
+    <Version>0</Version>
+    <Level>0</Level>
+    <Task>14336</Task>
+    <Opcode>0</Opcode>
+    <Keywords>0x8020000000000000</Keywords>
+    <TimeCreated SystemTime="2026-07-26T05:57:56.5342733Z" />
+    <EventRecordID>6668</EventRecordID>
+    <Correlation />
+    <Execution ProcessID="660" ThreadID="792" />
+    <Channel>Security</Channel>
+    <Computer>WIN-LFHCJK09RND.techcorp.local</Computer>
+    <Security />
+  </System>
+  <EventData>
+    <Data Name="PackageName">MICROSOFT_AUTHENTICATION_PACKAGE_V1_0</Data>
+    <Data Name="TargetUserName">Administrator</Data>
+    <Data Name="Workstation">DESKTOP-7I433PO</Data>
+    <Data Name="Status">0x0</Data>
+  </EventData>
+</Event>
+```
 
 ## Error Codes Reference
 
