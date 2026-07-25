@@ -39,11 +39,20 @@ SOC analysts monitor this event closely because it often indicates privilege esc
 1. Log in as **Administrator**
 2. Event 4672 is automatically generated upon login with elevated privileges
 
+---
+
+<img width="932" height="654" alt="image" src="https://github.com/user-attachments/assets/6cc2fdc8-46d0-4606-84f5-8cd8881b43a6" />
+---
+
 ### Method 2 – PowerShell
 ```powershell
 # Run a command with elevated privileges
 Start-Process powershell.exe -Verb RunAs
 ```
+---
+
+<img width="797" height="376" alt="image" src="https://github.com/user-attachments/assets/eeb8ce02-256f-4556-8b7b-05cd0e446d31" />
+
 
 ---
 
@@ -62,6 +71,73 @@ ForEach-Object {
 ```
 
 ---
+```powershell
+Log Name:      Security
+Source:        Microsoft-Windows-Security-Auditing
+Date:          7/26/2026 12:05:13 AM
+Event ID:      4672
+Task Category: Special Logon
+Level:         Information
+Keywords:      Audit Success
+User:          N/A
+Computer:      WIN-LFHCJK09RND.techcorp.local
+Description:
+Special privileges assigned to new logon.
+
+Subject:
+	Security ID:		SYSTEM
+	Account Name:		WIN-LFHCJK09RND$
+	Account Domain:		TECHCORP
+	Logon ID:		0x30AEBF
+
+Privileges:		SeSecurityPrivilege
+			SeBackupPrivilege
+			SeRestorePrivilege
+			SeTakeOwnershipPrivilege
+			SeDebugPrivilege
+			SeSystemEnvironmentPrivilege
+			SeLoadDriverPrivilege
+			SeImpersonatePrivilege
+			SeDelegateSessionUserImpersonatePrivilege
+			SeEnableDelegationPrivilege
+Event Xml:
+<Event xmlns="http://schemas.microsoft.com/win/2004/08/events/event">
+  <System>
+    <Provider Name="Microsoft-Windows-Security-Auditing" Guid="{54849625-5478-4994-a5ba-3e3b0328c30d}" />
+    <EventID>4672</EventID>
+    <Version>0</Version>
+    <Level>0</Level>
+    <Task>12548</Task>
+    <Opcode>0</Opcode>
+    <Keywords>0x8020000000000000</Keywords>
+    <TimeCreated SystemTime="2026-07-26T07:05:13.0849643Z" />
+    <EventRecordID>7412</EventRecordID>
+    <Correlation />
+    <Execution ProcessID="660" ThreadID="3240" />
+    <Channel>Security</Channel>
+    <Computer>WIN-LFHCJK09RND.techcorp.local</Computer>
+    <Security />
+  </System>
+  <EventData>
+    <Data Name="SubjectUserSid">S-1-5-18</Data>
+    <Data Name="SubjectUserName">WIN-LFHCJK09RND$</Data>
+    <Data Name="SubjectDomainName">TECHCORP</Data>
+    <Data Name="SubjectLogonId">0x30aebf</Data>
+    <Data Name="PrivilegeList">SeSecurityPrivilege
+			SeBackupPrivilege
+			SeRestorePrivilege
+			SeTakeOwnershipPrivilege
+			SeDebugPrivilege
+			SeSystemEnvironmentPrivilege
+			SeLoadDriverPrivilege
+			SeImpersonatePrivilege
+			SeDelegateSessionUserImpersonatePrivilege
+			SeEnableDelegationPrivilege</Data>
+  </EventData>
+</Event>
+```
+
+
 
 ## SOC Analyst Notes
 
