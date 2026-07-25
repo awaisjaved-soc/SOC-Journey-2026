@@ -26,6 +26,12 @@ This is the companion event to Event 4778 (Session Reconnected). Together they t
 
 ---
 
+<img width="938" height="664" alt="image" src="https://github.com/user-attachments/assets/9c0190d7-d92c-4dd7-8309-1cbdbd7ce50d" />
+
+---
+<img width="1249" height="359" alt="image" src="https://github.com/user-attachments/assets/c955a9a6-9642-48d5-9b15-5dcfc3de65d1" />
+
+---
 ## How to Generate This Event
 
 ### Method – RDP Disconnect (Do NOT Sign Out)
@@ -58,6 +64,7 @@ ForEach-Object {
     }
 } | Format-Table -AutoSize
 ```
+---
 
 ### Simple Detection
 ```powershell
@@ -65,6 +72,62 @@ Get-WinEvent -FilterHashtable @{LogName='Security'; Id=4779} -MaxEvents 5 | Form
 ```
 
 ---
+
+```powershell
+Log Name:      Security
+Source:        Microsoft-Windows-Security-Auditing
+Date:          7/25/2026 10:57:44 PM
+Event ID:      4779
+Task Category: Other Logon/Logoff Events
+Level:         Information
+Keywords:      Audit Success
+User:          N/A
+Computer:      WIN-LFHCJK09RND.techcorp.local
+Description:
+A session was disconnected from a Window Station.
+
+Subject:
+	Account Name:		administrator
+	Account Domain:		TECHCORP
+	Logon ID:		0x440D1
+
+Session:
+	Session Name:		RDP-Tcp#0
+
+Additional Information:
+	Client Name:		DESKTOP-7I433PO
+	Client Address:		192.168.100.27
+
+
+This event is generated when a user disconnects from an existing Terminal Services session, or when a user switches away from an existing desktop using Fast User Switching.
+Event Xml:
+<Event xmlns="http://schemas.microsoft.com/win/2004/08/events/event">
+  <System>
+    <Provider Name="Microsoft-Windows-Security-Auditing" Guid="{54849625-5478-4994-a5ba-3e3b0328c30d}" />
+    <EventID>4779</EventID>
+    <Version>0</Version>
+    <Level>0</Level>
+    <Task>12551</Task>
+    <Opcode>0</Opcode>
+    <Keywords>0x8020000000000000</Keywords>
+    <TimeCreated SystemTime="2026-07-26T05:57:44.7148227Z" />
+    <EventRecordID>6666</EventRecordID>
+    <Correlation ActivityID="{722bbdeb-1cc0-0002-febd-2b72c01cdd01}" />
+    <Execution ProcessID="660" ThreadID="792" />
+    <Channel>Security</Channel>
+    <Computer>WIN-LFHCJK09RND.techcorp.local</Computer>
+    <Security />
+  </System>
+  <EventData>
+    <Data Name="AccountName">administrator</Data>
+    <Data Name="AccountDomain">TECHCORP</Data>
+    <Data Name="LogonID">0x440d1</Data>
+    <Data Name="SessionName">RDP-Tcp#0</Data>
+    <Data Name="ClientName">DESKTOP-7I433PO</Data>
+    <Data Name="ClientAddress">192.168.100.27</Data>
+  </EventData>
+</Event>
+```
 
 ## Lab Note
 
