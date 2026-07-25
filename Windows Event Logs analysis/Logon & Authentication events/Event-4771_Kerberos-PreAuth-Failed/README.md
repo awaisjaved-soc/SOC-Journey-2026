@@ -33,6 +33,12 @@ $cred = New-Object System.Management.Automation.PSCredential(
 )
 Start-Process powershell.exe -Credential $cred -NoNewWindow -ErrorAction SilentlyContinue
 ```
+---
+
+<img width="634" height="445" alt="image" src="https://github.com/user-attachments/assets/f4e54acc-abb7-417a-b6f2-07230f9729c7" />
+
+---
+
 
 ---
 
@@ -48,8 +54,52 @@ ForEach-Object {
     }
 } | Format-Table -AutoSize
 ```
+---
+
+<img width="996" height="513" alt="image" src="https://github.com/user-attachments/assets/e465e84e-5d2a-46b3-8d6c-f8a3b1db3064" />
 
 ---
+
+```powershell
+Log Name:      Security
+Source:        Microsoft-Windows-Security-Auditing
+Date:          7/25/2026 8:56:16 PM
+Event ID:      4771
+Task Category: Kerberos Authentication Service
+Level:         Information
+Keywords:      Audit Failure
+User:          N/A
+Computer:      WIN-LFHCJK09RND.techcorp.local
+Description:
+Kerberos pre-authentication failed.
+
+Account Information:
+	Security ID:		TECHCORP\alexrivera
+	Account Name:		alexrivera
+
+Service Information:
+	Service Name:		krbtgt/TECHCORP
+
+Network Information:
+	Client Address:		::1
+	Client Port:		0
+
+Additional Information:
+	Ticket Options:		0x40810010
+	Failure Code:		0x18
+	Pre-Authentication Type:	2
+
+Certificate Information:
+	Certificate Issuer Name:		
+	Certificate Serial Number: 	
+	Certificate Thumbprint:		
+
+Certificate information is only provided if a certificate was used for pre-authentication.
+
+Pre-authentication types, ticket options and failure codes are defined in RFC 4120.
+
+If the ticket was malformed or damaged during transit and could not be decrypted, then many fields in this event might not be present.
+```
 
 ## SOC Analyst Notes
 
