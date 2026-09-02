@@ -38,11 +38,21 @@ gpupdate /force
 3. Right-click → **Delete**
 4. Confirm the deletion
 
+---
+
+<img width="809" height="423" alt="Screenshot_1" src="https://github.com/user-attachments/assets/783b4e2e-867c-47f9-a7e7-756536f77ee9" />
+
+---
+
 ### Method 2 – PowerShell
 ```powershell
 Unregister-ScheduledTask -TaskName "TestTask4698" -Confirm:$false
 ```
+---
 
+<img width="627" height="421" alt="Screenshot_14" src="https://github.com/user-attachments/assets/d69ccc4c-e640-41c9-81cb-67510eab4357" />
+
+---
 ### Full Lab Sequence (Create then Delete)
 ```powershell
 # Step 1 – Create the task (generates 4698)
@@ -63,6 +73,10 @@ Unregister-ScheduledTask -TaskName "TestTask4698" -Confirm:$false
 Get-WinEvent -FilterHashtable @{LogName='Security'; Id=4699} -MaxEvents 5 |
 Select-Object TimeCreated, Id, Message | Format-List
 ```
+---
+<img width="677" height="283" alt="Screenshot_3" src="https://github.com/user-attachments/assets/8b1a01a3-c2ac-4f8f-8bd7-4d2cbd5f452c" />
+
+---
 
 ### Correlate 4698 and 4699 Together
 ```powershell
@@ -70,6 +84,72 @@ Get-WinEvent -FilterHashtable @{LogName='Security'; Id=4698,4699} -MaxEvents 10 
 Select-Object TimeCreated, Id, Message |
 Sort-Object TimeCreated |
 Format-Table -AutoSize -Wrap
+```
+
+---
+
+```powershell
+Log Name:      Security
+Source:        Microsoft-Windows-Security-Auditing
+Date:          9/2/2026 9:50:22 PM
+Event ID:      4699
+Task Category: Other Object Access Events
+Level:         Information
+Keywords:      Audit Success
+User:          N/A
+Computer:      WIN-LFHCJK09RND.techcorp.local
+Description:
+A scheduled task was deleted.
+
+Subject:
+	Security ID:		TECHCORP\administrator
+	Account Name:		administrator
+	Account Domain:		TECHCORP
+	Logon ID:		0x2970A4
+
+Task Information:
+	Task Name: 		\TestTask4698
+	Task Content: 		
+
+Other Information:
+	ProcessCreationTime: 		3659174697238867
+	ClientProcessId: 			3904
+	ParentProcessId: 			6476
+	FQDN: 		0
+	
+Event Xml:
+<Event xmlns="http://schemas.microsoft.com/win/2004/08/events/event">
+  <System>
+    <Provider Name="Microsoft-Windows-Security-Auditing" Guid="{54849625-5478-4994-a5ba-3e3b0328c30d}" />
+    <EventID>4699</EventID>
+    <Version>1</Version>
+    <Level>0</Level>
+    <Task>12804</Task>
+    <Opcode>0</Opcode>
+    <Keywords>0x8020000000000000</Keywords>
+    <TimeCreated SystemTime="2026-09-03T04:50:22.2760626Z" />
+    <EventRecordID>12113</EventRecordID>
+    <Correlation ActivityID="{243ab529-3b5d-0002-9cb5-3a245d3bdd01}" />
+    <Execution ProcessID="684" ThreadID="892" />
+    <Channel>Security</Channel>
+    <Computer>WIN-LFHCJK09RND.techcorp.local</Computer>
+    <Security />
+  </System>
+  <EventData>
+    <Data Name="SubjectUserSid">S-1-5-21-2393829360-1893506578-1941953886-500</Data>
+    <Data Name="SubjectUserName">administrator</Data>
+    <Data Name="SubjectDomainName">TECHCORP</Data>
+    <Data Name="SubjectLogonId">0x2970a4</Data>
+    <Data Name="TaskName">\TestTask4698</Data>
+    <Data Name="TaskContent">
+    </Data>
+    <Data Name="ClientProcessStartKey">3659174697238867</Data>
+    <Data Name="ClientProcessId">3904</Data>
+    <Data Name="ParentProcessId">6476</Data>
+    <Data Name="RpcCallClientLocality">0</Data>
+    <Data Name="FQDN">WIN-LFHCJK09RND.techcorp.local</Data>
+  </EventData>
+</Event>
 ```
 
 ---
