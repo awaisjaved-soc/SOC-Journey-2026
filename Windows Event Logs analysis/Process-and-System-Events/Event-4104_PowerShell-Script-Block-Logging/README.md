@@ -54,6 +54,16 @@ Write-Host "This is a test for Event 4104"
 Get-Process | Select-Object -First 3
 ```
 
+---
+
+<img width="470" height="330" alt="Screenshot_1" src="https://github.com/user-attachments/assets/7b6e439c-918b-4a3d-9ff1-7ca4c7a311d9" />
+
+---
+
+<img width="624" height="431" alt="Screenshot_2" src="https://github.com/user-attachments/assets/9ced8c0b-d7d1-42d1-8ac0-f997ed399a25" />
+
+---
+
 ### Method 2 – Encoded Command (Simulates Attacker Obfuscation)
 ```powershell
 # This is base64 encoded "get-process"
@@ -84,6 +94,17 @@ ForEach-Object {
     }
 } | Format-List
 ```
+---
+
+<img width="675" height="386" alt="detection" src="https://github.com/user-attachments/assets/83063b73-9f76-46b5-a85c-f4d4b726d70b" />
+
+---
+
+
+<img width="672" height="384" alt="allowing" src="https://github.com/user-attachments/assets/78065f80-82c0-4e0b-ba45-8a64c9e52059" />
+
+
+---
 
 ### See Full Script Content
 ```powershell
