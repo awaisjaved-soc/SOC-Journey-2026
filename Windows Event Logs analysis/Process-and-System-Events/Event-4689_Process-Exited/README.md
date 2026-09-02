@@ -47,6 +47,12 @@ Expected output: `Process Termination   Success and Failure`
 2. Close the program (click the X)
 3. Event 4689 is generated
 
+---
+
+<img width="618" height="422" alt="4689" src="https://github.com/user-attachments/assets/e036b126-6837-463b-8368-9407c6681824" />
+
+---
+
 ### Method 2 – PowerShell (Recommended for Lab)
 ```powershell
 # Start Notepad and then stop it after 4 seconds
@@ -74,6 +80,13 @@ ForEach-Object {
     }
 } | Format-Table -AutoSize
 ```
+---
+
+<img width="675" height="377" alt="detection" src="https://github.com/user-attachments/assets/72dfa612-64be-4229-9460-73ec55cdcf6d" />
+
+
+---
+
 
 ### Extended Detection – More Results
 ```powershell
@@ -141,6 +154,62 @@ ForEach-Object {
         PID       = ($xml.Event.EventData.Data | Where {$_.Name -eq 'NewProcessId' -or $_.Name -eq 'ProcessId'}).'#text'
     }
 } | Sort-Object Time | Format-Table -AutoSize
+```
+
+
+---
+
+```powershell
+Log Name:      Security
+Source:        Microsoft-Windows-Security-Auditing
+Date:          9/2/2026 8:21:42 PM
+Event ID:      4689
+Task Category: Process Termination
+Level:         Information
+Keywords:      Audit Success
+User:          N/A
+Computer:      WIN-LFHCJK09RND.techcorp.local
+Description:
+A process has exited.
+
+Subject:
+	Security ID:		TECHCORP\alexrivera
+	Account Name:		alexrivera
+	Account Domain:		TECHCORP
+	Logon ID:		0x36F054
+
+Process Information:
+	Process ID:	0xf1c
+	Process Name:	C:\Program Files\Google\Chrome\Application\chrome.exe
+	Exit Status:	0x0
+Event Xml:
+<Event xmlns="http://schemas.microsoft.com/win/2004/08/events/event">
+  <System>
+    <Provider Name="Microsoft-Windows-Security-Auditing" Guid="{54849625-5478-4994-a5ba-3e3b0328c30d}" />
+    <EventID>4689</EventID>
+    <Version>0</Version>
+    <Level>0</Level>
+    <Task>13313</Task>
+    <Opcode>0</Opcode>
+    <Keywords>0x8020000000000000</Keywords>
+    <TimeCreated SystemTime="2026-09-03T03:21:42.6566216Z" />
+    <EventRecordID>9647</EventRecordID>
+    <Correlation />
+    <Execution ProcessID="4" ThreadID="136" />
+    <Channel>Security</Channel>
+    <Computer>WIN-LFHCJK09RND.techcorp.local</Computer>
+    <Security />
+  </System>
+  <EventData>
+    <Data Name="SubjectUserSid">S-1-5-21-2393829360-1893506578-1941953886-1114</Data>
+    <Data Name="SubjectUserName">alexrivera</Data>
+    <Data Name="SubjectDomainName">TECHCORP</Data>
+    <Data Name="SubjectLogonId">0x36f054</Data>
+    <Data Name="Status">0x0</Data>
+    <Data Name="ProcessId">0xf1c</Data>
+    <Data Name="ProcessName">C:\Program Files\Google\Chrome\Application\chrome.exe</Data>
+  </EventData>
+</Event>
 ```
 
 ### What to Look For
