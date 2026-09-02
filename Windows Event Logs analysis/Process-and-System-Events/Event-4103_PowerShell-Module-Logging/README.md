@@ -63,6 +63,8 @@ Get-Process
 Get-Service
 Get-ChildItem C:\
 ```
+---
+
 
 ### Method 2 – More Commands to Generate Multiple Events
 ```powershell
@@ -90,6 +92,12 @@ Get-Process | Sort-Object CPU -Descending | Select-Object -First 10
 Get-WinEvent -LogName "Microsoft-Windows-PowerShell/Operational" -FilterXPath "*[System[EventID=4103]]" -MaxEvents 5 |
 Select-Object TimeCreated, Message | Format-List
 ```
+---
+
+<img width="674" height="381" alt="Screenshot_3" src="https://github.com/user-attachments/assets/45a2bf54-09eb-4b57-a41b-78a948036c87" />
+
+
+---
 
 ### Search for Suspicious Module Activity
 ```powershell
@@ -98,6 +106,11 @@ Where-Object {
     $_.Message -match "ActiveDirectory|NetSecurity|Defender|Get-LocalGroup|Get-NetTCPConnection"
 } | Select-Object TimeCreated, Message | Format-List
 ```
+
+---
+
+<img width="676" height="384" alt="process" src="https://github.com/user-attachments/assets/0b145ee1-800d-4d5f-8b30-799884099e5d" />
+
 
 ---
 
