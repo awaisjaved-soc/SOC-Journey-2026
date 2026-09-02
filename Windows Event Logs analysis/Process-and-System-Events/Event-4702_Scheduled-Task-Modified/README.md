@@ -35,6 +35,18 @@ gpupdate /force
 3. Go to **Actions** tab → Edit → change the program to `cmd.exe`
 4. Click **OK**
 
+---
+
+<img width="804" height="426" alt="Screenshot_1" src="https://github.com/user-attachments/assets/5834a280-1029-4fa0-afa6-79fc8e65e1f6" />
+
+---
+
+<img width="814" height="427" alt="Screenshot_5" src="https://github.com/user-attachments/assets/601fcd9d-bce5-4231-9ecc-eb452f428ccc" />
+
+
+---
+
+
 ### Method 2 – PowerShell
 ```powershell
 # Modify the task action (generates 4702)
@@ -53,6 +65,16 @@ Set-ScheduledTask -TaskName "EnableTestTask" -Action (New-ScheduledTaskAction -E
 
 ---
 
+<img width="474" height="335" alt="Screenshot_3" src="https://github.com/user-attachments/assets/eb9c8f7d-bb74-49b6-b2eb-68c0b3d09ea5" />
+
+---
+
+<img width="469" height="332" alt="Screenshot_4" src="https://github.com/user-attachments/assets/09af0945-06ed-421c-96e0-6e73501ad6c1" />
+
+
+---
+
+
 ## Detection Commands
 
 ### Basic Detection
@@ -60,6 +82,21 @@ Set-ScheduledTask -TaskName "EnableTestTask" -Action (New-ScheduledTaskAction -E
 Get-WinEvent -FilterHashtable @{LogName='Security'; Id=4702} -MaxEvents 5 |
 Select-Object TimeCreated, Id, Message | Format-List
 ```
+
+---
+
+<img width="623" height="250" alt="Screenshot_2" src="https://github.com/user-attachments/assets/0aa2caca-9372-468a-8c62-a364d8cee102" />
+
+---
+
+<img width="676" height="382" alt="Screenshot_6" src="https://github.com/user-attachments/assets/2f77a30f-b8b8-45b3-8017-16ae2e872cdb" />
+
+---
+
+<img width="678" height="388" alt="Screenshot_7" src="https://github.com/user-attachments/assets/a803ea53-01d9-49ee-970d-a04f1ac02cc1" />
+
+
+---
 
 ### Full Scheduled Task Event Timeline
 ```powershell
