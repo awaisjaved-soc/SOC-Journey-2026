@@ -1,4 +1,4 @@
-# Event 7000 – Service Failed to Start
+# Event 7000 – Service Failed to Start.
 
 ## Overview
 
