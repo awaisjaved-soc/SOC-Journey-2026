@@ -1,4 +1,4 @@
-# Event 4697 – A Service Was Installed in the System
+# Event 4697 – A Service Was Installed in the System.
 
 ## Overview
 
