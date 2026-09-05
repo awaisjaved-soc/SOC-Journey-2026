@@ -84,6 +84,11 @@ auditpol /get /subcategory:"File System"
 
 ---
 
+<img width="632" height="432" alt="Screenshot_3" src="https://github.com/user-attachments/assets/cbc3efea-167f-4dc1-b5e7-3dc5dec3c19d" />
+
+---
+
+
 ## SACL Configuration
 
 ### For Registry Key Deletion
@@ -103,6 +108,12 @@ New-ItemProperty -Path "HKLM:\SOFTWARE\SOCLabDeleteTest" `
 5. Type: `Success` | Applies to: `This key and subkeys`
 6. Check: ✅ **Delete** and ✅ **Read Control**
 7. OK → Apply → OK
+
+---
+
+<img width="675" height="384" alt="Screenshot_1" src="https://github.com/user-attachments/assets/bfe5436a-d6f8-40eb-95f0-0d4fdcdce002" />
+
+---
 
 ### For File Deletion (PowerShell SACL)
 
@@ -149,7 +160,16 @@ Remove-Item -Path "HKLM:\SOFTWARE\SOCLabDeleteTest" -Force -Recurse
 Write-Host "Key deleted. Check Security log for Event ID 4660."
 Write-Host "Note: The event will not contain the key name. Correlate with 4656 using Handle ID."
 ```
+---
 
+<img width="674" height="385" alt="Screenshot_11" src="https://github.com/user-attachments/assets/ade3521e-e5cc-49d3-a008-3fd759340edd" />
+
+---
+
+
+<img width="675" height="384" alt="Screenshot_1" src="https://github.com/user-attachments/assets/a2ce0bfc-7b42-4c7f-94c0-f3ce9eaabc03" />
+
+---
 ### Method 2 — PowerShell File Deletion
 
 ```powershell
@@ -204,6 +224,13 @@ Write-Host "File deleted. Check Security log for Event ID 4660."
 
 > There is no Object Name field in 4660. You must look up the Handle ID in the corresponding 4656 event.
 
+---
+
+<img width="629" height="434" alt="Screenshot_4" src="https://github.com/user-attachments/assets/6a72d5fd-a1df-493a-90a1-67cbce4b70e3" />
+
+---
+
+
 ### Method 2 — PowerShell Detection
 
 ```powershell
@@ -257,6 +284,13 @@ foreach ($del in $deletions) {
 
 ---
 
+
+
+<img width="911" height="414" alt="ASASA" src="https://github.com/user-attachments/assets/09f01fba-14a9-47c6-8ac5-6e1943eca914" />
+
+---
+
+
 ## SOC Analyst Notes
 
 ### The Handle ID Correlation Workflow
@@ -271,6 +305,9 @@ Step 4: Read the Object Name from 4656 — this is what was deleted
 Step 5: Note the Process Name and Account Name
 Step 6: Search for 4688 process creation to understand what spawned that process
 ```
+---
+
+
 
 ### Risk Table
 
