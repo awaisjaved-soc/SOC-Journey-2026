@@ -94,6 +94,9 @@ On most Windows Server installations, this is already enabled. If the output sho
 4. Check **Configure the following audit events** → check **Success** → OK
 5. Run `gpupdate /force`
 
+---
+
+
 ### Method 2 — Command Line
 
 ```cmd
@@ -140,6 +143,13 @@ Set-Date -Date $originalTime
 Write-Host "Clock restored to: $(Get-Date)"
 Write-Host "Event 4616 was generated for both the change and the restoration."
 ```
+
+---
+
+
+<img width="675" height="380" alt="Screenshot_5" src="https://github.com/user-attachments/assets/9470dec4-c76d-420a-a50f-93f9cd022ae1" />
+
+---
 
 For a smaller, less disruptive change (still fires 4616):
 
@@ -209,6 +219,22 @@ time HH:MM:SS
 | Process Name | **Critical** — `svchost.exe` = NTP normal / `powershell.exe` = suspicious |
 | Process ID | Cross-reference with 4688 process creation |
 
+---
+
+<img width="469" height="330" alt="Screenshot_3" src="https://github.com/user-attachments/assets/1a9d91f7-0906-4c49-8d16-a946833ef0ea" />
+
+---
+
+<img width="633" height="156" alt="Screenshot_2" src="https://github.com/user-attachments/assets/9a583116-cba9-40b3-be4e-40ca1a97a192" />
+
+---
+
+<img width="676" height="384" alt="Screenshot_1" src="https://github.com/user-attachments/assets/3f930c2f-a175-49ff-ab88-a88e44d59f5e" />
+
+
+---
+
+
 ### Method 2 — PowerShell Detection
 
 ```powershell
@@ -219,6 +245,18 @@ Get-WinEvent -FilterHashtable @{
     StartTime = (Get-Date).AddDays(-1)
 } | Select-Object TimeCreated, Message | Format-List
 ```
+---
+
+<img width="945" height="484" alt="Screenshot_4" src="https://github.com/user-attachments/assets/29cc632b-5278-4063-927c-70bc5e395ade" />
+
+
+---
+
+<img width="955" height="422" alt="Screenshot_6" src="https://github.com/user-attachments/assets/04740429-5a3c-4106-9528-287341f731b8" />
+
+
+---
+
 
 ```powershell
 # Extract key fields with XML parsing
@@ -295,6 +333,67 @@ Get-WinEvent -FilterHashtable @{
 ```
 
 ---
+
+```powershell
+Log Name:      Security
+Source:        Microsoft-Windows-Security-Auditing
+Date:          9/3/2026 2:51:12 AM
+Event ID:      4616
+Task Category: Security State Change
+Level:         Information
+Keywords:      Audit Success
+User:          N/A
+Computer:      WIN-LFHCJK09RND.techcorp.local
+Description:
+The system time was changed.
+
+Subject:
+	Security ID:		TECHCORP\administrator
+	Account Name:		administrator
+	Account Domain:		TECHCORP
+	Logon ID:		0x2970A4
+
+Process Information:
+	Process ID:	0x1698
+	Name:		C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe
+
+Previous Time:		‎2026‎-‎09‎-‎03T09:51:12.201000000Z
+New Time:		‎2026‎-‎09‎-‎03T09:51:12.201000000Z
+
+This event is generated when the system time is changed. It is normal for the Windows Time Service, which runs with System privilege, to change the system time on a regular basis. Other system time changes may be indicative of attempts to tamper with the computer.
+Event Xml:
+<Event xmlns="http://schemas.microsoft.com/win/2004/08/events/event">
+  <System>
+    <Provider Name="Microsoft-Windows-Security-Auditing" Guid="{54849625-5478-4994-a5ba-3e3b0328c30d}" />
+    <EventID>4616</EventID>
+    <Version>1</Version>
+    <Level>0</Level>
+    <Task>12288</Task>
+    <Opcode>0</Opcode>
+    <Keywords>0x8020000000000000</Keywords>
+    <TimeCreated SystemTime="2026-09-03T09:51:12.2088130Z" />
+    <EventRecordID>22859</EventRecordID>
+    <Correlation />
+    <Execution ProcessID="4" ThreadID="6160" />
+    <Channel>Security</Channel>
+    <Computer>WIN-LFHCJK09RND.techcorp.local</Computer>
+    <Security />
+  </System>
+  <EventData>
+    <Data Name="SubjectUserSid">S-1-5-21-2393829360-1893506578-1941953886-500</Data>
+    <Data Name="SubjectUserName">administrator</Data>
+    <Data Name="SubjectDomainName">TECHCORP</Data>
+    <Data Name="SubjectLogonId">0x2970a4</Data>
+    <Data Name="PreviousTime">2026-09-03T09:51:12.2010000Z</Data>
+    <Data Name="NewTime">2026-09-03T09:51:12.2010000Z</Data>
+    <Data Name="ProcessId">0x1698</Data>
+    <Data Name="ProcessName">C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe</Data>
+  </EventData>
+</Event>
+```
+
+---
+
 
 ## SOC Analyst Notes
 
