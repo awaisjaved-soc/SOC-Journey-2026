@@ -62,6 +62,9 @@ The access requested field is especially important. A process asking for READ ac
 6. Also enable **Audit Registry** and **Audit File System** under Object Access
 7. Run `gpupdate /force` in an elevated command prompt
 
+---
+
+
 ### Method 2 — Command Line (Recommended for Lab)
 
 Open PowerShell or Command Prompt as Administrator:
@@ -105,6 +108,21 @@ Audit policy alone is not enough. You must also configure a **Security Access Co
 
 ---
 
+<img width="728" height="390" alt="Screenshot_10" src="https://github.com/user-attachments/assets/e40b6f25-c869-4ad2-881d-3f00fd6b5d32" />
+
+
+---
+
+<img width="709" height="367" alt="Screenshot_8" src="https://github.com/user-attachments/assets/844a100e-e0c4-422e-8b28-a6e35db1c69c" />
+
+---
+
+<img width="598" height="360" alt="Screenshot_9" src="https://github.com/user-attachments/assets/d8e1fec9-dff8-45c5-a6cd-5333b6ed2072" />
+
+
+---
+
+
 ## Generating the Event
 
 ### Method 1 — PowerShell (Recommended)
@@ -132,6 +150,25 @@ foreach ($name in $names) {
 $reg.Close()
 Write-Host "Handle released."
 ```
+
+---
+
+<img width="798" height="457" alt="Screenshot_4" src="https://github.com/user-attachments/assets/8f060ba8-49aa-4552-8625-b646d0643ab7" />
+
+---
+
+<img width="614" height="427" alt="Screenshot_1" src="https://github.com/user-attachments/assets/aa629741-c896-4330-9829-65b160ce1542" />
+
+---
+
+<img width="742" height="434" alt="Screenshot_2" src="https://github.com/user-attachments/assets/b6fb566a-99c7-4c60-8037-8e328efd7449" />
+
+---
+
+<img width="871" height="461" alt="Screenshot_3" src="https://github.com/user-attachments/assets/64d8bc73-9eee-4293-ac42-736a9a433766" />
+
+---
+
 
 For a file handle request:
 
@@ -184,6 +221,23 @@ try {
 | Handle ID | Critical — use this to link to subsequent 4663 and 4660 events |
 | Transaction ID | Groups related operations together |
 
+
+---
+
+<img width="808" height="436" alt="Screenshot_5" src="https://github.com/user-attachments/assets/8b955663-269e-4b1c-9e69-1f495eee0fda" />
+
+---
+
+<img width="635" height="436" alt="Screenshot_6" src="https://github.com/user-attachments/assets/0b2a07a6-7e02-4835-a273-07f1269f1895" />
+
+---
+
+
+<img width="635" height="434" alt="Screenshot_7" src="https://github.com/user-attachments/assets/b2b5b207-98dd-4719-b4d3-797ea9222a36" />
+
+---
+
+
 ### Method 2 — PowerShell Detection
 
 ```powershell
@@ -205,6 +259,11 @@ Get-WinEvent -FilterHashtable @{
     $_.Message -like "*CurrentVersion\Run*"
 } | Format-List TimeCreated, Message
 ```
+---
+
+<img width="673" height="387" alt="Screenshot_3sa" src="https://github.com/user-attachments/assets/739f9a9b-2289-421a-834c-0b5dbcb2cf8e" />
+
+---
 
 ```powershell
 # XML query for precise field extraction — shows object name and process
@@ -234,6 +293,111 @@ Get-WinEvent -FilterXml $filter | ForEach-Object {
 ```
 
 ---
+
+<img width="947" height="482" alt="asd" src="https://github.com/user-attachments/assets/24cc480a-37d4-4c6d-9552-8d18f09c31fb" />
+
+---
+
+
+```powershell
+Log Name:      Security
+Source:        Microsoft-Windows-Security-Auditing
+Date:          9/3/2026 1:57:41 AM
+Event ID:      4656
+Task Category: Registry
+Level:         Information
+Keywords:      Audit Success
+User:          N/A
+Computer:      WIN-LFHCJK09RND.techcorp.local
+Description:
+A handle to an object was requested.
+
+Subject:
+	Security ID:		TECHCORP\administrator
+	Account Name:		administrator
+	Account Domain:		TECHCORP
+	Logon ID:		0x2970A4
+
+Object:
+	Object Server:		Security
+	Object Type:		Key
+	Object Name:		\REGISTRY\MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run
+	Handle ID:		0x350
+	Resource Attributes:	-
+
+Process Information:
+	Process ID:		0xcf0
+	Process Name:		C:\Windows\regedit.exe
+
+Access Request Information:
+	Transaction ID:		{00000000-0000-0000-0000-000000000000}
+	Accesses:		DELETE
+				READ_CONTROL
+				WRITE_DAC
+				WRITE_OWNER
+				Query key value
+				Set key value
+				Create sub-key
+				Enumerate sub-keys
+				Notify about changes to keys
+				Create Link
+				
+	Access Reasons:		-
+	Access Mask:		0xF003F
+	Privileges Used for Access Check:	-
+	Restricted SID Count:	0
+Event Xml:
+<Event xmlns="http://schemas.microsoft.com/win/2004/08/events/event">
+  <System>
+    <Provider Name="Microsoft-Windows-Security-Auditing" Guid="{54849625-5478-4994-a5ba-3e3b0328c30d}" />
+    <EventID>4656</EventID>
+    <Version>1</Version>
+    <Level>0</Level>
+    <Task>12801</Task>
+    <Opcode>0</Opcode>
+    <Keywords>0x8020000000000000</Keywords>
+    <TimeCreated SystemTime="2026-09-03T08:57:41.3155657Z" />
+    <EventRecordID>15157</EventRecordID>
+    <Correlation />
+    <Execution ProcessID="4" ThreadID="7412" />
+    <Channel>Security</Channel>
+    <Computer>WIN-LFHCJK09RND.techcorp.local</Computer>
+    <Security />
+  </System>
+  <EventData>
+    <Data Name="SubjectUserSid">S-1-5-21-2393829360-1893506578-1941953886-500</Data>
+    <Data Name="SubjectUserName">administrator</Data>
+    <Data Name="SubjectDomainName">TECHCORP</Data>
+    <Data Name="SubjectLogonId">0x2970a4</Data>
+    <Data Name="ObjectServer">Security</Data>
+    <Data Name="ObjectType">Key</Data>
+    <Data Name="ObjectName">\REGISTRY\MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run</Data>
+    <Data Name="HandleId">0x350</Data>
+    <Data Name="TransactionId">{00000000-0000-0000-0000-000000000000}</Data>
+    <Data Name="AccessList">%%1537
+				%%1538
+				%%1539
+				%%1540
+				%%4432
+				%%4433
+				%%4434
+				%%4435
+				%%4436
+				%%4437
+				</Data>
+    <Data Name="AccessReason">-</Data>
+    <Data Name="AccessMask">0xf003f</Data>
+    <Data Name="PrivilegeList">-</Data>
+    <Data Name="RestrictedSidCount">0</Data>
+    <Data Name="ProcessId">0xcf0</Data>
+    <Data Name="ProcessName">C:\Windows\regedit.exe</Data>
+    <Data Name="ResourceAttributes">-</Data>
+  </EventData>
+</Event>
+```
+
+---
+
 
 ## SOC Analyst Notes
 

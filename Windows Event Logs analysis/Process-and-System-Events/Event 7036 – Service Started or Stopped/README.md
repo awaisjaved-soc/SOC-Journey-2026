@@ -1,4 +1,4 @@
-# Event 7036 – Service Started or Stopped
+# Event 7036 – Service Started or Stopped.
 
 ## Overview
 

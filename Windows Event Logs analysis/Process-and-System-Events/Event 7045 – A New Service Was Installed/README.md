@@ -1,4 +1,4 @@
-# Event 7045 – A New Service Was Installed
+# Event 7045 – A New Service Was Installed.
 
 ## Overview
 

@@ -75,6 +75,7 @@ Nothing. `Set-ItemProperty` will execute silently and return to the prompt. If y
 4. Check **Configure the following audit events** → check **Success** → OK
 5. Run `gpupdate /force`
 
+
 ### Method 2 — Command Line (Recommended for Lab)
 
 ```cmd
@@ -115,6 +116,12 @@ This step is what most people miss. Without the correct SACL, 4657 will never fi
 
 ---
 
+
+<img width="679" height="385" alt="Screenshot_2" src="https://github.com/user-attachments/assets/c8d1bc9e-df4d-4018-81d3-7ea83bc70a62" />
+
+---
+
+
 ## Generating the Event
 
 ### Method 1 — PowerShell (Recommended)
@@ -146,6 +153,16 @@ Set-ItemProperty `
 Write-Host "Value modified. Check Security log for Event ID 4657."
 Write-Host "You should see OldValue: notepad.exe and NewValue: malware_sim.exe"
 ```
+---
+
+<img width="471" height="329" alt="Screenshot_1" src="https://github.com/user-attachments/assets/4f209b79-ddb4-4600-b182-6cec86c619e6" />
+
+---
+
+<img width="639" height="435" alt="Screenshot_11" src="https://github.com/user-attachments/assets/35611bff-3d8c-48c6-acd5-a49da2fe5dfa" />
+
+---
+
 
 For creating a brand new value (also triggers 4657 with Operation Type = New value created):
 
@@ -223,6 +240,12 @@ Get-WinEvent -FilterHashtable @{
     StartTime = (Get-Date).AddHours(-1)
 } | Select-Object TimeCreated, Message | Format-List
 ```
+---
+
+<img width="956" height="468" alt="as" src="https://github.com/user-attachments/assets/f406bf52-a359-416b-8b2e-a6e39a2cbdd3" />
+
+---
+
 
 ```powershell
 # Advanced XML query — extracts key fields for analysis
@@ -268,6 +291,80 @@ Get-WinEvent -FilterHashtable @{
 ```
 
 ---
+
+```powwershell
+Log Name:      Security
+Source:        Microsoft-Windows-Security-Auditing
+Date:          9/3/2026 2:14:26 AM
+Event ID:      4657
+Task Category: Registry
+Level:         Information
+Keywords:      Audit Success
+User:          N/A
+Computer:      WIN-LFHCJK09RND.techcorp.local
+Description:
+A registry value was modified.
+
+Subject:
+	Security ID:		TECHCORP\administrator
+	Account Name:		administrator
+	Account Domain:		TECHCORP
+	Logon ID:		0x2970A4
+
+Object:
+	Object Name:		\REGISTRY\MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run
+	Object Value Name:	SOCLabTest
+	Handle ID:		0xd84
+	Operation Type:		Existing registry value modified
+
+Process Information:
+	Process ID:		0x1fb0
+	Process Name:		C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe
+
+Change Information:
+	Old Value Type:		REG_SZ
+	Old Value:		C:\Windows\System32\notepad.exe
+	New Value Type:		REG_SZ
+	New Value:		C:\Temp\malware_sim.exe
+Event Xml:
+<Event xmlns="http://schemas.microsoft.com/win/2004/08/events/event">
+  <System>
+    <Provider Name="Microsoft-Windows-Security-Auditing" Guid="{54849625-5478-4994-a5ba-3e3b0328c30d}" />
+    <EventID>4657</EventID>
+    <Version>0</Version>
+    <Level>0</Level>
+    <Task>12801</Task>
+    <Opcode>0</Opcode>
+    <Keywords>0x8020000000000000</Keywords>
+    <TimeCreated SystemTime="2026-09-03T09:14:26.8908099Z" />
+    <EventRecordID>17212</EventRecordID>
+    <Correlation />
+    <Execution ProcessID="4" ThreadID="5484" />
+    <Channel>Security</Channel>
+    <Computer>WIN-LFHCJK09RND.techcorp.local</Computer>
+    <Security />
+  </System>
+  <EventData>
+    <Data Name="SubjectUserSid">S-1-5-21-2393829360-1893506578-1941953886-500</Data>
+    <Data Name="SubjectUserName">administrator</Data>
+    <Data Name="SubjectDomainName">TECHCORP</Data>
+    <Data Name="SubjectLogonId">0x2970a4</Data>
+    <Data Name="ObjectName">\REGISTRY\MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run</Data>
+    <Data Name="ObjectValueName">SOCLabTest</Data>
+    <Data Name="HandleId">0xd84</Data>
+    <Data Name="OperationType">%%1905</Data>
+    <Data Name="OldValueType">%%1873</Data>
+    <Data Name="OldValue">C:\Windows\System32\notepad.exe</Data>
+    <Data Name="NewValueType">%%1873</Data>
+    <Data Name="NewValue">C:\Temp\malware_sim.exe</Data>
+    <Data Name="ProcessId">0x1fb0</Data>
+    <Data Name="ProcessName">C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe</Data>
+  </EventData>
+</Event>
+```
+
+---
+
 
 ## SOC Analyst Notes
 

@@ -85,6 +85,13 @@ Nothing. When you run the trigger commands, PowerShell will execute and return a
 4. Enable **Audit File System** — Success and Failure
 5. Run `gpupdate /force`
 
+---
+
+<img width="675" height="364" alt="Screenshot_1" src="https://github.com/user-attachments/assets/39df21a4-1f22-4da4-a888-332c79e3e463" />
+
+---
+
+
 ### Method 2 — Command Line (Recommended for Lab)
 
 ```cmd
@@ -116,6 +123,13 @@ New-ItemProperty -Path "HKLM:\SOFTWARE\SOCLabAudit" `
 Write-Host "Test key created. Now configure auditing via regedit."
 ```
 
+---
+
+<img width="675" height="385" alt="Screenshot_2" src="https://github.com/user-attachments/assets/cf036f9f-1532-4b50-94f5-7375d2234b50" />
+
+---
+
+
 In Registry Editor:
 1. Navigate to `HKLM:\SOFTWARE\SOCLabAudit`
 2. Right-click → **Permissions** → **Advanced** → **Auditing** tab
@@ -128,6 +142,10 @@ In Registry Editor:
    - ✅ **Enumerate Subkeys** — logs enumeration/listing
    - ✅ **Delete** — logs deletion attempts
 6. OK → Apply → OK
+
+---
+
+
 
 ### Configure SACL for File via PowerShell
 
@@ -180,6 +198,12 @@ Write-Host ""
 Write-Host "Done. Check Security log for multiple 4663 events — one per operation." -ForegroundColor Green
 Write-Host "Each operation above should have generated a separate 4663 event."
 ```
+---
+
+<img width="468" height="330" alt="Screenshot_4" src="https://github.com/user-attachments/assets/e5c911c4-70fd-4121-a221-47a5075185bd" />
+
+---
+
 
 ### Method 2 — Simulate Reconnaissance (Attacker Behaviour)
 
@@ -210,6 +234,12 @@ foreach ($key in $startupKeys) {
 Write-Host ""
 Write-Host "Each Get-ItemProperty call above generated a 4663 event." -ForegroundColor Green
 ```
+---
+
+<img width="635" height="432" alt="Screenshot_3" src="https://github.com/user-attachments/assets/224a73cb-4767-443a-a42d-e7c9cee2834b" />
+
+---
+
 
 ### Method 3 — File Access Trigger
 
@@ -294,6 +324,12 @@ Get-WinEvent -FilterXml $filter | Select-Object -First 20 | ForEach-Object {
     }
 } | Format-Table -AutoSize
 ```
+---
+
+<img width="951" height="468" alt="Screenshot_5" src="https://github.com/user-attachments/assets/d941e5f8-4110-46d8-971f-d60796099ef6" />
+
+---
+
 
 ```powershell
 # Hunt for suspicious write operations to Run key
