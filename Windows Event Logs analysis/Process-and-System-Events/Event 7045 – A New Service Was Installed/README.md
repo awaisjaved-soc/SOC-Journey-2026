@@ -40,6 +40,11 @@ New-Service -Name "TestService7045" `
   -Description "Lab service for Event 7045" `
   -StartupType Manual
 ```
+---
+
+<img width="617" height="420" alt="Screenshot_2" src="https://github.com/user-attachments/assets/d0edc437-9e4a-46fc-83f9-b44f0d264f65" />
+
+---
 
 ### Method 2 – sc.exe (Simulates Attacker Method)
 ```powershell
@@ -57,6 +62,21 @@ New-Service -Name "WindowsUpdateHelper" `
 ```
 
 ---
+
+<img width="675" height="383" alt="Screenshot_3" src="https://github.com/user-attachments/assets/334feb37-cddb-417c-b728-ba9e2a3c170f" />
+
+---
+
+<img width="618" height="431" alt="Screenshot_1" src="https://github.com/user-attachments/assets/553f37b3-f111-47a3-bda3-cb3b4a7a7f3c" />
+
+
+---
+
+
+<img width="621" height="422" alt="Screenshot_8" src="https://github.com/user-attachments/assets/6d5daa2e-9341-460b-875e-ff09c168c13b" />
+
+---
+
 
 ## How to Detect This Event
 
@@ -82,6 +102,14 @@ ForEach-Object {
 } | Format-Table -AutoSize -Wrap
 ```
 
+---
+
+<img width="674" height="383" alt="Screenshot_4" src="https://github.com/user-attachments/assets/16e75400-0b01-4f2f-a6a3-92c51d0e7766" />
+
+
+---
+
+
 ### Verify Service Was Installed
 ```powershell
 Get-WmiObject Win32_Service | Where-Object {
@@ -100,6 +128,11 @@ sc.exe delete "WindowsUpdateHelper"
 ```
 
 ---
+
+<img width="675" height="387" alt="Screenshot_5" src="https://github.com/user-attachments/assets/06872371-628c-4e47-9b37-a07955530007" />
+
+---
+
 
 ## SOC Analyst Notes
 

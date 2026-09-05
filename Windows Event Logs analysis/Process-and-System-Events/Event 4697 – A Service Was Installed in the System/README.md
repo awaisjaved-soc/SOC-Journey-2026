@@ -49,6 +49,15 @@ New-Service -Name "TestService4697" `
   -DisplayName "SOC Lab Service 4697" `
   -StartupType Manual
 ```
+---
+<img width="628" height="417" alt="Screenshot_2" src="https://github.com/user-attachments/assets/e386650f-e64b-4371-8421-28ad593df0c8" />
+
+---
+
+<img width="610" height="421" alt="Screenshot_6" src="https://github.com/user-attachments/assets/8ec03095-47f2-41ff-861d-6007e0acf594" />
+
+---
+
 
 ### Method 2 – sc.exe
 ```powershell
@@ -81,6 +90,18 @@ ForEach-Object {
 } | Format-Table -AutoSize -Wrap
 ```
 
+---
+
+<img width="674" height="382" alt="Screenshot_3" src="https://github.com/user-attachments/assets/ceced2ec-125a-4735-8e6c-defddab342fa" />
+
+---
+
+<img width="615" height="424" alt="Screenshot_1" src="https://github.com/user-attachments/assets/96039a79-18bb-495c-9163-edd610b0d72a" />
+
+---
+
+
+
 ### Detect Both 7045 and 4697 Together
 ```powershell
 # System log – 7045
@@ -96,6 +117,16 @@ Select-Object TimeCreated, Message | Format-List
 
 ---
 
+
+<img width="678" height="385" alt="Screenshot_4" src="https://github.com/user-attachments/assets/b02bd8f8-420c-40a3-8b22-d1246eac1ff0" />
+
+---
+
+<img width="674" height="385" alt="Screenshot_5" src="https://github.com/user-attachments/assets/59ea8dd3-ef0f-430e-8ca6-f7788e6b8257" />
+
+---
+
+
 ## Cleanup After Lab
 
 ```powershell
@@ -104,6 +135,11 @@ sc.exe delete "LabService4697"
 ```
 
 ---
+
+<img width="674" height="384" alt="Screenshot_7" src="https://github.com/user-attachments/assets/e132d486-4b68-46cd-9dd1-2c5f5435b252" />
+
+---
+
 
 ## 7045 vs 4697 – Key Differences
 

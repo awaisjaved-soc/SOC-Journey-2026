@@ -39,6 +39,13 @@ sc.exe create "CrashTestService" binPath= "C:\FakeFolder\fake.exe" start= auto
 # Try to start it — it will fail and generate Event 7000
 sc.exe start "CrashTestService"
 ```
+---
+
+<img width="624" height="427" alt="Screenshot_3" src="https://github.com/user-attachments/assets/be31da31-4115-48f8-8935-77ad85d1f9f2" />
+
+---
+
+
 
 ### Method 2 – PowerShell
 ```powershell
@@ -50,6 +57,17 @@ New-Service -Name "FailService7000" `
 # Attempt to start it (generates 7000)
 Start-Service -Name "FailService7000" -ErrorAction SilentlyContinue
 ```
+---
+
+<img width="616" height="418" alt="Screenshot_2" src="https://github.com/user-attachments/assets/b76d038c-1589-4f93-b50a-26430d7ea69c" />
+
+---
+
+
+<img width="615" height="429" alt="Screenshot_1" src="https://github.com/user-attachments/assets/2daeafc2-20a3-4fe6-91dd-2a4b90f7810f" />
+
+---
+
 
 ### Method 3 – Simulate Malware Service Failing
 ```powershell
@@ -94,6 +112,18 @@ Sort-Object Count -Descending |
 Format-Table -AutoSize -Wrap
 ```
 
+---
+
+<img width="676" height="385" alt="Screenshot_4" src="https://github.com/user-attachments/assets/46cbebf0-2f65-4c55-b4ba-3f4b6c35bc26" />
+
+---
+
+<img width="677" height="375" alt="Screenshot_8" src="https://github.com/user-attachments/assets/192ff31d-05bc-4f12-a61e-b6abb3d6dd67" />
+
+
+---
+
+
 ### Search for Suspicious Service Failures
 ```powershell
 # Look for unknown or suspicious service names in failures
@@ -114,6 +144,11 @@ sc.exe delete "MalwareSimSvc"
 ```
 
 ---
+
+<img width="672" height="384" alt="Screenshot_5" src="https://github.com/user-attachments/assets/081ddd3b-733c-4567-baba-946c0c1eb010" />
+
+---
+
 
 ## 7000 vs 7034 – Key Difference
 

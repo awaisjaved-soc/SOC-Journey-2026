@@ -35,6 +35,13 @@ Event 7036 is logged in the **System log by default** — no audit policy requir
 2. Right-click any service → **Stop** → generates 7036 (stopped)
 3. Right-click again → **Start** → generates 7036 (running)
 
+---
+
+<img width="670" height="345" alt="Screenshot_1" src="https://github.com/user-attachments/assets/d581c447-d05f-450f-8612-1923c5a4bb3e" />
+
+---
+
+
 ### Method 2 – PowerShell (Create and Control Test Service)
 ```powershell
 # Create a test service
@@ -48,12 +55,26 @@ Start-Service -Name "TestService7036" -ErrorAction SilentlyContinue
 # Stop the service (generates 7036 – stopped state)
 Stop-Service -Name "TestService7036" -ErrorAction SilentlyContinue
 ```
+---
+
+<img width="620" height="421" alt="Screenshot_2" src="https://github.com/user-attachments/assets/10d552b2-c94a-48a7-b24c-cb33cdaf1f88" />
+
+---
+
+<img width="618" height="419" alt="Screenshot_3" src="https://github.com/user-attachments/assets/6087a739-d17c-4310-a144-2db2b407ee39" />
+
+---
 
 ### Method 3 – sc.exe
 ```powershell
 sc.exe start "TestService7036"
 sc.exe stop "TestService7036"
 ```
+---
+
+<img width="615" height="423" alt="Screenshot_6" src="https://github.com/user-attachments/assets/686af99b-974f-4169-8d10-292f23801ff2" />
+
+---
 
 ### Method 4 – Using a Real Windows Service (Safe Lab Example)
 ```powershell
@@ -63,6 +84,10 @@ Stop-Service -Name "Spooler"
 # Start it back immediately
 Start-Service -Name "Spooler"
 ```
+
+---
+
+<img width="670" height="345" alt="Screenshot_1" src="https://github.com/user-attachments/assets/005dd56a-9228-4bc9-847c-64fe67af501a" />
 
 ---
 
@@ -95,6 +120,11 @@ Where-Object {
     $_.Message -match "Defender|WinDefend|MsMpEng|EventLog|Firewall|Wazuh|Splunk|MBAMService"
 } | Select-Object TimeCreated, Message | Format-List
 ```
+---
+
+<img width="677" height="385" alt="Screenshot_4" src="https://github.com/user-attachments/assets/5aec8f56-5d91-46e7-bc7b-4270ec5dd2b3" />
+
+---
 
 ### See All Service State Changes in Last Hour
 ```powershell
@@ -115,6 +145,10 @@ sc.exe delete "TestService7036"
 # Start Spooler back if you stopped it
 Start-Service -Name "Spooler" -ErrorAction SilentlyContinue
 ```
+
+---
+
+<img width="675" height="358" alt="Screenshot_5" src="https://github.com/user-attachments/assets/34480984-c2bb-411c-baa6-d302bbacecee" />
 
 ---
 

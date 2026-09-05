@@ -29,12 +29,19 @@ Event 7040 is logged in the **System log by default** — no audit policy requir
 
 ## How to Generate This Event
 
+
 ### Method 1 – GUI (Services Manager)
 1. Press `Win + R` → type `services.msc` → Enter
 2. Right-click any service → **Properties**
 3. Change **Startup type** (e.g. from `Manual` to `Automatic`)
 4. Click **Apply** → **OK**
 5. Event 7040 is generated
+
+---
+
+<img width="308" height="355" alt="Screenshot_3" src="https://github.com/user-attachments/assets/72049aef-81e5-44a8-8543-b312b1fc2ffb" />
+
+---
 
 ### Method 2 – PowerShell
 ```powershell
@@ -52,6 +59,16 @@ Set-Service -Name "TestService7040" -StartupType Manual
 # Disable completely (generates 7040 — most suspicious change)
 Set-Service -Name "TestService7040" -StartupType Disabled
 ```
+---
+
+<img width="657" height="389" alt="Screenshot_7" src="https://github.com/user-attachments/assets/516b88da-10b3-4904-b232-48dc5c91565d" />
+
+---
+
+<img width="675" height="385" alt="Screenshot_4" src="https://github.com/user-attachments/assets/620b1a4c-d33b-4124-998e-9ca44d54c693" />
+
+
+
 
 ### Method 3 – sc.exe (Attacker Method)
 ```powershell
@@ -59,6 +76,12 @@ Set-Service -Name "TestService7040" -StartupType Disabled
 sc.exe config "TestService7040" start= auto
 sc.exe config "TestService7040" start= disabled
 ```
+---
+
+<img width="610" height="413" alt="Screenshot_5" src="https://github.com/user-attachments/assets/70b86a16-e731-4442-9309-7d541689b1d5" />
+
+---
+
 
 ### Method 4 – Simulate Attacker Enabling Persistence
 ```powershell
@@ -69,12 +92,22 @@ New-Service -Name "WindowsUpdateSvc" `
 
 sc.exe config "WindowsUpdateSvc" start= auto
 ```
+---
+
+<img width="618" height="421" alt="Screenshot_2" src="https://github.com/user-attachments/assets/b1c3a6f7-cd3d-4aff-8e08-439e06c74512" />
+
+---
 
 ### Method 5 – Simulate Attacker Disabling a Security Service
 ```powershell
 # DO THIS IN LAB ONLY — disable a test service, not a real security tool
 sc.exe config "TestService7040" start= disabled
 ```
+
+---
+
+<img width="616" height="422" alt="Screenshot_1" src="https://github.com/user-attachments/assets/76274a6f-caa7-4633-a647-8a75d467bcb0" />
+
 
 ---
 
@@ -98,6 +131,13 @@ ForEach-Object {
 } | Format-Table -AutoSize -Wrap
 ```
 
+---
+
+<img width="676" height="386" alt="Screenshot_6" src="https://github.com/user-attachments/assets/cfc5cb3d-18f6-4d3d-85c4-bee7d324501b" />
+
+---
+
+
 ### Detect Security Services Being Disabled
 ```powershell
 Get-WinEvent -FilterHashtable @{LogName='System'; Id=7040} -MaxEvents 30 |
@@ -105,6 +145,13 @@ Where-Object {
     $_.Message -match "disabled|Defender|WinDefend|EventLog|Firewall|MsMpEng|Wazuh"
 } | Select-Object TimeCreated, Message | Format-List
 ```
+---
+
+<img width="676" height="383" alt="Screenshot_8" src="https://github.com/user-attachments/assets/488c13ae-eecc-45c2-9613-dfdcb3a894f0" />
+
+---
+
+
 
 ### Full Service Events Timeline (All 5 Events Together)
 ```powershell
@@ -126,6 +173,11 @@ Select-Object TimeCreated, Id, Message | Format-List
 ```
 
 ---
+
+<img width="953" height="469" alt="Screenshot_9" src="https://github.com/user-attachments/assets/e603d5a8-162c-4bbc-80a0-b01bc747e394" />
+
+---
+
 
 ## Cleanup After Lab
 
