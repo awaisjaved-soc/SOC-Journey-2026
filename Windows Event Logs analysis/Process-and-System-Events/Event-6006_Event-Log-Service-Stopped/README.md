@@ -82,6 +82,12 @@ shutdown /s /t 0
 :: Clean restart — generates 6006 (shutdown) then 6005 (startup)
 shutdown /r /t 0
 ```
+---
+
+<img width="634" height="434" alt="Screenshot_4" src="https://github.com/user-attachments/assets/324887b4-d140-4fe9-a8b0-719142ac1dfd" />
+
+---
+
 
 ### PowerShell Method
 
@@ -93,6 +99,11 @@ Restart-Computer -Force
 After the machine boots back up, open Event Viewer → System log → filter for 6006. The entry from your shutdown will be there.
 
 ---
+
+<img width="635" height="437" alt="Screenshot_2" src="https://github.com/user-attachments/assets/1e82b763-83f2-4c0a-be52-f921d6900af4" />
+
+---
+
 
 ## Detecting the Event
 
@@ -112,6 +123,13 @@ After the machine boots back up, open Event Viewer → System log → filter for
 | Date and Time | Shutdown timestamp |
 | Source | EventLog |
 | Computer | Machine name |
+
+---
+
+<img width="644" height="182" alt="Screenshot_1" src="https://github.com/user-attachments/assets/b04782c5-05ba-4ad9-8f33-75770b9be448" />
+
+---
+
 
 ### PowerShell — Detection Commands
 
@@ -147,6 +165,12 @@ if ($starts -gt $stops) {
     Write-Host "Check for Event 6008 to confirm unexpected shutdowns." -ForegroundColor Yellow
 }
 ```
+---
+
+<img width="959" height="399" alt="Screenshot_3" src="https://github.com/user-attachments/assets/17eaa26a-c782-4bb4-a8a4-e58519564de7" />
+
+---
+
 
 ```powershell
 # Calculate session length between 6006 and its preceding 6005
