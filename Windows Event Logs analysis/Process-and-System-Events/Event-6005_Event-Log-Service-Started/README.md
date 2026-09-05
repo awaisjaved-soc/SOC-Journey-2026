@@ -65,6 +65,12 @@ Start Menu → Power icon → **Restart**
 ```cmd
 shutdown /r /t 0
 ```
+---
+
+<img width="797" height="436" alt="Screenshot_1" src="https://github.com/user-attachments/assets/3206caf0-f26d-43c4-bb31-b3cb00021491" />
+
+---
+
 
 ### PowerShell Method
 
@@ -75,6 +81,11 @@ Restart-Computer -Force
 After logging back in, open Event Viewer → System log → filter for 6005. The most recent entry will be from the boot you just performed.
 
 ---
+
+<img width="638" height="164" alt="Screenshot_3" src="https://github.com/user-attachments/assets/897c8606-b822-42f1-9768-610e24f28788" />
+
+---
+
 
 ## Detecting the Event
 
@@ -120,6 +131,13 @@ Get-WinEvent -FilterHashtable @{
     }
 } | Format-Table -AutoSize
 ```
+---
+
+<img width="757" height="432" alt="Screenshot_2" src="https://github.com/user-attachments/assets/cb8dee5d-3cc1-43f7-a22a-6eec2a4eb081" />
+
+
+---
+
 
 ```powershell
 # Off-hours reboot detection — flag boots outside 7AM-7PM
