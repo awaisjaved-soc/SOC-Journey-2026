@@ -299,6 +299,106 @@ Get-WinEvent -FilterXml $filter | ForEach-Object {
 ---
 
 
+```powershell
+Log Name:      Security
+Source:        Microsoft-Windows-Security-Auditing
+Date:          9/3/2026 1:57:41 AM
+Event ID:      4656
+Task Category: Registry
+Level:         Information
+Keywords:      Audit Success
+User:          N/A
+Computer:      WIN-LFHCJK09RND.techcorp.local
+Description:
+A handle to an object was requested.
+
+Subject:
+	Security ID:		TECHCORP\administrator
+	Account Name:		administrator
+	Account Domain:		TECHCORP
+	Logon ID:		0x2970A4
+
+Object:
+	Object Server:		Security
+	Object Type:		Key
+	Object Name:		\REGISTRY\MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run
+	Handle ID:		0x350
+	Resource Attributes:	-
+
+Process Information:
+	Process ID:		0xcf0
+	Process Name:		C:\Windows\regedit.exe
+
+Access Request Information:
+	Transaction ID:		{00000000-0000-0000-0000-000000000000}
+	Accesses:		DELETE
+				READ_CONTROL
+				WRITE_DAC
+				WRITE_OWNER
+				Query key value
+				Set key value
+				Create sub-key
+				Enumerate sub-keys
+				Notify about changes to keys
+				Create Link
+				
+	Access Reasons:		-
+	Access Mask:		0xF003F
+	Privileges Used for Access Check:	-
+	Restricted SID Count:	0
+Event Xml:
+<Event xmlns="http://schemas.microsoft.com/win/2004/08/events/event">
+  <System>
+    <Provider Name="Microsoft-Windows-Security-Auditing" Guid="{54849625-5478-4994-a5ba-3e3b0328c30d}" />
+    <EventID>4656</EventID>
+    <Version>1</Version>
+    <Level>0</Level>
+    <Task>12801</Task>
+    <Opcode>0</Opcode>
+    <Keywords>0x8020000000000000</Keywords>
+    <TimeCreated SystemTime="2026-09-03T08:57:41.3155657Z" />
+    <EventRecordID>15157</EventRecordID>
+    <Correlation />
+    <Execution ProcessID="4" ThreadID="7412" />
+    <Channel>Security</Channel>
+    <Computer>WIN-LFHCJK09RND.techcorp.local</Computer>
+    <Security />
+  </System>
+  <EventData>
+    <Data Name="SubjectUserSid">S-1-5-21-2393829360-1893506578-1941953886-500</Data>
+    <Data Name="SubjectUserName">administrator</Data>
+    <Data Name="SubjectDomainName">TECHCORP</Data>
+    <Data Name="SubjectLogonId">0x2970a4</Data>
+    <Data Name="ObjectServer">Security</Data>
+    <Data Name="ObjectType">Key</Data>
+    <Data Name="ObjectName">\REGISTRY\MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run</Data>
+    <Data Name="HandleId">0x350</Data>
+    <Data Name="TransactionId">{00000000-0000-0000-0000-000000000000}</Data>
+    <Data Name="AccessList">%%1537
+				%%1538
+				%%1539
+				%%1540
+				%%4432
+				%%4433
+				%%4434
+				%%4435
+				%%4436
+				%%4437
+				</Data>
+    <Data Name="AccessReason">-</Data>
+    <Data Name="AccessMask">0xf003f</Data>
+    <Data Name="PrivilegeList">-</Data>
+    <Data Name="RestrictedSidCount">0</Data>
+    <Data Name="ProcessId">0xcf0</Data>
+    <Data Name="ProcessName">C:\Windows\regedit.exe</Data>
+    <Data Name="ResourceAttributes">-</Data>
+  </EventData>
+</Event>
+```
+
+---
+
+
 ## SOC Analyst Notes
 
 ### Normal vs Suspicious
