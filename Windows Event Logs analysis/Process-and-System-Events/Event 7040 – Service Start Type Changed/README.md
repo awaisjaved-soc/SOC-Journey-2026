@@ -1,4 +1,4 @@
-# Event 7040 – Service Start Type Changed
+# Event 7040 – Service Start Type Changed.
 
 ## Overview
 
