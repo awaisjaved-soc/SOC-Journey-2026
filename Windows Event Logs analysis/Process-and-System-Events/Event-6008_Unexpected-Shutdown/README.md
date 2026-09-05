@@ -77,6 +77,13 @@ This is the most reliable method and exactly simulates a power cut:
 5. Start the VM again from VirtualBox
 6. After Windows boots and you log in → Event 6008 will be in the System log
 
+---
+
+<img width="498" height="328" alt="Screenshot_5" src="https://github.com/user-attachments/assets/f0c495ce-8ece-4014-bd73-d92b88946234" />
+
+---
+
+
 ### Method 2 — Command Line Forced Shutdown
 
 ```cmd
@@ -94,6 +101,11 @@ Stop-Computer -Force
 ```
 
 ---
+
+<img width="470" height="330" alt="Screenshot_2" src="https://github.com/user-attachments/assets/a0d7ba14-07f2-4abf-8f7c-b7769f37963a" />
+
+---
+
 
 ## Detecting the Event
 
@@ -119,6 +131,13 @@ Stop-Computer -Force
 | Message | Contains the timestamp of the unexpected shutdown |
 | Source | EventLog |
 
+---
+
+<img width="645" height="435" alt="Screenshot_1" src="https://github.com/user-attachments/assets/ef443e6d-4adf-49cf-8717-7d26d2712284" />
+
+---
+
+
 ### PowerShell — Detection Commands
 
 ```powershell
@@ -142,6 +161,12 @@ Get-WinEvent -FilterHashtable @{
     Write-Host ""
 }
 ```
+---
+
+<img width="674" height="385" alt="Screenshot_3" src="https://github.com/user-attachments/assets/be0b9c8e-1347-4475-a791-03ced84a54f5" />
+
+---
+
 
 ```powershell
 # Full system lifecycle report — all five events together
