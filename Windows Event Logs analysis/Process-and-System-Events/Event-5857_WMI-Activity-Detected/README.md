@@ -44,6 +44,11 @@ wevtutil gl Microsoft-Windows-WMI-Activity/Operational
 
 ---
 
+<img width="948" height="488" alt="Screenshot_4" src="https://github.com/user-attachments/assets/28835639-ec38-459f-9e8f-f48b7f68987d" />
+
+---
+
+
 ## How to Generate Event 5857
 
 ### PowerShell Method
@@ -56,6 +61,11 @@ Get-WmiObject -Class Win32_NetworkAdapterConfiguration | Where-Object { $_.IPEna
 Get-WmiObject -Class Win32_ComputerSystem
 Get-WmiObject -Class Win32_Product | Select-Object Name, Version -First 5
 ```
+---
+
+<img width="675" height="183" alt="Screenshot_6" src="https://github.com/user-attachments/assets/9d237b77-f5d3-43c8-b943-561dafd95de8" />
+
+---
 
 ### GUI Method
 
@@ -67,6 +77,10 @@ This also triggers WMI activity and generates Event 5857.
 
 ---
 
+<img width="676" height="383" alt="Screenshot_2" src="https://github.com/user-attachments/assets/ddeccdfa-9fb3-49be-b61b-be86c933e13f" />
+
+---
+
 ## How to Detect
 
 ### Event Viewer (GUI)
@@ -75,6 +89,13 @@ This also triggers WMI activity and generates Event 5857.
 2. Navigate to:  
    `Applications and Services Logs → Microsoft → Windows → WMI-Activity → Operational`
 3. Filter Current Log → Event ID: **5857**
+
+---
+
+<img width="633" height="432" alt="Screenshot_3" src="https://github.com/user-attachments/assets/92cd67a2-b50d-42bc-8f53-83d533a677e7" />
+
+---
+
 
 ### PowerShell Detection
 
@@ -88,6 +109,11 @@ Get-WinEvent -FilterHashtable @{
 
 ---
 
+<img width="674" height="224" alt="Screenshot_5" src="https://github.com/user-attachments/assets/f2f7b707-e022-455b-879c-3efc95b4b649" />
+
+---
+
+
 ## Key Fields to Analyze
 
 | Field            | What to Look For                                      |
@@ -100,6 +126,9 @@ Get-WinEvent -FilterHashtable @{
 
 ---
 
+<img width="674" height="380" alt="Screenshot_1" src="https://github.com/user-attachments/assets/7091b63e-5d91-464d-b335-006e8cc4f151" />
+
+---
 ## SOC Analyst Notes
 
 - High volume of 5857 from unusual processes can indicate reconnaissance
