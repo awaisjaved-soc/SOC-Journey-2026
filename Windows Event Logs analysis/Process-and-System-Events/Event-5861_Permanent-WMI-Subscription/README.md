@@ -32,6 +32,10 @@ When all three are created, Event **5861** is generated.
 
 ---
 
+<img width="472" height="328" alt="Screenshot_4" src="https://github.com/user-attachments/assets/77f6a9ae-4cfd-449b-9663-11d2af23c0d2" />
+
+---
+
 ## How to Generate Event 5861 (Practical Lab)
 
 > **Warning:** This creates real persistence. Always run the cleanup commands afterward.
@@ -68,6 +72,10 @@ Write-Host "[+] Event 5861 should now appear in the WMI-Activity log" -Foregroun
 
 ---
 
+<img width="469" height="329" alt="Screenshot_1" src="https://github.com/user-attachments/assets/3d9191fb-3a62-49e8-9712-06d3bb9a0391" />
+
+---
+
 ## How to Detect
 
 ### Event Viewer
@@ -82,6 +90,11 @@ Get-WinEvent -FilterHashtable @{
     Id = 5861
 } -MaxEvents 5 | Format-List TimeCreated, Message
 ```
+---
+
+<img width="638" height="438" alt="Screenshot_2" src="https://github.com/user-attachments/assets/c5e069e6-392b-4752-ad6a-ba4b5a51bc4c" />
+
+---
 
 ### Hunt for Existing Permanent Subscriptions
 
@@ -117,6 +130,11 @@ Write-Host "[+] Cleanup completed" -ForegroundColor Green
 ```
 
 ---
+
+<img width="959" height="477" alt="Screenshot_3" src="https://github.com/user-attachments/assets/2269a60b-270c-4f9d-9c54-f672c316d195" />
+
+---
+
 
 ## SOC Analyst Notes
 
