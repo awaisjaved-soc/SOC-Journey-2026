@@ -1,52 +1,58 @@
-# Event 5860 – Temporary WMI Subscription Created
+# Event 5860 — Temporary WMI Subscription Created
 
-**Log:** Microsoft-Windows-WMI-Activity/Operational  
+**Log Name:** Microsoft-Windows-WMI-Activity/Operational  
 **Event ID:** 5860  
-**Severity:** Medium  
-**SOC Importance:** High
+**Level:** Information  
+**SOC Severity:** Medium  
+**MITRE ATT&CK:** T1546.003 – WMI Event Subscription
 
 ---
 
-## What is this Event?
+## What Is This Event?
 
 Event 5860 is generated when a **temporary WMI event subscription** is created.
 
-A temporary subscription only lives while the creating process is running. Once the process ends or the system reboots, the subscription disappears.
+A temporary subscription only exists while the creating process is running. When the process ends or the system reboots, the subscription is automatically removed.
 
-### Difference from Permanent Subscription (5861)
+### Temporary vs Permanent
 
-| Type              | Survives Reboot? | Event ID |
-|-------------------|------------------|----------|
-| Temporary         | No               | 5860     |
-| Permanent         | Yes              | 5861     |
+| Type        | Survives Reboot? | Event ID |
+|-------------|------------------|----------|
+| Temporary   | No               | 5860     |
+| Permanent   | Yes              | 5861     |
 
 ---
 
-## Why it matters in SOC
+## Why It Matters for SOC
 
-Even temporary subscriptions can be used by attackers to:
+Even temporary subscriptions can be abused by attackers to:
 
 - Execute code when a specific process starts
-- Monitor for certain system conditions
-- Run actions without creating permanent persistence
+- Trigger actions based on system conditions
+- Perform fileless execution without leaving permanent artifacts
 
 ---
 
 ## How to Generate Event 5860
 
 ```powershell
-# Clean previous subscriptions
+# Clean any existing subscriptions
 Get-EventSubscriber | Unregister-Event -Force -ErrorAction SilentlyContinue
+Get-Job | Remove-Job -Force -ErrorAction SilentlyContinue
 
-# Create temporary subscription
+# Create temporary subscription (watch for Calculator)
 $query = "SELECT * FROM __InstanceCreationEvent WITHIN 5 WHERE TargetInstance ISA 'Win32_Process' AND TargetInstance.Name = 'win32calc.exe'"
 
 Register-WmiEvent -Query $query -SourceIdentifier "CalcWatch" -Action {
     "WMI detected Calculator at $(Get-Date)" | Out-File "C:\Windows\Temp\WMI_Calc_Detected.txt" -Append
 }
 
-# Trigger it
+# Trigger the subscription
 Start-Process calc.exe
+
+# Verify
+Start-Sleep -Seconds 3
+Get-Content "C:\Windows\Temp\WMI_Calc_Detected.txt" -ErrorAction SilentlyContinue
 ```
 
 ---
@@ -55,7 +61,7 @@ Start-Process calc.exe
 
 ### Event Viewer
 
-Go to `WMI-Activity/Operational` and filter for **Event ID 5860**
+Go to `WMI-Activity → Operational` and filter for **Event ID 5860**
 
 ### PowerShell
 
@@ -70,20 +76,20 @@ Get-WinEvent -FilterHashtable @{
 
 ## Key Fields
 
-| Field              | Meaning                                      |
-|--------------------|----------------------------------------------|
-| NotificationQuery  | The WQL query being monitored                |
-| PossibleCause      | Usually shows "Temporary"                    |
-| ClientProcessId    | Process that created the subscription        |
-| UserName           | Account that created it                      |
+| Field               | What to Look For                                      |
+|---------------------|-------------------------------------------------------|
+| NotificationQuery   | The WQL query that is being monitored                 |
+| PossibleCause       | Usually shows "Temporary"                             |
+| ClientProcessId     | Process that created the subscription                 |
+| UserName            | Account that created the subscription                 |
 
 ---
 
 ## SOC Analyst Notes
 
 - Temporary subscriptions are less dangerous than permanent ones
-- Still worth investigating if created by unusual processes or accounts
-- Always check what action the subscription performs
+- Still investigate if created by unusual processes or accounts
+- Always examine what action the subscription is configured to perform
 
 ---
 

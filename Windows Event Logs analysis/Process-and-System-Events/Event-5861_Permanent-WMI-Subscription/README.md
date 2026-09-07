@@ -1,37 +1,32 @@
-# Event 5861 – Permanent WMI Subscription Created
+# Event 5861 — Permanent WMI Subscription Created
 
-**Log:** Microsoft-Windows-WMI-Activity/Operational  
+**Log Name:** Microsoft-Windows-WMI-Activity/Operational  
 **Event ID:** 5861  
-**Severity:** Critical  
-**SOC Importance:** Very High (Persistence Detection)
+**Level:** Information  
+**SOC Severity:** Critical  
+**MITRE ATT&CK:** T1546.003 – Windows Management Instrumentation Event Subscription
 
 ---
 
-## What is this Event?
+## What Is This Event?
 
 Event 5861 is logged when a **permanent WMI event subscription** is created.
 
-This is one of the most dangerous persistence techniques available on Windows.
+This is one of the stealthiest and most dangerous persistence techniques available on Windows. It is frequently used by APT groups and advanced malware.
 
-### Why Attackers Love Permanent WMI Subscriptions
+### Why Permanent WMI Subscriptions Are Dangerous
 
-- Survives reboots
-- Runs with high privileges (often SYSTEM)
-- No new files required (can be fileless)
+- Survive system reboots
+- Can run with SYSTEM privileges
+- Leave minimal file system artifacts
 - Not visible in Task Scheduler, Services, or Startup folders
-- Harder for normal users and basic security tools to detect
+- Extremely difficult for average users and basic AV to detect
 
-This technique is mapped to **MITRE ATT&CK T1546.003 – Windows Management Instrumentation Event Subscription**.
+A permanent WMI subscription consists of three components:
 
----
-
-## Components of a Permanent Subscription
-
-A permanent WMI subscription has three parts:
-
-1. **Event Filter** → What to watch for (e.g. system boot, time, process start)
-2. **Event Consumer** → What action to take (run a command, script, etc.)
-3. **Filter-to-Consumer Binding** → Links the filter to the consumer
+1. **Event Filter** — Defines what to watch for (boot, logon, time, process creation, etc.)
+2. **Event Consumer** — Defines what action to take (run a command, script, etc.)
+3. **Filter-to-Consumer Binding** — Links the filter to the consumer
 
 When all three are created, Event **5861** is generated.
 
@@ -39,13 +34,15 @@ When all three are created, Event **5861** is generated.
 
 ## How to Generate Event 5861 (Practical Lab)
 
+> **Warning:** This creates real persistence. Always run the cleanup commands afterward.
+
 ```powershell
-# Create permanent subscription (Attacker simulation)
+# ========== Create Permanent WMI Subscription ==========
 
 $filterName   = "WindowsUpdateCheck"
 $consumerName = "WindowsUpdateService"
 
-# 1. Create Filter
+# 1. Create the Event Filter
 $filter = Set-WmiInstance -Namespace "root\subscription" -Class "__EventFilter" -Arguments @{
     Name           = $filterName
     EventNamespace = "root\cimv2"
@@ -53,19 +50,20 @@ $filter = Set-WmiInstance -Namespace "root\subscription" -Class "__EventFilter" 
     Query          = "SELECT * FROM __InstanceModificationEvent WITHIN 15 WHERE TargetInstance ISA 'Win32_LocalTime' AND TargetInstance.Second = 30"
 }
 
-# 2. Create Consumer
+# 2. Create the Event Consumer
 $consumer = Set-WmiInstance -Namespace "root\subscription" -Class "CommandLineEventConsumer" -Arguments @{
     Name                = $consumerName
     CommandLineTemplate = "cmd.exe /c echo Malware executed at %date% %time% >> C:\SOCLab\malware_executed.txt"
 }
 
-# 3. Bind them (Generates Event 5861)
+# 3. Create the Binding (This generates Event 5861)
 Set-WmiInstance -Namespace "root\subscription" -Class "__FilterToConsumerBinding" -Arguments @{
     Filter   = $filter
     Consumer = $consumer
 }
 
-Write-Host "[+] Permanent WMI Persistence Created" -ForegroundColor Red
+Write-Host "[+] Permanent WMI Persistence Created Successfully" -ForegroundColor Red
+Write-Host "[+] Event 5861 should now appear in the WMI-Activity log" -ForegroundColor Yellow
 ```
 
 ---
@@ -76,7 +74,7 @@ Write-Host "[+] Permanent WMI Persistence Created" -ForegroundColor Red
 
 Filter `WMI-Activity/Operational` for **Event ID 5861**
 
-### PowerShell (Recommended)
+### PowerShell
 
 ```powershell
 Get-WinEvent -FilterHashtable @{
@@ -88,36 +86,45 @@ Get-WinEvent -FilterHashtable @{
 ### Hunt for Existing Permanent Subscriptions
 
 ```powershell
-Get-WmiObject -Namespace "root\subscription" -Class "__EventFilter" |
-    Where-Object { $_.Name -ne "SCM Event Log Filter" }
+Write-Host "=== Checking for Permanent WMI Subscriptions ===" -ForegroundColor Cyan
 
-Get-WmiObject -Namespace "root\subscription" -Class "CommandLineEventConsumer"
+Get-WmiObject -Namespace "root\subscription" -Class "__EventFilter" |
+    Where-Object { $_.Name -ne "SCM Event Log Filter" } |
+    Select-Object Name, Query
+
+Get-WmiObject -Namespace "root\subscription" -Class "CommandLineEventConsumer" |
+    Select-Object Name, CommandLineTemplate
 ```
 
 ---
 
-## Cleanup (Mandatory after Lab)
+## Cleanup Commands (Mandatory)
 
 ```powershell
+# Remove Binding
 Get-WmiObject -Namespace root\subscription -Class __FilterToConsumerBinding |
     Where-Object { $_.Filter -match "WindowsUpdateCheck" } | Remove-WmiObject
 
+# Remove Filter
 Get-WmiObject -Namespace root\subscription -Class __EventFilter |
     Where-Object { $_.Name -eq "WindowsUpdateCheck" } | Remove-WmiObject
 
+# Remove Consumer
 Get-WmiObject -Namespace root\subscription -Class CommandLineEventConsumer |
     Where-Object { $_.Name -eq "WindowsUpdateService" } | Remove-WmiObject
+
+Write-Host "[+] Cleanup completed" -ForegroundColor Green
 ```
 
 ---
 
 ## SOC Analyst Notes
 
-- **Any unexpected 5861 should be treated as high priority**
-- Look for consumers that launch `cmd.exe`, `powershell.exe`, `wscript.exe`, or encoded commands
+- Treat any unexpected Event 5861 as **high priority**
+- Look for consumers that execute `cmd.exe`, `powershell.exe`, `wscript.exe`, or encoded commands
 - Permanent WMI subscriptions are rarely used by legitimate software
-- Always correlate with process creation events (4688)
+- Always correlate with process creation (Event 4688) and other related activity
 
 ---
 
-**This is one of the most important events in the entire Process & System category.**
+**This is one of the most important events in the entire Process & System Events category.**

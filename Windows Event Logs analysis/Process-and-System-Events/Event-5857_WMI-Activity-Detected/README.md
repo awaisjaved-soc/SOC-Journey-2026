@@ -1,44 +1,44 @@
-# Event 5857 – WMI Activity Detected
+# Event 5857 — WMI Activity Detected
 
-**Log:** Microsoft-Windows-WMI-Activity/Operational  
+**Log Name:** Microsoft-Windows-WMI-Activity/Operational  
 **Event ID:** 5857  
-**Severity:** Low – Medium  
-**SOC Importance:** High (Baseline + Reconnaissance Detection)
+**Level:** Information  
+**SOC Severity:** Low – Medium  
+**MITRE ATT&CK:** T1047 – Windows Management Instrumentation
 
 ---
 
-## What is this Event?
+## What Is This Event?
 
 Event 5857 is generated whenever a **WMI provider** is loaded and used.
 
 A WMI provider is the component that answers WMI queries. For example:
 
-- When you ask for running processes → `Win32_Process` provider is used
-- When you ask for OS information → `Win32_OperatingSystem` provider is used
+- Asking for running processes → uses the `Win32_Process` provider  
+- Asking for OS information → uses the `Win32_OperatingSystem` provider  
+- Asking for network configuration → uses the `Win32_NetworkAdapterConfiguration` provider
 
-Every time a provider is called, Event 5857 can be logged.
+Every time a provider is called to answer a query, Event 5857 can be written.
 
-### Why it matters in SOC
+### Why It Matters for SOC
 
-This event helps you:
+This event is valuable for:
 
-- Establish a baseline of normal WMI activity
-- Detect unusual WMI usage (possible reconnaissance)
-- Spot lateral movement tools that heavily rely on WMI (e.g. Impacket, wmiexec)
+- Building a baseline of normal WMI activity on a system
+- Detecting unusual or excessive WMI usage (possible reconnaissance)
+- Identifying lateral movement tools that heavily rely on WMI (Impacket, wmiexec, etc.)
 
-Attackers frequently use WMI to gather system information before moving laterally or deploying persistence.
+Attackers frequently use WMI during the reconnaissance phase to gather system information before deploying persistence or moving laterally.
 
 ---
 
-## How to Enable
+## Pre-Lab Setup
 
 ```powershell
+# Enable WMI Operational Log
 wevtutil sl Microsoft-Windows-WMI-Activity/Operational /e:true
-```
 
-Verify:
-
-```powershell
+# Verify it is enabled
 wevtutil gl Microsoft-Windows-WMI-Activity/Operational
 ```
 
@@ -49,38 +49,39 @@ wevtutil gl Microsoft-Windows-WMI-Activity/Operational
 ### PowerShell Method
 
 ```powershell
-# These queries will generate Event 5857
+# These commands will generate Event 5857
 Get-WmiObject -Class Win32_OperatingSystem | Select-Object Caption, Version
-Get-WmiObject -Class Win32_Process | Select-Object Name, ProcessId -First 8
+Get-WmiObject -Class Win32_Process | Select-Object Name, ProcessId -First 10
 Get-WmiObject -Class Win32_NetworkAdapterConfiguration | Where-Object { $_.IPEnabled }
 Get-WmiObject -Class Win32_ComputerSystem
+Get-WmiObject -Class Win32_Product | Select-Object Name, Version -First 5
 ```
 
 ### GUI Method
 
 1. Open **Computer Management**
-2. Go to **Services and Applications → WMI Control**
-3. Right-click → **Properties**
+2. Expand **Services and Applications**
+3. Right-click **WMI Control** → **Properties**
 
-This also triggers WMI activity.
+This also triggers WMI activity and generates Event 5857.
 
 ---
 
 ## How to Detect
 
-### Event Viewer
+### Event Viewer (GUI)
 
 1. Open Event Viewer
 2. Navigate to:  
    `Applications and Services Logs → Microsoft → Windows → WMI-Activity → Operational`
-3. Filter by Event ID **5857**
+3. Filter Current Log → Event ID: **5857**
 
-### PowerShell
+### PowerShell Detection
 
 ```powershell
 Get-WinEvent -FilterHashtable @{
-    LogName = 'Microsoft-Windows-WMI-Activity/Operational'
-    Id = 5857
+    LogName   = 'Microsoft-Windows-WMI-Activity/Operational'
+    Id        = 5857
     StartTime = (Get-Date).AddHours(-1)
 } | Select-Object TimeCreated, Message | Format-List
 ```
@@ -89,21 +90,22 @@ Get-WinEvent -FilterHashtable @{
 
 ## Key Fields to Analyze
 
-| Field          | Meaning                                      |
-|----------------|----------------------------------------------|
-| ProviderName   | Which WMI provider was used                  |
-| Namespace      | Usually `root\cimv2` (unusual ones are suspicious) |
-| ClientProcessId| Process that made the WMI query              |
-| User           | Account that performed the query             |
-| ResultCode     | `0x0` = Success                              |
+| Field            | What to Look For                                      |
+|------------------|-------------------------------------------------------|
+| ProviderName     | Which WMI provider was used (e.g. Win32_Process)      |
+| Namespace        | Usually `root\cimv2` — unusual namespaces are suspicious |
+| ClientProcessId  | Process that made the WMI query                       |
+| User             | Account that performed the activity                   |
+| ResultCode       | `0x0` = Success                                       |
 
 ---
 
 ## SOC Analyst Notes
 
-- High volume of 5857 from unusual processes = possible reconnaissance
-- Combine with process creation (4688) to see who launched the WMI activity
-- Remote WMI activity is more suspicious than local
+- High volume of 5857 from unusual processes can indicate reconnaissance
+- Always correlate with process creation events (4688)
+- Remote WMI activity is generally more suspicious than local activity
+- Baseline normal WMI usage in your environment for better detection
 
 ---
 
