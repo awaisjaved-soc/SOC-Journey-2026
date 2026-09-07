@@ -23,6 +23,11 @@ A temporary subscription only exists while the creating process is running. When
 
 ---
 
+
+<img width="468" height="328" alt="Screenshot_1" src="https://github.com/user-attachments/assets/48bd09d7-3c0a-46cd-aea0-41bce648015e" />
+
+---
+
 ## Why It Matters for SOC
 
 Even temporary subscriptions can be abused by attackers to:
@@ -30,6 +35,10 @@ Even temporary subscriptions can be abused by attackers to:
 - Execute code when a specific process starts
 - Trigger actions based on system conditions
 - Perform fileless execution without leaving permanent artifacts
+
+---
+
+<img width="627" height="163" alt="Screenshot_2" src="https://github.com/user-attachments/assets/f562fad9-abe5-442c-986b-76584c97a34e" />
 
 ---
 
@@ -57,6 +66,10 @@ Get-Content "C:\Windows\Temp\WMI_Calc_Detected.txt" -ErrorAction SilentlyContinu
 
 ---
 
+<img width="638" height="436" alt="Screenshot_5" src="https://github.com/user-attachments/assets/94be9574-9c3e-4a34-90b2-6e44543904b7" />
+
+---
+
 ## How to Detect
 
 ### Event Viewer
@@ -73,6 +86,11 @@ Get-WinEvent -FilterHashtable @{
 ```
 
 ---
+
+<img width="920" height="442" alt="Screenshot_3" src="https://github.com/user-attachments/assets/f9541384-5317-45c8-b63c-64a2585bf976" />
+
+---
+
 
 ## Key Fields
 
