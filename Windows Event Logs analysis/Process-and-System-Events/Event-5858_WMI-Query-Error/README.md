@@ -27,6 +27,10 @@ Failed reconnaissance still leaves a trail.
 
 ---
 
+<img width="467" height="328" alt="Screenshot_2" src="https://github.com/user-attachments/assets/c3c80c5c-370b-4eae-85ab-f192f232424f" />
+
+---
+
 ## How to Generate Event 5858
 
 ```powershell
@@ -53,6 +57,14 @@ try {
 
 ---
 
+<img width="644" height="446" alt="Screenshot_1" src="https://github.com/user-attachments/assets/c3a040b5-32b4-40ec-8128-5fa5464cf9b1" />
+
+---
+
+<img width="855" height="383" alt="Screenshot_7" src="https://github.com/user-attachments/assets/16c74fd0-3ba0-4c32-a748-8767c7a15421" />
+
+---
+
 ## How to Detect
 
 ### Event Viewer
@@ -71,6 +83,10 @@ Get-WinEvent -FilterHashtable @{
 
 ---
 
+<img width="675" height="385" alt="Screenshot_3" src="https://github.com/user-attachments/assets/9d8e68bd-4b20-49bb-a9b0-ee058520ad4c" />
+
+---
+
 ## Key Fields
 
 | Field             | What to Look For                                       |
@@ -79,6 +95,10 @@ Get-WinEvent -FilterHashtable @{
 | ClientProcessId   | PID of the process that made the failed query          |
 | NamespaceName     | Namespace that was queried                             |
 | User              | Account that performed the query                       |
+
+---
+
+<img width="885" height="392" alt="Screenshot_4" src="https://github.com/user-attachments/assets/61275c72-0126-456b-8f2e-70777c40caf7" />
 
 ---
 
