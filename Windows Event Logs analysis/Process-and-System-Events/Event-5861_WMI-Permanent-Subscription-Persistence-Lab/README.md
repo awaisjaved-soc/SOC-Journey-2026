@@ -85,11 +85,29 @@ powershell -Command "Add-Content -Path 'C:\SOCLab\malware_executed.txt' -Value (
 $payload | Out-File -FilePath "C:\SOCLab\malware.bat" -Encoding ASCII
 ```
 
+---
+
+<img width="857" height="372" alt="Screenshot_1" src="https://github.com/user-attachments/assets/effac507-7b7d-41f3-a685-3e04c5e15c20" />
+
+---
+
+
 Open the file to verify its contents:
 
 ```powershell
 notepad C:\SOCLab\malware.bat
 ```
+---
+
+<img width="701" height="369" alt="Screenshot_2" src="https://github.com/user-attachments/assets/b2f20d18-97c3-45bb-90c2-f72b473de034" />
+
+---
+
+
+<img width="596" height="428" alt="Screenshot_3" src="https://github.com/user-attachments/assets/3c00a61a-5668-44f2-bece-0fb2747c0338" />
+
+---
+
 
 The batch file uses PowerShell for the timestamp to ensure 12-hour format. This represents the attacker's payload — in a real attack this would be a PowerShell download cradle, a C2 beacon, or a credential dumping command.
 
@@ -107,6 +125,13 @@ $filter = Set-WmiInstance -Namespace "root\subscription" -Class "__EventFilter" 
 
 Write-Host "Filter created: $($filter.Name)" -ForegroundColor Green
 ```
+---
+
+<img width="842" height="175" alt="Screenshot_4" src="https://github.com/user-attachments/assets/96064dae-6848-4b81-a68d-69ea4344c0e9" />
+
+
+---
+
 
 This filter watches the system clock and fires every 10 seconds. A real attacker would use a boot trigger (`SELECT * FROM __InstanceCreationEvent WITHIN 10 WHERE TargetInstance ISA 'Win32_ComputerSystem'`) to execute on every reboot instead.
 
@@ -125,6 +150,11 @@ Write-Host "Consumer created: $($consumer.Name)" -ForegroundColor Green
 
 ---
 
+<img width="767" height="280" alt="Screenshot_5" src="https://github.com/user-attachments/assets/ae767321-6b7a-4f22-824f-837854c43d1e" />
+
+---
+
+
 ### Step 4 — Create the Binding (Activates Persistence — Generates Event 5861)
 
 ```powershell
@@ -136,6 +166,9 @@ $binding = Set-WmiInstance -Namespace "root\subscription" -Class "__FilterToCons
 Write-Host "Binding created — WMI persistence is now active." -ForegroundColor Red
 Write-Host "Payload will execute every 10 seconds automatically." -ForegroundColor Red
 ```
+---
+
+<img width="767" height="280" alt="Screenshot_5" src="https://github.com/user-attachments/assets/b7edf057-23fb-4e60-8f55-422cdf12254e" />
 
 From this moment, the WMI service begins monitoring for the filter condition and executing the consumer automatically. The persistence is active.
 
@@ -194,6 +227,8 @@ Write-Host "Press Ctrl+C to stop." -ForegroundColor Yellow
 while ($true) { Start-Sleep -Seconds 1 }
 ```
 
+
+
 **To stop the notification monitor:**
 
 Press `Ctrl+C` in the second PowerShell window, then run:
@@ -215,6 +250,13 @@ Get-WinEvent -FilterHashtable @{
 } -MaxEvents 5 | Format-List TimeCreated, Message
 ```
 
+---
+
+<img width="958" height="464" alt="Screenshot_6" src="https://github.com/user-attachments/assets/264d0f43-50fe-43d9-8497-e2f5183c88d8" />
+
+---
+
+
 The output will show the complete subscription details including the WQL query, the consumer name, and the command line template. All three components are visible in the single 5861 event, giving defenders a complete picture of the persistence mechanism.
 
 ### Step 7 — Detect via Event Viewer (GUI)
@@ -227,6 +269,27 @@ The output will show the complete subscription details including the WQL query, 
    - `Eventfilter` — the filter name
    - `Consumer` — the consumer name and command
    - `Query` — the WQL trigger condition
+
+---
+
+<img width="948" height="488" alt="Screenshot_4" src="https://github.com/user-attachments/assets/5ba96162-cf43-41c1-a129-311ee2fd3b06" />
+
+---
+
+<img width="638" height="438" alt="Screenshot_2" src="https://github.com/user-attachments/assets/03fea885-19de-4d07-9bc7-e756dfb2550a" />
+
+---
+
+
+<img width="469" height="329" alt="Screenshot_1" src="https://github.com/user-attachments/assets/f1554a2d-1467-43eb-9a68-5962686d451e" />
+
+
+---
+
+<img width="472" height="328" alt="Screenshot_4" src="https://github.com/user-attachments/assets/31af66f9-a263-486e-997d-f6b204ec8a06" />
+
+---
+
 
 **Key fields to examine:**
 
@@ -261,6 +324,16 @@ Get-WmiObject -Namespace "root\subscription" -Class "__FilterToConsumerBinding" 
 
 ---
 
+<img width="956" height="469" alt="Screenshot_7" src="https://github.com/user-attachments/assets/5707622d-0a27-4e6e-b7f0-d8d344c16837" />
+
+---
+
+<img width="959" height="406" alt="Screenshot_8" src="https://github.com/user-attachments/assets/47ea5667-8aaf-4219-98b9-c705684f19ff" />
+
+
+---
+
+
 ## INCIDENT RESPONSE — Removal
 
 ### Step 9 — Remove the Persistence Chain
@@ -288,6 +361,11 @@ Get-WmiObject -Namespace root\subscription -Class CommandLineEventConsumer |
     Remove-WmiObject
 Write-Host "Consumer removed." -ForegroundColor Green
 ```
+---
+
+<img width="922" height="371" alt="Screenshot_9" src="https://github.com/user-attachments/assets/59b15e3f-2121-4466-8a39-dc63daf6e514" />
+
+---
 
 ### Step 10 — Verify Complete Removal
 
@@ -309,6 +387,11 @@ if (-not $filtersLeft -and -not $consumersLeft) {
 ```
 
 ---
+
+<img width="959" height="386" alt="Screenshot_10" src="https://github.com/user-attachments/assets/00b2561d-0821-4d2e-9aba-18688a2b3f14" />
+
+---
+
 
 ## Lab Results Summary
 
