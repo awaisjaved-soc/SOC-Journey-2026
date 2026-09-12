@@ -9,6 +9,10 @@
 
 ---
 
+<img width="597" height="247" alt="Screenshot_5" src="https://github.com/user-attachments/assets/a6ccef24-93e2-46a9-a7ee-ee7ce6062ef6" />
+
+---
+
 ## Event Overview
 
 | Field | Detail |
@@ -76,6 +80,25 @@ auditpol /set /subcategory:"Other Policy Change Events" /success:enable /failure
 6. Event 4906 fires immediately
 7. Change it back to `0` after taking your screenshot
 
+---
+
+<img width="802" height="377" alt="Screenshot_1" src="https://github.com/user-attachments/assets/7f1a3c57-5107-40e2-8548-56556291932c" />
+
+---
+
+<img width="759" height="319" alt="Screenshot_2" src="https://github.com/user-attachments/assets/7500c562-a4c6-42f1-b5c0-64f2f87626f3" />
+
+---
+
+<img width="475" height="329" alt="Screenshot_3" src="https://github.com/user-attachments/assets/49e2cbc2-8b4d-46dd-8add-816781371e57" />
+
+---
+
+<img width="540" height="331" alt="Screenshot_4" src="https://github.com/user-attachments/assets/f0b5109f-1b8f-4e55-8da0-94373bfbdea1" />
+
+---
+
+
 ### PowerShell Method
 
 ```powershell
@@ -106,6 +129,15 @@ Write-Host "Restored to 0 — second Event 4906 fired for the restoration." -For
 ```
 
 ---
+
+<img width="597" height="247" alt="Screenshot_5" src="https://github.com/user-attachments/assets/5a35586d-412d-4780-bec3-4247dba50e20" />
+
+---
+
+<img width="569" height="255" alt="Screenshot_6" src="https://github.com/user-attachments/assets/0b8aa9ff-f0c4-4ea4-a4fe-b1039092fbcf" />
+
+---
+
 
 ## Detecting the Event
 
@@ -152,6 +184,15 @@ if ($val) {
 ```
 
 ---
+
+<img width="956" height="456" alt="Screenshot_7" src="https://github.com/user-attachments/assets/f515a5ad-f103-4c6f-bdf4-0e8a6735f0b1" />
+
+---
+
+<img width="960" height="482" alt="Screenshot_12" src="https://github.com/user-attachments/assets/38475924-113f-44e3-abd3-c401d8cf08fd" />
+
+---
+
 
 ## SOC Analyst Notes
 
