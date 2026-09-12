@@ -24,6 +24,10 @@
 
 ---
 
+<img width="406" height="387" alt="Screenshot_1" src="https://github.com/user-attachments/assets/3a1aa8e4-1982-4049-a8c6-623fdcf24331" />
+
+---
+
 ## What Is Event 4706?
 
 Event 4706 fires when a new trust relationship is established between your domain and another domain. Domain trusts are legitimate features in enterprise environments with multiple domains — they allow users in one domain to access resources in another.
@@ -59,6 +63,13 @@ Creating a malicious domain trust is a high-impact persistence technique. It sur
 4. Follow the wizard and complete the trust creation
 5. Event 4706 fires on the Domain Controller
 
+---
+
+<img width="406" height="387" alt="Screenshot_1" src="https://github.com/user-attachments/assets/0257b842-f812-4031-8fda-c859663c1671" />
+
+---
+
+
 ### PowerShell (view existing trusts)
 
 ```powershell
@@ -67,6 +78,11 @@ Get-ADTrust -Filter * | Select-Object Name, TrustType, Direction | Format-List
 ```
 
 ---
+
+<img width="440" height="326" alt="Screenshot_2" src="https://github.com/user-attachments/assets/939653af-ab76-4da0-b1e2-1cb136971e02" />
+
+---
+
 
 ## Detecting the Event
 
@@ -94,11 +110,21 @@ Get-WinEvent -FilterHashtable @{
     StartTime = (Get-Date).AddDays(-90)
 } | Select-Object TimeCreated, Message | Format-List
 ```
+---
+
+<img width="475" height="312" alt="Screenshot_3" src="https://github.com/user-attachments/assets/41169697-5f4c-42e7-b040-d199f05154ae" />
+
+---
+
 
 ```powershell
 # Also check currently configured trusts
 Get-ADTrust -Filter * | Format-List Name, TrustType, Direction, Source, Target
 ```
+
+---
+
+<img width="711" height="380" alt="Screenshot_7" src="https://github.com/user-attachments/assets/2d010064-b184-400a-968d-33107d09b8c9" />
 
 ---
 
