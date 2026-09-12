@@ -250,10 +250,3 @@ Process-System-Events/
 
 ---
 
-**File created successfully.**  
-
-You can download it from here:  
-
-**[Download Process-System-Events-README.md](sandbox:/home/workdir/artifacts/Process-System-Events-README.md)**
-
-Just replace your current README.md with this file. It now includes all the missing Tier 4 WMI events and matches the clean style.
