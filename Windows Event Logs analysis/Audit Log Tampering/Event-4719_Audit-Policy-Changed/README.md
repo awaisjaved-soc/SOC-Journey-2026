@@ -23,6 +23,12 @@
 
 ---
 
+<img width="471" height="329" alt="Screenshot_7" src="https://github.com/user-attachments/assets/a7846950-68aa-4398-a10f-361f7814485c" />
+
+---
+
+
+
 ## What Is Event 4719?
 
 Event 4719 fires whenever the system audit policy is modified — meaning someone used `auditpol`, Group Policy, or the Local Security Policy editor to change which events Windows logs. Every time a subcategory is enabled, disabled, or changed, a 4719 event is written recording exactly what changed.
@@ -65,6 +71,8 @@ auditpol /get /subcategory:"Audit Policy Change"
 
 ---
 
+
+
 ## Generating the Event
 
 ### GUI Method
@@ -77,6 +85,24 @@ auditpol /get /subcategory:"Audit Policy Change"
 6. Event 4719 fires
 7. Revert the change immediately after screenshot
 
+---
+
+<img width="953" height="478" alt="Screenshot_1" src="https://github.com/user-attachments/assets/106d9a80-bc42-49a6-a255-930bec88bc57" />
+
+---
+
+<img width="960" height="488" alt="Screenshot_2" src="https://github.com/user-attachments/assets/4e904aa2-bb55-4e69-b008-6fed39e33271" />
+
+---
+
+<img width="627" height="312" alt="Screenshot_3" src="https://github.com/user-attachments/assets/2b38d47f-8201-4b9d-903e-2a9a4bd97210" />
+
+---
+
+<img width="957" height="481" alt="Screenshot_4" src="https://github.com/user-attachments/assets/66bc10e6-1eca-49ba-a0de-56dd0d3d6d4c" />
+
+---
+
 ### Command Line Method
 
 ```cmd
@@ -88,6 +114,13 @@ auditpol /set /subcategory:"Process Creation" /success:disable
 :: Re-enable immediately
 auditpol /set /subcategory:"Process Creation" /success:enable /failure:enable
 ```
+---
+
+
+<img width="472" height="329" alt="Screenshot_5" src="https://github.com/user-attachments/assets/5ada3f56-ad7a-44ad-9cb5-d111e7fe3951" />
+
+---
+
 
 ### PowerShell Method
 
@@ -107,6 +140,11 @@ Write-Host "Audit policy restored — second 4719 fired." -ForegroundColor Green
 
 ---
 
+<img width="633" height="280" alt="Screenshot_6" src="https://github.com/user-attachments/assets/b274a243-f93c-437b-9d66-be35d0a96df5" />
+
+---
+
+
 ## Detecting the Event
 
 ### GUI — Event Viewer
@@ -115,6 +153,18 @@ Write-Host "Audit policy restored — second 4719 fired." -ForegroundColor Green
 2. Filter Current Log → Event ID: `4719` → OK
 3. Look for clusters of events — a burst at one timestamp indicates a policy refresh
 4. Look for individual events — a single 4719 at an unusual time is more suspicious
+
+---
+
+<img width="471" height="329" alt="Screenshot_7" src="https://github.com/user-attachments/assets/567031ec-932a-4324-acf6-09f1b18dfaca" />
+
+---
+
+
+<img width="470" height="331" alt="Screenshot_8" src="https://github.com/user-attachments/assets/950a9591-7abc-4bf1-827c-d7ba28ae6336" />
+
+---
+
 
 **Key fields to examine:**
 
@@ -137,6 +187,12 @@ Get-WinEvent -FilterHashtable @{
     StartTime = (Get-Date).AddDays(-7)
 } | Select-Object TimeCreated, Message | Format-List
 ```
+---
+
+<img width="679" height="367" alt="Screenshot_9" src="https://github.com/user-attachments/assets/cd14d623-7df5-425d-8b29-887664832828" />
+
+---
+
 
 ```powershell
 # Hunt specifically for audit policies being DISABLED — most suspicious
