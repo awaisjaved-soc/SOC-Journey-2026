@@ -2,7 +2,7 @@
 
 **Log:** Security  
 **Category:** System  
-**Subcategory:** Security State Change  
+**Subcategory:** Security State Change - 
 **Level:** Information  
 **Lab Environment:** Windows Server 2019 — TECHCORP / techcorp.local
 

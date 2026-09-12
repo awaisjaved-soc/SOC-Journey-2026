@@ -66,6 +66,11 @@ auditpol /set /subcategory:"Security State Change" /success:enable /failure:enab
 
 ---
 
+<img width="640" height="435" alt="Screenshot_6" src="https://github.com/user-attachments/assets/0026a818-4df0-43ee-9d75-d01ad6981143" />
+
+---
+
+
 ## Generating the Event
 
 There is only one way to generate Event 4608 — **reboot or start the machine**. It cannot be triggered by any command while Windows is already running.
@@ -85,6 +90,12 @@ shutdown /r /t 0
 ```powershell
 Restart-Computer -Force
 ```
+---
+
+<img width="641" height="204" alt="Screenshot_1" src="https://github.com/user-attachments/assets/0847a7b7-a005-4cec-9fd2-731681a9f45d" />
+
+---
+
 
 After the VM restarts and you log back in, Event 4608 will be in the Security log with the exact boot timestamp.
 
@@ -128,6 +139,12 @@ Get-WinEvent -FilterHashtable @{
     StartTime = (Get-Date).AddDays(-30)
 } | Select-Object TimeCreated | Format-Table -AutoSize
 ```
+---
+
+<img width="935" height="453" alt="Screenshot_2" src="https://github.com/user-attachments/assets/95a43c36-3c9f-40f7-ba28-80d4a120800a" />
+
+---
+
 
 ```powershell
 # Detect off-hours boots — reboots outside 7AM–7PM are suspicious on servers
