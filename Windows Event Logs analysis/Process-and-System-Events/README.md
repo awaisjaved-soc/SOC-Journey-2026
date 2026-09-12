@@ -247,6 +247,7 @@ Process-System-Events/
 ├── Event-5861_Permanent-WMI-Subscription/
 └── Event-5861_WMI-Permanent-Subscription-Persistence-Lab/
 ```
-```
+
+---
 
 
