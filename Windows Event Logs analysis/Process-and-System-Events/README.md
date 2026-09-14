@@ -1,3 +1,4 @@
+
 # Process & System Events – SOC Journey 2026
 
 Windows Security Event logs for the **Process & System Events** category, documented as part of the SOC Analyst learning path.
@@ -17,7 +18,7 @@ Each folder contains a dedicated README with:
 ### 🔴 Tier 1 — Process & PowerShell Events
 
 | Event ID | Name | Log | SOC Importance |
-|----------|------|-----|---------------|
+|----------|------|-----|----------------|
 | [4688](./Event-4688_New-Process-Created/) | New Process Created | Security | Very High |
 | [4689](./Event-4689_Process-Exited/) | Process Exited | Security | Medium (pair with 4688) |
 | [4103](./Event-4103_PowerShell-Module-Logging/) | PowerShell Module Logging | PS/Operational | High |
@@ -28,7 +29,7 @@ Each folder contains a dedicated README with:
 ### 🟠 Tier 2 — Scheduled Task & Service Events
 
 | Event ID | Name | Log | SOC Importance |
-|----------|------|-----|---------------|
+|----------|------|-----|----------------|
 | [4698](./Event-4698_Scheduled-Task-Created/) | Scheduled Task Created | Security | High |
 | [4699](./Event-4699_Scheduled-Task-Deleted/) | Scheduled Task Deleted | Security | Medium–High |
 | [4700](./Event-4700_Scheduled-Task-Enabled/) | Scheduled Task Enabled | Security | Medium |
@@ -45,7 +46,7 @@ Each folder contains a dedicated README with:
 ### 🟡 Tier 3 — Object Access & System Integrity Events
 
 | Event ID | Name | Log | SOC Importance |
-|----------|------|-----|---------------|
+|----------|------|-----|----------------|
 | [4656](./Event-4656_Handle-Requested/) | A Handle to an Object Was Requested | Security | High |
 | [4657](./Event-4657_Registry-Value-Modified/) | A Registry Value Was Modified | Security | Very High |
 | [4660](./Event-4660_Object-Deleted/) | An Object Was Deleted | Security | High |
@@ -57,7 +58,7 @@ Each folder contains a dedicated README with:
 ### 🔵 Tier 3 — System Lifecycle Events
 
 | Event ID | Name | Log | SOC Importance |
-|----------|------|-----|---------------|
+|----------|------|-----|----------------|
 | [4608](./Event-4608_Windows-Starting-Up/) | Windows Is Starting Up | Security | Medium — boot anchor |
 | [4609](./Event-4609_Windows-Shutting-Down/) | Windows Is Shutting Down | Security | Medium — session end marker |
 | [6005](./Event-6005_Event-Log-Service-Started/) | Event Log Service Started (System Reboot) | System | High — reboot detection |
@@ -66,7 +67,19 @@ Each folder contains a dedicated README with:
 
 ---
 
-## Total Events Documented: 24
+### 🟣 Tier 4 — WMI Activity & Persistence Events
+
+| Event ID | Name | Log | SOC Importance |
+|----------|------|-----|----------------|
+| [5857](./Event-5857_WMI-Activity-Detected/) | WMI Activity Detected | WMI-Activity/Operational | Medium–High |
+| [5858](./Event-5858_WMI-Query-Error/) | WMI Query Error | WMI-Activity/Operational | Medium |
+| [5860](./Event-5860_Temporary-WMI-Subscription/) | Temporary WMI Subscription Created | WMI-Activity/Operational | High |
+| [5861](./Event-5861_Permanent-WMI-Subscription/) | Permanent WMI Subscription Created | WMI-Activity/Operational | Very High |
+| [5861 Lab](./Event-5861_WMI-Permanent-Subscription-Persistence-Lab/) | WMI Permanent Subscription Persistence Lab | WMI-Activity/Operational | Critical (Full Lab) |
+
+---
+
+## Total Events Documented: 29
 
 ---
 
@@ -106,36 +119,27 @@ auditpol /set /subcategory:"Security System Extension" /success:enable /failure:
 ### For Object Access & Integrity Events (4656, 4657, 4660, 4663, 4616)
 
 ```powershell
-# Registry and File auditing
 auditpol /set /subcategory:"Registry" /success:enable /failure:enable
 auditpol /set /subcategory:"File System" /success:enable /failure:enable
 auditpol /set /subcategory:"Handle Manipulation" /success:enable /failure:enable
-
-# System time change auditing
 auditpol /set /subcategory:"Security State Change" /success:enable /failure:enable
 ```
 
-> **Note for 4656, 4657, 4660, 4663:** Audit policy alone is not enough. You must also configure a SACL (Security Access Control List) on each specific registry key or file you want to audit. See each event's individual README for SACL setup steps.
+> **Note:** For 4656, 4657, 4660, 4663 you must also configure a SACL on the specific registry key or file.
 
 ### For System Lifecycle Events (4608, 4609, 6005, 6006, 6008)
 
 ```powershell
-# Security State Change — covers 4608 and 4609
 auditpol /set /subcategory:"Security State Change" /success:enable /failure:enable
 ```
 
-> **Note for 6005, 6006, 6008:** No audit policy required. These events are written automatically by the Windows Event Log service itself during boot and shutdown cycles.
+### For WMI Events (5857, 5858, 5860, 5861)
 
-### Apply All Policies
+No special `auditpol` command is required.  
+These events are written automatically to the **Microsoft-Windows-WMI-Activity/Operational** log.
 
 ```powershell
 gpupdate /force
-```
-
-### Verify Everything Is Active
-
-```powershell
-auditpol /get /category:*
 ```
 
 ---
@@ -143,7 +147,6 @@ auditpol /get /category:*
 ## Lab Environment
 
 - **Domain:** TECHCORP / techcorp.local
-- **Server:** WIN-KAHJ94DKN9V
 - **Platform:** Windows Server (VirtualBox)
 - **Test Accounts:** Administrator, alexrivera, scott
 
@@ -154,106 +157,52 @@ auditpol /get /category:*
 ### Process & Execution Chains
 
 | Attack Technique | Events Involved |
-|-----------------|----------------|
+|------------------|-----------------|
 | Malware execution | 4688 → 4689 |
 | Obfuscated PowerShell attack | 4688 → 4104 |
 | Persistence via scheduled task | 4688 → 4698 → 4702 |
-| Attacker cleanup after attack | 4698 → 4688 → 4699 |
-| Task hijacking (modify existing task) | 4702 → 4688 |
-| PowerShell recon and lateral movement | 4103 → 4104 |
-| Security task disabled to reduce visibility | 4701 |
+| Task hijacking | 4702 → 4688 |
 
 ### Service-Based Chains
 
 | Attack Technique | Events Involved |
-|-----------------|----------------|
-| Malware installs itself as a service | 7045 + 4697 |
-| Malware service fails (AV killed binary) | 7045 → 7000 |
-| Attacker sets service to auto-start | 7045 → 7040 |
-| Attacker disables security service permanently | 7040 (disabled) |
-| Security tool stopped to reduce visibility | 7036 (stopped) |
-| Full service persistence chain | 7045 → 7040 → 7036 → 4688 |
+|------------------|-----------------|
+| Malware installs as a service | 7045 + 4697 |
+| Service set to auto-start | 7045 → 7040 |
+| Security tool stopped | 7036 |
 
-### Object Access & Anti-Forensics Chains
+### Object Access & Anti-Forensics
 
 | Attack Technique | Events Involved |
-|-----------------|----------------|
-| Registry persistence via Run key | 4656 → 4663 → 4657 |
-| Full persistence + cleanup chain | 4656 → 4663 → 4657 → 4660 → 4616 |
-| Attacker reads startup entries (recon) | 4656 → 4663 |
-| Evidence file destroyed | 4660 (correlate Handle ID with 4656) |
-| Timestamp manipulation (anti-forensics) | 4616 |
-| Registry key deletion after attack | 4660 |
+|------------------|-----------------|
+| Registry Run key persistence | 4656 → 4663 → 4657 |
+| Timestamp manipulation | 4616 |
 
-### System Lifecycle Chains
+### WMI Persistence Chains
 
 | Attack Technique | Events Involved |
-|-----------------|----------------|
-| Forced reboot to apply persistence | 4609 → 6006 → 6005 → 4608 |
-| Crash or power-kill to evade logging | 6008 (no preceding 6006) |
-| Unexplained reboot mid-session | 4608 without prior 4609 |
-| Off-hours reboot during attack | 6005 timestamp outside business hours |
-| Timeline building for incident response | 4608 + 6005 as boot anchors |
+|------------------|-----------------|
+| Temporary WMI subscription | 5860 |
+| Permanent WMI persistence | 5861 |
+| Full WMI attack + execution | 5857 → 5861 → 4688 |
 
 ---
 
 ## Priority Reference for SOC
 
-When triaging alerts in this category, focus in this order:
+**Critical**
+1. **4688** – New Process Created
+2. **4104** – PowerShell Script Block
+3. **5861** – Permanent WMI Subscription
+4. **7045 + 4697** – New Service Installed
+5. **4657** – Registry Value Modified
 
-### Immediate Investigation (Critical)
-
-1. **4688** — New Process Created (command line + parent process chain)
-2. **4104** — PowerShell Script Block (full script content — highest intelligence value)
-3. **7045 + 4697** — New Service Installed (always check both logs simultaneously)
-4. **4657** — Registry Value Modified (Run key or sensitive path modification)
-
-### High Priority
-
-5. **4698** — Scheduled Task Created (persistence mechanism)
-6. **7040** — Service Start Type Changed (persistence or defense evasion)
-7. **4702** — Scheduled Task Modified (task hijacking)
-8. **4616** — System Time Changed (anti-forensics — investigate process name)
-9. **6008** — Unexpected Shutdown (crash, forced kill, or attacker-initiated reboot)
-10. **6005** — Event Log Service Started (off-hours reboot detection)
-
-### Medium Priority
-
-11. **4103** — PowerShell Module Logging (cmdlet-level tracking)
-12. **4663** — Object Access Attempt (read/write to sensitive registry or file)
-13. **4656** — Handle Requested (pre-access to sensitive object)
-14. **7036** — Service Started/Stopped (security tools being killed)
-15. **4699** — Scheduled Task Deleted (attacker cleanup)
-16. **7000** — Service Failed to Start (correlate with 7045)
-17. **4660** — Object Deleted (correlate Handle ID with 4656 for object name)
-
-### Timeline & Correlation Support
-
-18. **4608** — Windows Starting Up (boot timestamp anchor)
-19. **4609** — Windows Shutting Down (session end marker)
-20. **6006** — Event Log Service Stopped (clean shutdown confirmation)
-21. **4689** — Process Exited (pair with 4688 for full execution timeline)
-22. **4700/4701** — Task Enabled/Disabled (evasion and security tool tampering)
-
----
-
-## Key Concept — Visible vs Silent Events
-
-Understanding which events produce visible results and which are silent is important for lab work:
-
-**Visible Events** — something happens on screen when triggered:
-- 4688/4689 — a process window may open and close
-- 4698–4702 — Task Scheduler shows the task
-- 7045/4697/7036/7040 — Services console reflects the change
-- 6005/6006/6008 — the machine actually reboots or shuts down
-- 4616 — the system clock visibly changes in the taskbar
-
-**Silent Events** — nothing appears on screen, evidence is only in the Security log:
-- 4656 — handle request fires in the kernel, no visual output
-- 4657 — registry modification logged silently; only regedit shows the new value
-- 4660 — deletion logged silently; the object disappears but no audit popup appears
-- 4663 — access operation logged silently; PowerShell shows command output, not the audit event
-- 4608/4609 — fire during boot/shutdown sequences with no dedicated on-screen indicator
+**High Priority**
+6. **4698** – Scheduled Task Created
+7. **7040** – Service Start Type Changed
+8. **4702** – Scheduled Task Modified
+9. **4616** – System Time Changed
+10. **6008** – Unexpected Shutdown
 
 ---
 
@@ -262,7 +211,7 @@ Understanding which events produce visible results and which are silent is impor
 ```
 Process-System-Events/
 │
-├── README.md                                        ← This file
+├── README.md
 │
 ├── Event-4688_New-Process-Created/
 ├── Event-4689_Process-Exited/
@@ -290,5 +239,15 @@ Process-System-Events/
 ├── Event-4609_Windows-Shutting-Down/
 ├── Event-6005_Event-Log-Service-Started/
 ├── Event-6006_Event-Log-Service-Stopped/
-└── Event-6008_Unexpected-Shutdown/
+├── Event-6008_Unexpected-Shutdown/
+│
+├── Event-5857_WMI-Activity-Detected/
+├── Event-5858_WMI-Query-Error/
+├── Event-5860_Temporary-WMI-Subscription/
+├── Event-5861_Permanent-WMI-Subscription/
+└── Event-5861_WMI-Permanent-Subscription-Persistence-Lab/
 ```
+
+---
+
+

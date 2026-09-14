@@ -24,6 +24,11 @@
 
 ---
 
+<img width="471" height="328" alt="Screenshot_4" src="https://github.com/user-attachments/assets/1e7f9f12-21db-492e-b9b3-0e13904a3991" />
+
+---
+
+
 ## What Is Event 4713?
 
 Event 4713 fires when Kerberos policy settings are changed at the domain level. Kerberos is the authentication protocol used in Active Directory — it issues encrypted tickets that prove a user's identity. These tickets have lifetimes, renewal periods, and tolerance windows that are defined by domain policy.
@@ -46,6 +51,13 @@ When you open Event 4713, the change is shown in a technical hexadecimal format 
 KerMaxT: 0x14762a65a1800 (0x53d1ac1000)
 KerMaxR: 0x147ae1641c000 (0x58028e44000)
 ```
+
+---
+
+<img width="470" height="328" alt="Screenshot_5" src="https://github.com/user-attachments/assets/cd88cdb5-50c7-4f94-8a68-2869291cfab8" />
+
+---
+
 
 | Field | Meaning |
 |---|---|
@@ -83,6 +95,22 @@ Run this on the Domain Controller.
 9. Check the **Security log on the Domain Controller** for Event 4713
 10. **Immediately** restore the setting back to 10 hours
 
+
+---
+
+<img width="955" height="483" alt="sa" src="https://github.com/user-attachments/assets/0e1bde77-aabc-467f-97e4-10a30a3d8a26" />
+
+---
+
+<img width="445" height="221" alt="Screenshot_1" src="https://github.com/user-attachments/assets/63d28363-b8dc-4914-9124-e39fdbadfbfa" />
+
+---
+
+<img width="531" height="279" alt="Screenshot_2" src="https://github.com/user-attachments/assets/57c4b16b-1910-4c5b-9e55-97106955a1ce" />
+
+---
+
+
 ### PowerShell / Command Note
 
 Kerberos policy changes are best performed through the Group Policy GUI on the Domain Controller. The event fires when the GPO is applied.
@@ -94,6 +122,10 @@ gpupdate /force
 # Verify current settings (run on DC)
 net accounts /domain
 ```
+
+---
+
+<img width="487" height="193" alt="Screenshot_3" src="https://github.com/user-attachments/assets/e128ec37-c090-4106-97c5-a5e5045bd14d" />
 
 ---
 
@@ -125,11 +157,30 @@ Get-WinEvent -FilterHashtable @{
     StartTime = (Get-Date).AddDays(-30)
 } | Select-Object TimeCreated, Message | Format-List
 ```
+---
+
+<img width="471" height="328" alt="Screenshot_4" src="https://github.com/user-attachments/assets/fb58d811-8e54-4b51-ae19-d8931c201afa" />
+
+---
+
 
 ```powershell
 # Quick way to check current ticket lifetime settings
 net accounts /domain
 ```
+
+---
+
+<img width="470" height="328" alt="Screenshot_5" src="https://github.com/user-attachments/assets/5591b27c-b0d5-453e-845b-d4cdea899cc1" />
+
+---
+
+<img width="949" height="472" alt="Screenshot_6" src="https://github.com/user-attachments/assets/4b196222-1ddb-4f5c-97a1-beb65c681080" />
+
+
+---
+
+<img width="955" height="489" alt="Screenshot_8" src="https://github.com/user-attachments/assets/66e1f9d2-fefa-48ce-9d22-b731b6040326" />
 
 ---
 

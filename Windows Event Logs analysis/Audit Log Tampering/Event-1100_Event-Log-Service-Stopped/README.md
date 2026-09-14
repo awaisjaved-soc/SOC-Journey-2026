@@ -36,6 +36,7 @@ Clearing the log (Event 1102) destroys past evidence. Stopping the Event Log ser
 
 ---
 
+
 ## Lab Note — Why This Event Could Not Be Generated
 
 > **Lab Note:** Event 1100 could not be generated in this lab environment (Windows Server 2022). Multiple methods were attempted — `services.msc` GUI, `net stop eventlog`, and `Stop-Service -Force` via PowerShell. All methods failed with **Error 1061: The service cannot accept control messages at this time**.
@@ -68,6 +69,12 @@ The following methods were attempted. They are documented here for completeness.
 
 ### Command Line Method
 
+---
+
+<img width="956" height="488" alt="Screenshot_1" src="https://github.com/user-attachments/assets/8bf3392e-0b54-44d5-870a-160eac6be0cf" />
+
+---
+
 ```cmd
 net stop eventlog
 ```
@@ -77,10 +84,20 @@ net stop eventlog
 ```powershell
 Stop-Service -Name EventLog -Force
 ```
+---
+
+<img width="857" height="418" alt="Screenshot_2" src="https://github.com/user-attachments/assets/d4c09400-cec3-4d9b-8ae5-640f3df3a48c" />
+
+---
 
 > All three methods fail on Windows Server 2022 with Error 1061. This is expected behaviour on modern Windows.
 
 ---
+
+<img width="755" height="383" alt="Screenshot_3" src="https://github.com/user-attachments/assets/fafc2cb3-a71d-4691-bc18-5da903e53f0d" />
+
+---
+
 
 ## Detecting the Event
 
@@ -133,6 +150,10 @@ foreach ($evt in $stopEvents) {
     }
 }
 ```
+
+---
+
+<img width="954" height="486" alt="Screenshot_5" src="https://github.com/user-attachments/assets/ec10482e-5d81-463f-a7ae-1736550986a4" />
 
 ---
 

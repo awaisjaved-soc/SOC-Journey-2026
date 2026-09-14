@@ -23,6 +23,11 @@
 
 ---
 
+<img width="465" height="326" alt="Screenshot_9" src="https://github.com/user-attachments/assets/8fb2da4c-0bb1-4cfc-acd2-012cacba7375" />
+
+---
+
+
 ## What Is Event 4907?
 
 Event 4907 fires when the SACL (Security Access Control List) on a specific file, folder, or registry key is modified. A SACL is the auditing configuration attached to an individual object — it defines who is being audited, for what operations, and whether successes, failures, or both are logged.
@@ -92,7 +97,39 @@ auditpol /get /subcategory:"Other Policy Change Events"
 9. Another 4907 fires — SACL was modified
 10. To simulate attacker removing auditing: select the entry → **Remove** → Apply
 
+---
+
+<img width="875" height="423" alt="Screenshot_1" src="https://github.com/user-attachments/assets/9c86a75b-b2ed-4c60-bd5e-e0b7107a67c1" />
+
+---
+
+<img width="387" height="396" alt="Screenshot_2" src="https://github.com/user-attachments/assets/90292786-bc59-4e20-af52-e32249b57cda" />
+
+---
+
+<img width="577" height="428" alt="Screenshot_3" src="https://github.com/user-attachments/assets/d270d3c4-2384-41e9-b21f-c2485acb07ab" />
+
+
+---
+
+<img width="688" height="454" alt="Screenshot_4" src="https://github.com/user-attachments/assets/2e0f384c-5c5f-4b9c-9abb-6abe4b2c3771" />
+
+
+---
+
+<img width="348" height="217" alt="Screenshot_5" src="https://github.com/user-attachments/assets/37bd5d15-6c79-4c06-9d1c-659dd55c1757" />
+
+---
+
+<img width="689" height="457" alt="Screenshot_6" src="https://github.com/user-attachments/assets/621c9a07-33a1-491e-8395-a5e86305d635" />
+
+---
+
+<img width="578" height="400" alt="Screenshot_7" src="https://github.com/user-attachments/assets/0002f52a-cec3-458d-afd2-07c0ef9ed6f5" />
+
+---
 ### PowerShell Method
+
 
 ```powershell
 # Create test file
@@ -120,7 +157,9 @@ Write-Host "SACL removed — Event 4907 fired (SACL removed)." -ForegroundColor 
 Write-Host "File can now be accessed without generating audit events." -ForegroundColor Yellow
 ```
 
----
+
+
+
 
 ## Detecting the Event
 
@@ -141,6 +180,25 @@ Write-Host "File can now be accessed without generating audit events." -Foregrou
 | Subject: Account Name | Who made the SACL change |
 | Process Name | `explorer.exe` = GUI method / `powershell.exe` = script method |
 
+---
+
+<img width="624" height="267" alt="Screenshot_8" src="https://github.com/user-attachments/assets/f76a1ff9-1d10-42d0-9219-598762b35228" />
+
+---
+
+<img width="465" height="326" alt="Screenshot_9" src="https://github.com/user-attachments/assets/694cdac9-f074-4f15-b404-b241659e1713" />
+
+---
+
+<img width="469" height="328" alt="Screenshot_10" src="https://github.com/user-attachments/assets/53bc259d-4511-4828-a8d2-244a00f5087c" />
+
+---
+
+<img width="467" height="329" alt="Screenshot_11" src="https://github.com/user-attachments/assets/dabdc572-d33a-4cf6-9ecc-e17924b2fbf0" />
+
+---
+
+
 ### PowerShell Detection
 
 ```powershell
@@ -151,6 +209,12 @@ Get-WinEvent -FilterHashtable @{
     StartTime = (Get-Date).AddDays(-7)
 } | Select-Object TimeCreated, Message | Format-List
 ```
+---
+
+<img width="949" height="434" alt="asd" src="https://github.com/user-attachments/assets/b2fc963e-9f4e-4167-ba37-b46fa3d5cb17" />
+
+---
+
 
 ```powershell
 # Extract object names from 4907 events
@@ -170,7 +234,9 @@ Get-WinEvent -FilterHashtable @{
 } | Format-Table -AutoSize
 ```
 
+
 ---
+
 
 ## SOC Analyst Notes
 

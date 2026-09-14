@@ -22,6 +22,12 @@
 
 ---
 
+<img width="632" height="149" alt="Screenshot_1" src="https://github.com/user-attachments/assets/ac09bef2-85ee-4f92-be3f-e0eeedd7f935" />
+
+---
+
+
+
 ## What Is Event 1102?
 
 Event 1102 is the single most important event in the entire Audit and Log Tampering category. It fires the moment someone clears the Windows Security event log — and it is the last event written to that log before all previous entries are permanently destroyed.
@@ -61,6 +67,11 @@ auditpol /get /subcategory:"Security State Change"
 
 ---
 
+<img width="636" height="433" alt="Screenshot_2" src="https://github.com/user-attachments/assets/6e1b2ad7-aef1-417f-abb7-de9b30c74e8d" />
+
+---
+
+
 ## Generating the Event
 
 > ⚠️ This permanently deletes all entries in the Security event log. Take screenshots of any important events before running this.
@@ -91,6 +102,11 @@ Write-Host "1102 should now be the first entry in the Security log." -Foreground
 
 ---
 
+<img width="676" height="383" alt="Screenshot_3" src="https://github.com/user-attachments/assets/e614bd03-1adb-4edc-808a-c8b2eb4ea5f2" />
+
+---
+
+
 ## Detecting the Event
 
 ### GUI — Event Viewer
@@ -117,6 +133,12 @@ Get-WinEvent -FilterHashtable @{
     Id      = 1102
 } | Select-Object -First 5 | Format-List TimeCreated, Message
 ```
+---
+
+<img width="674" height="383" alt="Screenshot_4" src="https://github.com/user-attachments/assets/48103e2d-dc38-4e98-9ff7-1c568c8ec174" />
+
+---
+
 
 ```powershell
 # Immediate escalation alert for any log clearing
@@ -139,6 +161,12 @@ if ($clearEvents) {
 ```
 
 ---
+
+<img width="675" height="386" alt="Screenshot_11" src="https://github.com/user-attachments/assets/ecdbc8fe-be79-4525-aa55-5ded216baf51" />
+
+
+---
+
 
 ## SOC Analyst Notes
 
