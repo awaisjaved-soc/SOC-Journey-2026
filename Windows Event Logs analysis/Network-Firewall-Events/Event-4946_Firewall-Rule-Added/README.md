@@ -48,12 +48,30 @@ Not all new firewall rules are equal. Severity depends heavily on:
 ```cmd
 auditpol /set /subcategory:"MPSSVC Rule-Level Policy Change" /success:enable /failure:enable
 ```
+---
+
+<img width="953" height="486" alt="Screenshot_6" src="https://github.com/user-attachments/assets/ba66f542-4287-4a01-b841-14d3d685c5ac" />
+
+---
+
+<img width="370" height="421" alt="Screenshot_8" src="https://github.com/user-attachments/assets/ecda4aaf-7d70-4a11-81ba-6c25c339f7c8" />
+
+---
+
+
 
 Verify:
 
 ```cmd
 auditpol /get /subcategory:"MPSSVC Rule-Level Policy Change"
 ```
+
+---
+
+<img width="903" height="429" alt="Screenshot_5" src="https://github.com/user-attachments/assets/bcb1870a-e7c7-476a-9365-c44d422fc339" />
+
+---
+
 
 > This subcategory covers 4946, 4947, 4948, and 4954 — enable it once for all four events.
 
@@ -72,6 +90,20 @@ auditpol /get /subcategory:"MPSSVC Rule-Level Policy Change"
 7. Name it `SOC-Lab-Test-Rule` → Finish
 8. Event 4946 fires immediately
 9. Delete the rule after screenshot: right-click → **Delete**
+
+---
+
+<img width="563" height="427" alt="Screenshot_1" src="https://github.com/user-attachments/assets/7b46e1a7-f66f-4145-920c-f7862db18c27" />
+
+---
+
+<img width="483" height="343" alt="Screenshot_10" src="https://github.com/user-attachments/assets/08eb0742-273d-4ca4-a241-8fe8b9a4e3bb" />
+
+---
+
+<img width="459" height="159" alt="Screenshot_2" src="https://github.com/user-attachments/assets/70b2e2e7-2406-4f4d-b8bd-5d077fe4374a" />
+
+---
 
 ### PowerShell Method
 
@@ -93,6 +125,21 @@ Write-Host "Rule removed." -ForegroundColor Green
 
 ---
 
+<img width="906" height="441" alt="Screenshot_3" src="https://github.com/user-attachments/assets/6dd7e005-9502-4e47-b5e7-c230784d7681" />
+
+---
+
+
+<img width="717" height="184" alt="Screenshot_4" src="https://github.com/user-attachments/assets/abda9387-5b3a-4cea-aed1-463170d8cc91" />
+
+---
+
+<img width="903" height="429" alt="Screenshot_5" src="https://github.com/user-attachments/assets/08460011-6163-4609-b58e-332a5ec119c7" />
+
+---
+
+
+
 ## Detecting the Event
 
 ### GUI — Event Viewer
@@ -100,6 +147,21 @@ Write-Host "Rule removed." -ForegroundColor Green
 1. Event Viewer → Windows Logs → **Security**
 2. Filter → Event ID: `4946` → OK
 3. Each entry shows a new firewall rule that was created
+
+---
+
+<img width="355" height="171" alt="Screenshot_9" src="https://github.com/user-attachments/assets/41419c18-c23f-4091-b4eb-721d3bc2fdc0" />
+
+
+---
+
+<img width="458" height="78" alt="Screenshot_11" src="https://github.com/user-attachments/assets/51e01141-70ef-4a43-ba3d-c949ae1d162a" />
+
+---
+
+<img width="470" height="329" alt="Screenshot_12" src="https://github.com/user-attachments/assets/b63aa8d7-3b33-4162-869a-249b1b297b86" />
+
+---
 
 **Key fields to examine:**
 
@@ -121,6 +183,12 @@ Get-WinEvent -FilterHashtable @{
     StartTime = (Get-Date).AddDays(-7)
 } | Select-Object TimeCreated, Message | Format-List
 ```
+---
+
+<img width="515" height="344" alt="Screenshot_13" src="https://github.com/user-attachments/assets/21b9563c-ebef-4486-b656-490a3c844fd0" />
+
+---
+
 
 ```powershell
 # Alert on inbound allow rules — highest priority variant
