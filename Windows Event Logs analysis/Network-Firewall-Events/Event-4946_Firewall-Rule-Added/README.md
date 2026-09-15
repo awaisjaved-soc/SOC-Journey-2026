@@ -57,6 +57,12 @@ auditpol /get /subcategory:"MPSSVC Rule-Level Policy Change"
 
 > This subcategory covers 4946, 4947, 4948, and 4954 — enable it once for all four events.
 
+![Audit Policy Enable](Screenshot_5.png)
+
+![Group Policy Audit Setting](Screenshot_6.png)
+
+![Audit MPSSVC Properties](Screenshot_8.png)
+
 ---
 
 ## Generating the Event
@@ -72,6 +78,14 @@ auditpol /get /subcategory:"MPSSVC Rule-Level Policy Change"
 7. Name it `SOC-Lab-Test-Rule` → Finish
 8. Event 4946 fires immediately
 9. Delete the rule after screenshot: right-click → **Delete**
+
+![New Inbound Rule Wizard](Screenshot_1.png)
+
+![Inbound Rules List](Screenshot_2.png)
+
+![Inbound Rules with Lab Rules](Screenshot_11.png)
+
+![Windows Firewall Outbound Rules View](Screenshot_7.png)
 
 ### PowerShell Method
 
@@ -91,6 +105,10 @@ Remove-NetFirewallRule -DisplayName "SOC-Lab-Inbound-Test"
 Write-Host "Rule removed." -ForegroundColor Green
 ```
 
+![PowerShell Creating Rule](Screenshot_3.png)
+
+![PowerShell Rule Created and Removed](Screenshot_4.png)
+
 ---
 
 ## Detecting the Event
@@ -100,6 +118,12 @@ Write-Host "Rule removed." -ForegroundColor Green
 1. Event Viewer → Windows Logs → **Security**
 2. Filter → Event ID: `4946` → OK
 3. Each entry shows a new firewall rule that was created
+
+![Event Viewer Filtered for 4946](Screenshot_9.png)
+
+![Event 4946 Properties - SOC-Lab-4946-Test](Screenshot_10.png)
+
+![Event 4946 Properties - SOC-Lab-Inbound-Test](Screenshot_12.png)
 
 **Key fields to examine:**
 
@@ -121,6 +145,8 @@ Get-WinEvent -FilterHashtable @{
     StartTime = (Get-Date).AddDays(-7)
 } | Select-Object TimeCreated, Message | Format-List
 ```
+
+![PowerShell Detection Output](Screenshot_13.png)
 
 ```powershell
 # Alert on inbound allow rules — highest priority variant
