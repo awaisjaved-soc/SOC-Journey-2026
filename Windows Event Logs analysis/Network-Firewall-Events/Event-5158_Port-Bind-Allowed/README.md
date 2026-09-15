@@ -23,6 +23,11 @@
 
 ---
 
+<img width="471" height="328" alt="Screenshot_1" src="https://github.com/user-attachments/assets/2b74ca36-af82-4492-8021-294344d2115c" />
+
+---
+
+
 ## What Is Event 5158?
 
 Event 5158 fires when Windows Filtering Platform permits a process to bind to a local port. A socket bind is the low-level network operation that claims a specific port on a specific network interface for a process — it is the foundation that all network listeners and outbound connections are built on.
@@ -79,6 +84,7 @@ Write-Host "Listener stopped." -ForegroundColor Green
 
 ---
 
+
 ## Detecting the Event
 
 ### GUI — Event Viewer
@@ -97,6 +103,25 @@ Write-Host "Listener stopped." -ForegroundColor Green
 | Protocol | 6 = TCP / 17 = UDP |
 | Layer Name | `Resource Assignment` = normal bind layer |
 
+---
+
+<img width="471" height="328" alt="Screenshot_1" src="https://github.com/user-attachments/assets/b2e15d13-30a0-4516-b266-a7dc28bdd3c1" />
+
+---
+
+<img width="469" height="330" alt="Screenshot_2" src="https://github.com/user-attachments/assets/1f6182f3-e317-442e-a36c-cccbd2fef5ac" />
+
+---
+
+<img width="619" height="252" alt="Screenshot_3" src="https://github.com/user-attachments/assets/6231802d-94de-4ffb-9adc-93162836c350" />
+
+---
+
+<img width="469" height="330" alt="Screenshot_10" src="https://github.com/user-attachments/assets/ebf2351c-8512-473d-80f4-cd056b471105" />
+
+---
+
+
 ### PowerShell Detection
 
 ```powershell
@@ -111,6 +136,12 @@ Get-WinEvent -FilterHashtable @{
     $_.Message -like "*powershell*"
 } | Select-Object TimeCreated, Message | Format-List
 ```
+---
+
+<img width="906" height="398" alt="Screenshot_4" src="https://github.com/user-attachments/assets/74bfa86e-ebf1-4b83-90dc-0dc78233d5b9" />
+
+---
+
 
 ```powershell
 # Find both 5154 and 5158 together — confirm they fired as a pair
@@ -122,6 +153,12 @@ Get-WinEvent -FilterHashtable @{
     $_.Message -like "*powershell*" -or $_.Message -like "*7777*"
 } | Select-Object TimeCreated, Id, Message | Format-List
 ```
+---
+
+<img width="930" height="413" alt="Screenshot_5" src="https://github.com/user-attachments/assets/297b960a-1e12-418c-94aa-66f15ffafffa" />
+
+---
+
 
 ```powershell
 # Exclude lsass and svchost noise — show only unexpected binds
@@ -148,6 +185,13 @@ Get-WinEvent -FilterHashtable @{
 
 ---
 
+<img width="877" height="230" alt="Screenshot_6" src="https://github.com/user-attachments/assets/aa030035-85c8-4671-a013-daf694bcbadd" />
+
+---
+
+<img width="952" height="416" alt="sdadasda" src="https://github.com/user-attachments/assets/c4c6e838-77af-42ec-9e9f-216660e26518" />
+
+---
 ## SOC Analyst Notes
 
 ### Handling the Volume Problem
