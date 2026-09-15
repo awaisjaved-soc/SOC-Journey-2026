@@ -23,6 +23,11 @@
 
 ---
 
+<img width="467" height="332" alt="Screenshot_1" src="https://github.com/user-attachments/assets/28bf88b0-574f-4f7f-87e5-978853863b18" />
+
+---
+
+
 ## What Is Event 5157?
 
 Event 5157 fires when Windows Filtering Platform blocks a network connection because a firewall rule matched and the action was Block. Unlike Event 5156 which fires for every allowed connection (generating massive volume), 5157 only fires when something is actually stopped — making it lower volume and inherently higher signal value.
@@ -77,6 +82,7 @@ auditpol /get /subcategory:"Filtering Platform Connection"
 
 ---
 
+
 ## Generating the Event
 
 ### Method 1 — PowerShell with Temporary Block Rule (Recommended)
@@ -102,6 +108,13 @@ try {
 Remove-NetFirewallRule -DisplayName "SOC-Lab-Block-Test"
 Write-Host "Block rule removed." -ForegroundColor Green
 ```
+
+---
+
+<img width="918" height="427" alt="Screenshot_11" src="https://github.com/user-attachments/assets/b457196f-d062-4f11-87db-9001f27da0b4" />
+
+---
+
 
 ### Method 2 — Block Inbound and Test with Loopback
 
@@ -135,6 +148,10 @@ Write-Host "Rule removed." -ForegroundColor Green
 
 ---
 
+<img width="955" height="384" alt="Screenshot_12" src="https://github.com/user-attachments/assets/1d7373a0-11fe-4435-bd08-c14bb0e0df03" />
+
+---
+
 ## Detecting the Event
 
 ### GUI — Event Viewer
@@ -142,6 +159,33 @@ Write-Host "Rule removed." -ForegroundColor Green
 1. Event Viewer → Windows Logs → **Security**
 2. Filter → Event ID: `5157` → OK
 3. Find entries timestamped when you ran the block test
+
+---
+
+<img width="467" height="332" alt="Screenshot_1" src="https://github.com/user-attachments/assets/39cdac9f-ff11-48f6-b14a-bf640ead1d22" />
+
+---
+
+<img width="468" height="332" alt="Screenshot_2" src="https://github.com/user-attachments/assets/fd52669d-27bc-48fa-bfc4-006d9e69188a" />
+
+---
+
+<img width="471" height="330" alt="Screenshot_3" src="https://github.com/user-attachments/assets/4826ed63-76b0-44ab-a0be-16be6012a71d" />
+
+---
+
+<img width="466" height="329" alt="Screenshot_4" src="https://github.com/user-attachments/assets/8e42ce19-e654-437e-bcc6-bb41da45da1e" />
+
+---
+
+<img width="471" height="332" alt="Screenshot_5" src="https://github.com/user-attachments/assets/c32d04c7-8f12-4825-8abb-788f8162e706" />
+
+---
+
+<img width="472" height="330" alt="Screenshot_6" src="https://github.com/user-attachments/assets/c131fbdf-2a9b-480f-9647-c1668644e5cb" />
+
+---
+
 
 **Key fields to examine:**
 
@@ -154,6 +198,24 @@ Write-Host "Rule removed." -ForegroundColor Green
 | Destination Port | Which port was blocked |
 | Filter Run-Time ID | Which firewall rule caused the block |
 | Protocol | 6 = TCP / 17 = UDP |
+
+---
+
+<img width="468" height="332" alt="Screenshot_7" src="https://github.com/user-attachments/assets/2c968dbf-892e-4d0b-8e5d-5f9dcd75440a" />
+
+---
+
+<img width="470" height="333" alt="Screenshot_8" src="https://github.com/user-attachments/assets/a16f0115-fab7-4f49-bc82-e33b43e9efbd" />
+
+---
+
+<img width="475" height="334" alt="Screenshot_9" src="https://github.com/user-attachments/assets/1ad277ec-9c36-401a-9b5a-8796ebb41c44" />
+
+---
+
+<img width="632" height="260" alt="Screenshot_17" src="https://github.com/user-attachments/assets/2763e61f-d98d-496a-b68c-e5948b54d1db" />
+
+---
 
 ### PowerShell Detection
 
@@ -177,6 +239,12 @@ Get-WinEvent -FilterHashtable @{
     }
 } | Format-Table -AutoSize
 ```
+---
+
+<img width="913" height="473" alt="Screenshot_10" src="https://github.com/user-attachments/assets/6389d2cd-e6b3-403b-8c1b-f628a2cbe5d1" />
+
+---
+
 
 ```powershell
 # Detect scanning pattern — many blocked connections from same process
@@ -200,6 +268,11 @@ $blocked | ForEach-Object {
 ```
 
 ---
+
+<img width="709" height="262" alt="Screenshot_18" src="https://github.com/user-attachments/assets/faa8872b-be03-4879-ad71-5e73bc5624d8" />
+
+---
+
 
 ## SOC Analyst Notes
 
