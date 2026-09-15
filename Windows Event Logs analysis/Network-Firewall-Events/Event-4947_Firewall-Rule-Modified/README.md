@@ -57,6 +57,10 @@ auditpol /set /subcategory:"MPSSVC Rule-Level Policy Change" /success:enable /fa
 
 ---
 
+<img width="470" height="328" alt="Screenshot_2" src="https://github.com/user-attachments/assets/c8c070a9-9dc2-4fda-9bc6-80565228077c" />
+
+---
+
 ## Generating the Event
 
 ### PowerShell Method
@@ -87,6 +91,19 @@ Remove-NetFirewallRule -DisplayName "SOC-Lab-Modify-Test"
 Write-Host "Rule removed." -ForegroundColor Green
 ```
 
+
+---
+
+<img width="834" height="246" alt="Screenshot_1" src="https://github.com/user-attachments/assets/f73dca41-f412-42b2-8f85-86defd8aabff" />
+
+---
+
+<img width="680" height="358" alt="Screenshot_14" src="https://github.com/user-attachments/assets/25da1600-ac76-4e1c-aa72-92628f4ce594" />
+
+---
+
+
+
 ### GUI Method
 
 1. Open `wf.msc` → find any existing rule
@@ -103,6 +120,17 @@ Write-Host "Rule removed." -ForegroundColor Green
 
 1. Event Viewer → Windows Logs → **Security**
 2. Filter → Event ID: `4947` → OK
+
+---
+
+<img width="495" height="260" alt="Screenshot_3" src="https://github.com/user-attachments/assets/a95ea3f3-4266-4f06-b5f0-66164415132f" />
+
+---
+
+<img width="470" height="328" alt="Screenshot_2" src="https://github.com/user-attachments/assets/7bb3b7db-9068-415d-9630-0cc283b62a3e" />
+
+---
+
 
 **Key fields to examine:**
 
@@ -144,6 +172,11 @@ Get-WinEvent -FilterHashtable @{
 ```
 
 ---
+
+<img width="554" height="278" alt="Screenshot_4" src="https://github.com/user-attachments/assets/0ec45d5b-1bc0-4f78-a0cb-ed6dbd19e109" />
+
+---
+
 
 ## SOC Analyst Notes
 
