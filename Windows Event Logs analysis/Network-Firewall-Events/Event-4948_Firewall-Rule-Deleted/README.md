@@ -55,6 +55,11 @@ auditpol /set /subcategory:"MPSSVC Rule-Level Policy Change" /success:enable /fa
 
 ---
 
+<img width="470" height="330" alt="Screenshot_1" src="https://github.com/user-attachments/assets/43845332-3d9a-4cca-84d4-f847b497fa62" />
+
+---
+
+
 ## Generating the Event
 
 ### PowerShell Method
@@ -76,6 +81,16 @@ Remove-NetFirewallRule -DisplayName "SOC-Lab-Delete-Test"
 Write-Host "Block rule deleted — Event 4948 generated." -ForegroundColor Red
 Write-Host "Port 6666 is no longer explicitly blocked." -ForegroundColor Yellow
 ```
+---
+
+<img width="797" height="387" alt="Screenshot_3" src="https://github.com/user-attachments/assets/33f1f592-ddc1-43d9-b3fd-f8b9c77140ad" />
+
+---
+
+<img width="690" height="183" alt="Screenshot_4" src="https://github.com/user-attachments/assets/72fbddbc-2290-4911-95ed-5ca3817702ea" />
+
+---
+
 
 ### GUI Method
 
@@ -86,12 +101,30 @@ Write-Host "Port 6666 is no longer explicitly blocked." -ForegroundColor Yellow
 
 ---
 
+<img width="635" height="426" alt="Screenshot_5" src="https://github.com/user-attachments/assets/081fae15-0947-4998-a674-5bfaa8f186e0" />
+
+---
+
 ## Detecting the Event
 
 ### GUI — Event Viewer
 
 1. Event Viewer → Windows Logs → **Security**
 2. Filter → Event ID: `4948` → OK
+
+---
+
+<img width="531" height="197" alt="Screenshot_2" src="https://github.com/user-attachments/assets/eef265ed-549f-4c7a-8a58-7365394e6d3a" />
+
+---
+
+<img width="470" height="328" alt="Screenshot_6" src="https://github.com/user-attachments/assets/0a15e3e7-c6ba-4b99-85e8-f701e7da3ac0" />
+
+---
+
+<img width="470" height="330" alt="Screenshot_1" src="https://github.com/user-attachments/assets/e3470a4c-27a8-43e0-b37b-3879127507ec" />
+
+---
 
 **Key fields to examine:**
 
@@ -112,6 +145,16 @@ Get-WinEvent -FilterHashtable @{
     StartTime = (Get-Date).AddDays(-7)
 } | Select-Object TimeCreated, Message | Format-List
 ```
+---
+
+<img width="958" height="424" alt="Screenshot_7" src="https://github.com/user-attachments/assets/dc5a7eca-1821-43d6-a5f7-eb6b15014a78" />
+
+---
+
+<img width="749" height="204" alt="Screenshot_8" src="https://github.com/user-attachments/assets/736c0323-e68e-4eb5-95d2-a5744b09874a" />
+
+---
+
 
 ```powershell
 # Full firewall change summary — add, modify, delete together
@@ -133,6 +176,11 @@ if ($deleted -gt 0) {
 ```
 
 ---
+
+<img width="933" height="316" alt="Screenshot_9" src="https://github.com/user-attachments/assets/7b217438-40ea-4635-9eec-d1a5a1f8d819" />
+
+---
+
 
 ## SOC Analyst Notes
 
