@@ -53,6 +53,10 @@ Run this on all machines or deploy via Group Policy.
 
 ---
 
+<img width="474" height="334" alt="Screenshot_3" src="https://github.com/user-attachments/assets/5ad90ccf-9caf-4340-9fda-b3763dc6889d" />
+
+---
+
 ## Generating the Event
 
 ### Method 1 — Force Group Policy Refresh
@@ -64,6 +68,8 @@ If firewall settings exist in any GPO applied to your machine, forcing a refresh
 gpupdate /force
 Write-Host "Group Policy updated. Check Security log for Event 4954." -ForegroundColor Yellow
 ```
+---
+
 
 ### Method 2 — Modify Firewall Policy via GPO (Domain Controller)
 
@@ -75,6 +81,17 @@ Write-Host "Group Policy updated. Check Security log for Event 4954." -Foregroun
 6. Close the editor
 7. On a member machine run `gpupdate /force`
 8. Check that machine's Security log for Event 4954
+
+---
+
+<img width="313" height="179" alt="Screenshot_1" src="https://github.com/user-attachments/assets/1f804f70-acf0-48c5-b5e2-723ca3d21bed" />
+
+---
+
+
+<img width="952" height="479" alt="Screenshot_10" src="https://github.com/user-attachments/assets/43bc6dff-ed85-4766-82f5-f860de61ad69" />
+
+---
 
 ### Method 3 — Disable and Re-enable a Firewall Profile via PowerShell
 
@@ -107,6 +124,17 @@ Write-Host "Domain firewall profile re-enabled." -ForegroundColor Green
 | Computer Name | Which machine applied the new policy |
 | Profile | Which firewall profile was affected |
 
+---
+
+<img width="522" height="211" alt="Screenshot_4" src="https://github.com/user-attachments/assets/3fd2336d-b13f-4bb0-bd8f-e8629f9bf258" />
+
+---
+
+<img width="474" height="334" alt="Screenshot_3" src="https://github.com/user-attachments/assets/00396d7c-317c-46a1-8106-b9b2a703ec03" />
+
+---
+
+
 ### PowerShell Detection
 
 ```powershell
@@ -119,6 +147,12 @@ Get-WinEvent -FilterHashtable @{
     Select-Object TimeCreated, Message |
     Format-List
 ```
+---
+
+<img width="678" height="385" alt="Screenshot_2" src="https://github.com/user-attachments/assets/37e07c82-3410-49c4-926b-fad1c9b68fd1" />
+
+---
+
 
 ```powershell
 # Count 4954 events per day — spike detection
