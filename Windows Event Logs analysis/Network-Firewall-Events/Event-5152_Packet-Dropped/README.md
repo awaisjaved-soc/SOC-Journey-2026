@@ -63,6 +63,11 @@ auditpol /get /subcategory:"Filtering Platform Packet Drop"
 
 ---
 
+<img width="468" height="331" alt="Screenshot_4" src="https://github.com/user-attachments/assets/3c89d8c8-07f7-4509-92af-aeac70ecfcfd" />
+
+---
+
+
 ## Generating the Event
 
 ### Method 1 — Block Rule + Connection Attempt
@@ -86,6 +91,16 @@ Test-NetConnection -ComputerName 127.0.0.1 -Port 8888
 Remove-NetFirewallRule -DisplayName "SOC-Lab-Packet-Drop"
 Write-Host "Rule removed." -ForegroundColor Green
 ```
+---
+
+<img width="955" height="448" alt="Screenshot_13" src="https://github.com/user-attachments/assets/8362eeba-2dfc-4aa2-b340-4de34723af06" />
+
+---
+
+<img width="809" height="342" alt="Screenshot_1" src="https://github.com/user-attachments/assets/ab5f2472-7ac6-48af-9beb-8ec7b646a620" />
+
+---
+
 
 ### How Loopback Works Here
 
@@ -99,7 +114,8 @@ Write-Host "Rule removed." -ForegroundColor Green
 4. Event 5152 fires
 5. Delete the rule after screenshot
 
----
+
+
 
 ## Detecting the Event
 
@@ -108,6 +124,21 @@ Write-Host "Rule removed." -ForegroundColor Green
 1. Event Viewer → Windows Logs → **Security**
 2. Filter → Event ID: `5152` → OK
 3. Look for entries near your test timestamp
+
+---
+
+<img width="468" height="331" alt="Screenshot_4" src="https://github.com/user-attachments/assets/2c5fd9b7-e01a-4384-907c-edb4fd63dcef" />
+
+---
+
+<img width="473" height="330" alt="Screenshot_5" src="https://github.com/user-attachments/assets/dfe7741b-9a60-4ee3-86ba-960dfb36f81b" />
+
+---
+
+<img width="646" height="256" alt="Screenshot_7" src="https://github.com/user-attachments/assets/ed66f69c-3267-49a7-9a81-e680a8ea75e5" />
+
+---
+
 
 **Key fields to examine:**
 
@@ -135,6 +166,12 @@ Get-WinEvent -FilterHashtable @{
     Select-Object TimeCreated, Message |
     Format-List
 ```
+---
+
+<img width="896" height="350" alt="Screenshot_2" src="https://github.com/user-attachments/assets/30669ca8-41a7-4560-8f51-12a9059a90ad" />
+
+---
+
 
 ```powershell
 # Scan detection — look for many drops to different ports from same source
@@ -153,6 +190,10 @@ Get-WinEvent -FilterHashtable @{
     }
 } | Group-Object SourceIP | Sort-Object Count -Descending | Format-Table Name, Count
 ```
+
+---
+
+<img width="923" height="430" alt="Screenshot_3" src="https://github.com/user-attachments/assets/cea446f1-0d9b-43c1-8bca-d80be25bc414" />
 
 ---
 
