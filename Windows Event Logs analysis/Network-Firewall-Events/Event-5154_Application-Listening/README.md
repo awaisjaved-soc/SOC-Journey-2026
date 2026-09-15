@@ -23,6 +23,11 @@
 
 ---
 
+<img width="468" height="330" alt="Screenshot_3" src="https://github.com/user-attachments/assets/960bc22a-b14f-4ead-b3a3-66e45eb8cae6" />
+
+---
+
+
 ## What Is Event 5154?
 
 Event 5154 fires when an application opens a TCP or UDP socket and starts listening for incoming connections. This is fundamentally different from 5156 and 5157 which track active connections — 5154 tracks the moment a process announces itself as available to receive connections.
@@ -81,6 +86,13 @@ $listener.Stop()
 Write-Host "Listener stopped." -ForegroundColor Green
 ```
 
+---
+
+<img width="747" height="176" alt="Screenshot_2" src="https://github.com/user-attachments/assets/e0054075-476a-4cb7-a439-5ae6b4c6e016" />
+
+---
+
+
 > **Port Already in Use Error?** If you see `Only one usage of each socket address` it means a previous listener session is still holding the port. Use a different port number:
 > ```powershell
 > $listener = [System.Net.Sockets.TcpListener]::new([System.Net.IPAddress]::Any, 6666)
@@ -106,6 +118,13 @@ Test-NetConnection -ComputerName 127.0.0.1 -Port 7777
 $listener.Stop()
 ```
 
+---
+
+<img width="676" height="340" alt="Screenshot_1" src="https://github.com/user-attachments/assets/a395a2af-961a-48be-9dc5-cdaf17e511f9" />
+
+---
+
+
 ### Method 3 — GUI (netsh)
 
 ```cmd
@@ -122,6 +141,17 @@ netsh http add urlacl url=http://+:8080/ user=Everyone
 1. Event Viewer → Windows Logs → **Security**
 2. Filter → Event ID: `5154` → OK
 3. Look for entries from your PowerShell session
+
+---
+
+<img width="470" height="322" alt="Screenshot_4" src="https://github.com/user-attachments/assets/025b4111-599b-4864-adf9-8ca2791d5bfb" />
+
+---
+
+<img width="468" height="330" alt="Screenshot_3" src="https://github.com/user-attachments/assets/0a69c0ee-c202-45ac-bed8-f046adc09668" />
+
+---
+
 
 **Key fields to examine:**
 
@@ -152,6 +182,11 @@ Get-WinEvent -FilterHashtable @{
     }
 } | Format-Table -AutoSize
 ```
+---
+<img width="673" height="385" alt="Screenshot_6" src="https://github.com/user-attachments/assets/7995fc6f-d6a7-4b60-a38b-4fc1114af894" />
+
+---
+
 
 ```powershell
 # Hunt for unusual listeners — exclude known-good ports
@@ -174,6 +209,12 @@ Get-WinEvent -FilterHashtable @{
     Write-Host ""
 }
 ```
+---
+
+<img width="883" height="404" alt="Screenshot_7" src="https://github.com/user-attachments/assets/d656f92b-a896-4a31-964f-af4916a298dc" />
+
+---
+
 
 ```powershell
 # Find your specific lab listener
@@ -189,6 +230,11 @@ Get-WinEvent -FilterHashtable @{
 ```
 
 ---
+
+<img width="946" height="411" alt="Screenshot_9" src="https://github.com/user-attachments/assets/8eed34c3-c43a-4dd8-b1c2-4cfb327ab9ce" />
+
+---
+
 
 ## SOC Analyst Notes
 
