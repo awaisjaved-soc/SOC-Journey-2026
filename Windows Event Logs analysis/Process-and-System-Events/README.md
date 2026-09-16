@@ -1,7 +1,7 @@
 
 # Process & System Events – SOC Journey 2026
 
-Windows Security Event logs for the **Process & System Events** category, documented as part of the SOC Analyst learning path.
+Windows Security Event logs for the **Process & System Events** category, documented as part of the SOC Analyst learning path
 
 Each folder contains a dedicated README with:
 - Event explanation and SOC importance
