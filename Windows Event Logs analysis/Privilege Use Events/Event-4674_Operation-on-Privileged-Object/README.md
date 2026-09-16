@@ -22,6 +22,11 @@
 
 ---
 
+<img width="469" height="330" alt="Screenshot_2" src="https://github.com/user-attachments/assets/45eacc31-0259-4875-adbc-2d5277d412e8" />
+
+---
+
+
 ## What Is Event 4674?
 
 Event 4674 is generated when an operation is attempted on a **privileged object**. 
@@ -56,6 +61,12 @@ auditpol /get /subcategory:"Sensitive Privilege Use"
 
 ---
 
+
+<img width="721" height="235" alt="asdasd" src="https://github.com/user-attachments/assets/a5f72e94-d7a5-42c7-a8f7-3efa7adbcae6" />
+
+---
+
+
 ## How to Generate Event 4674
 
 ### Method 1 — Robocopy (Most Reliable for Lab)
@@ -64,6 +75,12 @@ auditpol /get /subcategory:"Sensitive Privilege Use"
 New-Item -Path "C:\Temp" -ItemType Directory -Force
 robocopy C:\Windows\System32 C:\Temp kernel32.dll /B
 ```
+---
+
+<img width="528" height="473" alt="Screenshot_13" src="https://github.com/user-attachments/assets/2a1d506c-1679-4a20-95fa-2c1607338eef" />
+
+---
+
 
 This command generated Event 4674 with `SeTakeOwnershipPrivilege` in the lab.
 
@@ -81,6 +98,8 @@ Get-WmiObject -Namespace root\SecurityCenter2 -Class AntiVirusProduct -ErrorActi
 
 ---
 
+
+
 ## Detection Commands
 
 ### Basic Detection
@@ -89,6 +108,35 @@ Get-WmiObject -Namespace root\SecurityCenter2 -Class AntiVirusProduct -ErrorActi
 Get-WinEvent -FilterHashtable @{LogName='Security'; Id=4674} -MaxEvents 10 |
 Select-Object TimeCreated, Message | Format-List
 ```
+
+---
+
+<img width="469" height="330" alt="Screenshot_2" src="https://github.com/user-attachments/assets/ed94bbfa-4806-4bc2-b1f2-218fdbcf4182" />
+
+---
+
+
+<img width="467" height="330" alt="Screenshot_3" src="https://github.com/user-attachments/assets/0cc99e0b-ce39-43c4-ad2f-0901a8bd135b" />
+
+---
+
+
+<img width="469" height="331" alt="Screenshot_4" src="https://github.com/user-attachments/assets/d4ed3785-539d-4af2-9d8f-6463f4c1bdec" />
+
+---
+
+
+<img width="468" height="329" alt="Screenshot_5" src="https://github.com/user-attachments/assets/89fa2c7c-c90e-4351-9ebc-15fe50603380" />
+
+---
+
+<img width="469" height="329" alt="Screenshot_6" src="https://github.com/user-attachments/assets/55df34c2-c207-4739-b731-76fb6277dbe6" />
+
+---
+
+<img width="582" height="254" alt="Screenshot_7" src="https://github.com/user-attachments/assets/f38d4e3c-3358-41e3-8eda-4d53a5d870bf" />
+
+---
 
 ### Better Formatted Detection
 
@@ -107,6 +155,13 @@ ForEach-Object {
 ```
 
 ---
+
+
+<img width="682" height="325" alt="Screenshot_1" src="https://github.com/user-attachments/assets/139fc3a8-affd-4dad-98f4-1fdf6d71304e" />
+
+
+---
+
 
 ## Privilege Explanation (From Lab)
 
