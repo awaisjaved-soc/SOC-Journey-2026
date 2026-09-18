@@ -188,6 +188,82 @@ ForEach-Object {
 
 ---
 
+
+
+```powershell
+Log Name:      Microsoft-Windows-Sysmon/Operational
+Source:        Microsoft-Windows-Sysmon
+Date:          9/15/2026 12:50:40 AM
+Event ID:      3
+Task Category: Network connection detected (rule: NetworkConnect)
+Level:         Information
+Keywords:      
+User:          SYSTEM
+Computer:      WIN-LFHCJK09RND.techcorp.local
+Description:
+Network connection detected:
+RuleName: -
+UtcTime: 2026-09-14 20:15:22.776
+ProcessGuid: {fb691de8-4e36-6aa8-2906-000000001600}
+ProcessId: 8100
+Image: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe
+User: TECHCORP\Administrator
+Protocol: tcp
+Initiated: true
+SourceIsIpv6: false
+SourceIp: 192.168.100.129
+SourceHostname: WIN-LFHCJK09RND.techcorp.local
+SourcePort: 54957
+SourcePortName: -
+DestinationIsIpv6: false
+DestinationIp: 8.8.8.8
+DestinationHostname: dns.google
+DestinationPort: 53
+DestinationPortName: domain
+Event Xml:
+<Event xmlns="http://schemas.microsoft.com/win/2004/08/events/event">
+  <System>
+    <Provider Name="Microsoft-Windows-Sysmon" Guid="{5770385f-c22a-43e0-bf4c-06f5698ffbd9}" />
+    <EventID>3</EventID>
+    <Version>5</Version>
+    <Level>4</Level>
+    <Task>3</Task>
+    <Opcode>0</Opcode>
+    <Keywords>0x8000000000000000</Keywords>
+    <TimeCreated SystemTime="2026-09-14T19:50:40.0022172Z" />
+    <EventRecordID>110</EventRecordID>
+    <Correlation />
+    <Execution ProcessID="5272" ThreadID="6724" />
+    <Channel>Microsoft-Windows-Sysmon/Operational</Channel>
+    <Computer>WIN-LFHCJK09RND.techcorp.local</Computer>
+    <Security UserID="S-1-5-18" />
+  </System>
+  <EventData>
+    <Data Name="RuleName">-</Data>
+    <Data Name="UtcTime">2026-09-14 20:15:22.776</Data>
+    <Data Name="ProcessGuid">{fb691de8-4e36-6aa8-2906-000000001600}</Data>
+    <Data Name="ProcessId">8100</Data>
+    <Data Name="Image">C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe</Data>
+    <Data Name="User">TECHCORP\Administrator</Data>
+    <Data Name="Protocol">tcp</Data>
+    <Data Name="Initiated">true</Data>
+    <Data Name="SourceIsIpv6">false</Data>
+    <Data Name="SourceIp">192.168.100.129</Data>
+    <Data Name="SourceHostname">WIN-LFHCJK09RND.techcorp.local</Data>
+    <Data Name="SourcePort">54957</Data>
+    <Data Name="SourcePortName">-</Data>
+    <Data Name="DestinationIsIpv6">false</Data>
+    <Data Name="DestinationIp">8.8.8.8</Data>
+    <Data Name="DestinationHostname">dns.google</Data>
+    <Data Name="DestinationPort">53</Data>
+    <Data Name="DestinationPortName">domain</Data>
+  </EventData>
+</Event>
+```
+
+---
+
+
 ## SOC Analyst Notes
 
 When analyzing Event ID 3, ask yourself:
