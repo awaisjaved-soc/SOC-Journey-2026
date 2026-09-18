@@ -12,6 +12,11 @@
 
 ---
 
+<img width="468" height="329" alt="Screenshot_1" src="https://github.com/user-attachments/assets/0f98ab3e-1bd7-4bc5-a207-e2c3ab2a2b23" />
+
+---
+
+
 ## What Is Event ID 1?
 
 **Event ID 1 (Process Creation)** is generated every time a new process starts on the system.
@@ -52,6 +57,26 @@ This event helps detect:
 3. Open Command Prompt
 4. Open PowerShell
 
+---
+
+<img width="468" height="329" alt="Screenshot_1" src="https://github.com/user-attachments/assets/a66f6b29-818e-4aab-b418-1ac8caa13f3d" />
+
+---
+
+<img width="468" height="330" alt="Screenshot_2" src="https://github.com/user-attachments/assets/734b99d2-6635-4e69-b9db-67330eee94bf" />
+
+---
+
+<img width="468" height="327" alt="Screenshot_3" src="https://github.com/user-attachments/assets/1aaf7b35-86bb-478d-8fe2-16028b736d60" />
+
+---
+
+<img width="468" height="332" alt="Screenshot_4" src="https://github.com/user-attachments/assets/6b3a0c90-1105-4a4e-a4f1-46c31a385d64" />
+
+---
+
+
+
 Each of these creates a new process and generates an Event ID 1.
 
 ### Method 2: PowerShell (Recommended)
@@ -65,6 +90,12 @@ Start-Process powershell.exe
 
 ---
 
+
+<img width="871" height="62" alt="Screenshot_5" src="https://github.com/user-attachments/assets/c8d262f9-2ada-405e-9b86-845c22f85e8a" />
+
+---
+
+
 ## Detection Commands
 
 ### Basic View
@@ -74,6 +105,17 @@ Get-WinEvent -LogName "Microsoft-Windows-Sysmon/Operational" -FilterXPath "*[Sys
 Select-Object TimeCreated, Id, Message |
 Format-List
 ```
+
+---
+
+<img width="642" height="128" alt="Screenshot_14" src="https://github.com/user-attachments/assets/b7598ac4-aaf6-4b75-ae56-d1a61ddb5fa0" />
+
+---
+
+<img width="950" height="477" alt="Screenshot_6" src="https://github.com/user-attachments/assets/9825ea1a-58e4-430d-b467-6eca2719803c" />
+
+---
+
 
 ### Detailed View (Recommended)
 
@@ -90,6 +132,20 @@ ForEach-Object {
     }
 } | Format-Table -AutoSize -Wrap
 ```
+
+---
+
+<img width="812" height="331" alt="Screenshot_7" src="https://github.com/user-attachments/assets/5d8990b8-5da0-4434-8b3c-f0f0423f995b" />
+
+---
+
+
+<img width="711" height="334" alt="Screenshot_8" src="https://github.com/user-attachments/assets/7625b579-cb1a-4258-852f-92e0aceeb227" />
+
+
+---
+
+<img width="783" height="330" alt="Screenshot_9" src="https://github.com/user-attachments/assets/56fc057d-b463-4e2f-bb36-2e84a60afc86" />
 
 ---
 
