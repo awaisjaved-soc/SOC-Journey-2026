@@ -23,6 +23,22 @@ In real SOC environments, analysts frequently hunt for processes like `powershel
 
 ---
 
+
+<img width="345" height="446" alt="Screenshot_8" src="https://github.com/user-attachments/assets/5a7a637f-67a0-4e55-a8ca-05cabc8f0dc1" />
+
+---
+
+<img width="218" height="281" alt="Screenshot_9" src="https://github.com/user-attachments/assets/2fdba7f9-a5ec-4d4f-adb1-02f4f4829524" />
+
+---
+
+
+
+<img width="616" height="301" alt="Screenshot_1" src="https://github.com/user-attachments/assets/bfd7d57a-ffd5-48af-8184-f6c52d74bed0" />
+
+---
+
+
 ## How to Generate Event 22
 
 **PowerShell Method:**
@@ -42,6 +58,15 @@ Test-NetConnection google.com -Port 443
 
 ---
 
+<img width="541" height="234" alt="Screenshot_11" src="https://github.com/user-attachments/assets/f2fec018-191d-42c6-890b-24f5460f4bf3" />
+
+---
+
+<img width="363" height="112" alt="Screenshot_12" src="https://github.com/user-attachments/assets/40188cfc-bfcb-4f53-8383-f36b375fe886" />
+
+---
+
+
 ## Detection Commands
 
 ### Basic Detection
@@ -52,6 +77,12 @@ Where-Object { $_.Id -eq 22 } |
 Select-Object TimeCreated, Message |
 Format-List
 ```
+---
+
+<img width="642" height="455" alt="Screenshot_10" src="https://github.com/user-attachments/assets/27bd1e45-88ef-4db2-a29e-99226c46e8d9" />
+
+---
+
 
 ### Clean Table Format (Recommended)
 
@@ -69,6 +100,13 @@ ForEach-Object {
     }
 } | Format-Table -AutoSize
 ```
+
+
+---
+
+<img width="803" height="348" alt="Screenshot_13" src="https://github.com/user-attachments/assets/265dfe84-acdc-40a7-9f0d-013a48b4bd9e" />
+
+---
 
 ### Hunt for Suspicious Processes
 
