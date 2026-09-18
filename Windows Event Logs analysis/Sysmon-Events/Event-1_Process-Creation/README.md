@@ -160,6 +160,92 @@ ForEach-Object {
 
 ---
 
+
+```powershell
+Log Name:      Microsoft-Windows-Sysmon/Operational
+Source:        Microsoft-Windows-Sysmon
+Date:          9/15/2026 12:28:38 AM
+Event ID:      1
+Task Category: Process Create (rule: ProcessCreate)
+Level:         Information
+Keywords:      
+User:          SYSTEM
+Computer:      WIN-LFHCJK09RND.techcorp.local
+Description:
+Process Create:
+RuleName: -
+UtcTime: 2026-09-14 19:28:38.751
+ProcessGuid: {fb691de8-4ae6-6aa8-0306-000000001600}
+ProcessId: 7208
+Image: C:\Windows\System32\notepad.exe
+FileVersion: 10.0.20348.1 (WinBuild.160101.0800)
+Description: Notepad
+Product: Microsoft® Windows® Operating System
+Company: Microsoft Corporation
+OriginalFileName: NOTEPAD.EXE
+CommandLine: "C:\Windows\system32\notepad.exe" 
+CurrentDirectory: C:\Users\Administrator\
+User: TECHCORP\Administrator
+LogonGuid: {fb691de8-dbe7-6aa7-28a3-0f0000000000}
+LogonId: 0xFA328
+TerminalSessionId: 2
+IntegrityLevel: High
+Hashes: MD5=D1B7CDDA67EEE0C98833B0CDB94403DA,SHA256=B65079972E88691FE19B5D4D5EB3159F6CD627FB6C4F09AE9B9DF959330082DF,IMPHASH=6B4FA5BA42928C186636D2D0E31789E6
+ParentProcessGuid: {00000000-0000-0000-0000-000000000000}
+ParentProcessId: 1480
+ParentImage: -
+ParentCommandLine: -
+ParentUser: -
+Event Xml:
+<Event xmlns="http://schemas.microsoft.com/win/2004/08/events/event">
+  <System>
+    <Provider Name="Microsoft-Windows-Sysmon" Guid="{5770385f-c22a-43e0-bf4c-06f5698ffbd9}" />
+    <EventID>1</EventID>
+    <Version>5</Version>
+    <Level>4</Level>
+    <Task>1</Task>
+    <Opcode>0</Opcode>
+    <Keywords>0x8000000000000000</Keywords>
+    <TimeCreated SystemTime="2026-09-14T19:28:38.7773553Z" />
+    <EventRecordID>47</EventRecordID>
+    <Correlation />
+    <Execution ProcessID="5272" ThreadID="4540" />
+    <Channel>Microsoft-Windows-Sysmon/Operational</Channel>
+    <Computer>WIN-LFHCJK09RND.techcorp.local</Computer>
+    <Security UserID="S-1-5-18" />
+  </System>
+  <EventData>
+    <Data Name="RuleName">-</Data>
+    <Data Name="UtcTime">2026-09-14 19:28:38.751</Data>
+    <Data Name="ProcessGuid">{fb691de8-4ae6-6aa8-0306-000000001600}</Data>
+    <Data Name="ProcessId">7208</Data>
+    <Data Name="Image">C:\Windows\System32\notepad.exe</Data>
+    <Data Name="FileVersion">10.0.20348.1 (WinBuild.160101.0800)</Data>
+    <Data Name="Description">Notepad</Data>
+    <Data Name="Product">Microsoft® Windows® Operating System</Data>
+    <Data Name="Company">Microsoft Corporation</Data>
+    <Data Name="OriginalFileName">NOTEPAD.EXE</Data>
+    <Data Name="CommandLine">"C:\Windows\system32\notepad.exe" </Data>
+    <Data Name="CurrentDirectory">C:\Users\Administrator\</Data>
+    <Data Name="User">TECHCORP\Administrator</Data>
+    <Data Name="LogonGuid">{fb691de8-dbe7-6aa7-28a3-0f0000000000}</Data>
+    <Data Name="LogonId">0xfa328</Data>
+    <Data Name="TerminalSessionId">2</Data>
+    <Data Name="IntegrityLevel">High</Data>
+    <Data Name="Hashes">MD5=D1B7CDDA67EEE0C98833B0CDB94403DA,SHA256=B65079972E88691FE19B5D4D5EB3159F6CD627FB6C4F09AE9B9DF959330082DF,IMPHASH=6B4FA5BA42928C186636D2D0E31789E6</Data>
+    <Data Name="ParentProcessGuid">{00000000-0000-0000-0000-000000000000}</Data>
+    <Data Name="ParentProcessId">1480</Data>
+    <Data Name="ParentImage">-</Data>
+    <Data Name="ParentCommandLine">-</Data>
+    <Data Name="ParentUser">-</Data>
+  </EventData>
+</Event>
+```
+
+---
+
+
+
 ## SOC Analyst Notes
 
 When analyzing Event ID 1, ask yourself:
