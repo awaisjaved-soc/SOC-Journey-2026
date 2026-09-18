@@ -12,6 +12,12 @@
 
 ---
 
+
+<img width="469" height="330" alt="Screenshot_1" src="https://github.com/user-attachments/assets/86d508e9-f796-482e-a045-a5ffff281194" />
+
+---
+
+
 ## What Is Event ID 7?
 
 **Event ID 7 (Image Loaded)** is generated every time a process loads a DLL (Dynamic Link Library) or any other module into its memory.
@@ -27,6 +33,12 @@ This event helps detect:
 - DLL injection and side-loading attacks
 
 ---
+
+
+<img width="612" height="287" alt="Screenshot_3" src="https://github.com/user-attachments/assets/1fb95150-c141-4156-9e0e-ca5babd79a00" />
+
+---
+
 
 ## Key Fields
 
@@ -100,6 +112,8 @@ $config = @"
 
 $config | Out-File -FilePath "C:\SysmonConfig-Enable7.xml" -Encoding UTF8
 ```
+---
+
 
 ```powershell
 cd "C:\Sysmon"
@@ -125,6 +139,27 @@ Start-Process cmd.exe
 # Force loading .NET modules (generates additional Event ID 7 entries)
 Add-Type -AssemblyName System.Windows.Forms
 ```
+---
+
+<img width="467" height="331" alt="Screenshot_2" src="https://github.com/user-attachments/assets/9acc3ce9-5a3e-4114-8645-a7cc5f094a37" />
+
+
+---
+
+<img width="469" height="330" alt="Screenshot_1" src="https://github.com/user-attachments/assets/9fdeac1d-daed-4a83-9915-774eb0aa5e2c" />
+
+---
+<img width="473" height="329" alt="Screenshot_4" src="https://github.com/user-attachments/assets/71a4b187-6c46-4e12-8f0e-2181ba4898c3" />
+
+---
+
+<img width="468" height="329" alt="Screenshot_19" src="https://github.com/user-attachments/assets/a7a68877-d501-4445-99c3-8be5a4b3c3a2" />
+
+---
+
+
+<img width="612" height="287" alt="Screenshot_3" src="https://github.com/user-attachments/assets/ae8b7bce-bcde-4445-90a7-86bd573d60f6" />
+
 
 ### DLL Search Order Lab (Safe Practical)
 
@@ -146,6 +181,51 @@ Start-Process "C:\DLLLab\notepad.exe"
 
 ---
 
+<img width="676" height="384" alt="Screenshot_7" src="https://github.com/user-attachments/assets/f7eace39-b2af-44d4-b533-b4cc2e2c6a33" />
+
+---
+
+<img width="596" height="127" alt="Screenshot_1" src="https://github.com/user-attachments/assets/302abec0-3519-42c6-821e-05c5334131dd" />
+
+---
+
+
+
+<img width="783" height="115" alt="Screenshot_2" src="https://github.com/user-attachments/assets/37338f42-5ad0-4ffd-a8fd-6164d0b65239" />
+
+---
+
+
+<img width="812" height="176" alt="Screenshot_3" src="https://github.com/user-attachments/assets/465e7b3d-42d6-4e2b-9d10-b5e9c4d77451" />
+
+---
+
+
+<img width="471" height="331" alt="Screenshot_4" src="https://github.com/user-attachments/assets/cf36b7b3-2464-454b-abff-71f375aa7b2b" />
+
+---
+
+
+<img width="460" height="320" alt="Screenshot_5" src="https://github.com/user-attachments/assets/edb20880-117c-477b-8d18-e10f9022a5cd" />
+
+---
+
+
+<img width="470" height="329" alt="Screenshot_6" src="https://github.com/user-attachments/assets/6e65d6d8-5ea9-4a84-ac20-bc1889ea80f4" />
+
+---
+
+
+<img width="466" height="308" alt="Screenshot_8" src="https://github.com/user-attachments/assets/77922152-b0c3-40f8-9431-d46ffebfd6e7" />
+
+---
+
+
+<img width="466" height="310" alt="Screenshot_9" src="https://github.com/user-attachments/assets/8f6b3e94-302e-47c3-a927-c80bac2bbece" />
+
+---
+
+
 ## Detection Commands
 
 ### Basic View
@@ -154,6 +234,12 @@ Start-Process "C:\DLLLab\notepad.exe"
 Get-WinEvent -LogName "Microsoft-Windows-Sysmon/Operational" -FilterXPath "*[System[EventID=7]]" -MaxEvents 10 |
 Select-Object TimeCreated, Id, Message | Format-List
 ```
+---
+
+<img width="951" height="337" alt="Screenshot_5" src="https://github.com/user-attachments/assets/fbba913b-1150-42d9-a2ef-c633885b6545" />
+
+---
+
 
 ### Detailed View (Recommended)
 
@@ -171,6 +257,12 @@ ForEach-Object {
     }
 } | Format-Table -AutoSize -Wrap
 ```
+---
+
+<img width="920" height="488" alt="Screenshot_6" src="https://github.com/user-attachments/assets/1682e502-98ab-47dc-b38b-a0ea7dac9eb5" />
+
+---
+
 
 ### Filter for DLLLab Process Only
 
@@ -188,6 +280,96 @@ ForEach-Object {
     }
 } | Format-Table -AutoSize
 ```
+
+---
+
+```powershell
+PS C:\Users\Administrator> Get-WinEvent -LogName "Microsoft-Windows-Sysmon/Operational" -FilterXPath "*[System[EventID=7]]" -MaxEvents 100 |
+>> ForEach-Object {
+>>     $xml = [xml]$_.ToXml()
+>>     $process = ($xml.Event.EventData.Data | Where-Object {$_.Name -eq 'Image'}).'#text'
+>>     $dll     = ($xml.Event.EventData.Data | Where-Object {$_.Name -eq 'ImageLoaded'}).'#text'
+>>
+>>     if ($process -like "*DLLLab*notepad.exe") {
+>>         [PSCustomObject]@{
+>>             DLL = $dll
+>>         }
+>>     }
+>> } | Format-Table -AutoSize
+DLL
+---
+C:\Windows\System32\ole32.dll
+C:\Windows\System32\uxtheme.dll
+C:\Windows\System32\kernel.appcore.dll
+C:\Windows\System32\sechost.dll
+C:\Windows\System32\advapi32.dll
+C:\Windows\System32\bcryptprimitives.dll
+C:\Windows\System32\imm32.dll
+C:\Windows\System32\msvcrt.dll
+C:\Windows\WinSxS\amd64_microsoft.windows.common-controls_6595b64144ccf1df_6.0.20348.1_none_88d3d41d702dedea\comctl32.dll
+C:\Windows\System32\SHCore.dll
+C:\Windows\System32\rpcrt4.dll
+C:\Windows\System32\combase.dll
+C:\Windows\System32\user32.dll
+C:\Windows\System32\ucrtbase.dll
+C:\Windows\System32\msvcp_win.dll
+C:\Windows\System32\gdi32full.dll
+C:\Windows\System32\win32u.dll
+C:\Windows\System32\gdi32.dll
+C:\Windows\System32\KernelBase.dll
+C:\Windows\System32\kernel32.dll
+C:\Windows\System32\ntdll.dll
+C:\DLLLab\notepad.exe
+C:\Windows\System32\ole32.dll
+C:\Windows\System32\uxtheme.dll
+C:\Windows\System32\kernel.appcore.dll
+C:\Windows\System32\sechost.dll
+C:\Windows\System32\advapi32.dll
+C:\Windows\System32\bcryptprimitives.dll
+C:\Windows\System32\imm32.dll
+C:\Windows\System32\msvcrt.dll
+C:\Windows\WinSxS\amd64_microsoft.windows.common-controls_6595b64144ccf1df_6.0.20348.1_none_88d3d41d702dedea\comctl32.dll
+C:\Windows\System32\SHCore.dll
+C:\Windows\System32\rpcrt4.dll
+C:\Windows\System32\combase.dll
+C:\Windows\System32\user32.dll
+C:\Windows\System32\ucrtbase.dll
+C:\Windows\System32\msvcp_win.dll
+C:\Windows\System32\gdi32full.dll
+C:\Windows\System32\win32u.dll
+C:\Windows\System32\gdi32.dll
+C:\Windows\System32\KernelBase.dll
+C:\Windows\System32\kernel32.dll
+C:\Windows\System32\ntdll.dll
+C:\DLLLab\notepad.exe
+C:\Windows\System32\ole32.dll
+C:\Windows\System32\uxtheme.dll
+C:\Windows\System32\kernel.appcore.dll
+C:\Windows\System32\sechost.dll
+C:\Windows\System32\advapi32.dll
+C:\Windows\System32\bcryptprimitives.dll
+C:\Windows\System32\imm32.dll
+C:\Windows\System32\msvcrt.dll
+C:\Windows\WinSxS\amd64_microsoft.windows.common-controls_6595b64144ccf1df_6.0.20348.1_none_88d3d41d702dedea\comctl32.dll
+C:\Windows\System32\SHCore.dll
+C:\Windows\System32\rpcrt4.dll
+C:\Windows\System32\combase.dll
+C:\Windows\System32\user32.dll
+C:\Windows\System32\ucrtbase.dll
+C:\Windows\System32\msvcp_win.dll
+C:\Windows\System32\gdi32full.dll
+C:\Windows\System32\win32u.dll
+C:\Windows\System32\gdi32.dll
+C:\Windows\System32\KernelBase.dll
+C:\Windows\System32\kernel32.dll
+C:\Windows\System32\ntdll.dll
+PS C:\Users\Administrator>
+```
+
+---
+
+
+
 
 ### Filter: Show DLL Path, Signed Status, and Signature Together
 
