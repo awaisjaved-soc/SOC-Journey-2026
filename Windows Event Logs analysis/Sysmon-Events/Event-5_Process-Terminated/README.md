@@ -12,6 +12,12 @@
 
 ---
 
+
+<img width="468" height="328" alt="Screenshot_2" src="https://github.com/user-attachments/assets/d348330c-4a9d-4a54-a4a9-461254b3c843" />
+
+---
+
+
 ## What Is Event ID 5?
 
 **Event ID 5 (Process Terminated)** is the counterpart to Event ID 1. It is generated every time a process exits or is terminated.
@@ -65,6 +71,19 @@ Stop-Process -Name notepad -Force
 
 ---
 
+<img width="661" height="109" alt="Screenshot_4" src="https://github.com/user-attachments/assets/81a5b8dc-5c0f-47f8-b8c2-b5965047fcef" />
+
+---
+
+<img width="537" height="82" alt="Screenshot_3" src="https://github.com/user-attachments/assets/0b853b05-b004-49ba-9188-330167a1dbf4" />
+
+---
+
+<img width="765" height="406" alt="sasdasdad" src="https://github.com/user-attachments/assets/06cc53a6-0e4a-48e0-baf2-79b20f8cba2d" />
+
+---
+
+
 ## Detection Commands
 
 ### Basic View
@@ -73,6 +92,9 @@ Stop-Process -Name notepad -Force
 Get-WinEvent -LogName "Microsoft-Windows-Sysmon/Operational" -FilterXPath "*[System[EventID=5]]" -MaxEvents 10 |
 Select-Object TimeCreated, Id, Message | Format-List
 ```
+---
+
+<img width="609" height="89" alt="Screenshot_1" src="https://github.com/user-attachments/assets/dcb00efe-6f28-47f7-a3ea-ffbd6d37de07" />
 
 ### Detailed View (Recommended)
 
