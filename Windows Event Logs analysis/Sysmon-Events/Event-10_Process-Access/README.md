@@ -12,6 +12,12 @@
 
 ---
 
+
+<img width="470" height="329" alt="Screenshot_6" src="https://github.com/user-attachments/assets/8b0fb270-d953-4cce-8d1c-d0dcf73fa12a" />
+
+---
+
+
 ## What Is Event ID 10?
 
 **Event ID 10 (Process Access)** is generated when one process opens another process and requests access rights to it.
@@ -98,11 +104,21 @@ $config = @"
 
 $config | Out-File -FilePath "C:\SysmonConfig-Enable10.xml" -Encoding UTF8
 ```
+---
+
+<img width="420" height="296" alt="Screenshot_2" src="https://github.com/user-attachments/assets/485d9166-add4-45b1-bfcc-b55f61e60892" />
+
+---
+
 
 ```powershell
 cd "C:\Sysmon"
 .\Sysmon64.exe -c C:\SysmonConfig-Enable10.xml
 ```
+
+---
+
+<img width="637" height="284" alt="Screenshot_1" src="https://github.com/user-attachments/assets/bc0fed1c-21eb-4670-9afe-80b940bfda80" />
 
 ---
 
@@ -120,6 +136,25 @@ Get-Process winlogon | Out-Null
 Get-Process | Select-Object -First 5
 ```
 
+---
+
+<img width="655" height="432" alt="Screenshot_5" src="https://github.com/user-attachments/assets/a9f5fffc-e6d4-4a46-945b-3703ba1dbb62" />
+
+---
+
+<img width="609" height="288" alt="Screenshot_4" src="https://github.com/user-attachments/assets/1d57ac66-e372-4d82-a35b-5da5547f4e96" />
+
+---
+
+<img width="605" height="284" alt="Screenshot_3" src="https://github.com/user-attachments/assets/81e2972a-0736-46ec-ab6f-d9f9edc5fcfc" />
+
+---
+
+<img width="470" height="329" alt="Screenshot_6" src="https://github.com/user-attachments/assets/4296940e-5474-4157-bb48-6bfa936baa98" />
+
+---
+
+
 ### Method 2: Task Manager
 
 Open Task Manager → go to the **Details** tab → click on different processes. Task Manager opens each process to read its information, generating Event ID 10.
@@ -134,6 +169,16 @@ Open Task Manager → go to the **Details** tab → click on different processes
 Get-WinEvent -LogName "Microsoft-Windows-Sysmon/Operational" -FilterXPath "*[System[EventID=10]]" -MaxEvents 10 |
 Select-Object TimeCreated, Id, Message | Format-List
 ```
+---
+
+<img width="470" height="330" alt="Screenshot_7" src="https://github.com/user-attachments/assets/559f0399-a544-48bc-9ea2-e80309d5a250" />
+
+---
+
+<img width="960" height="313" alt="Screenshot_8" src="https://github.com/user-attachments/assets/346b1c9d-9e46-481f-84fb-5eecdc97ebfa" />
+
+---
+
 
 ### Detailed View
 
@@ -150,6 +195,18 @@ ForEach-Object {
     }
 } | Format-Table -AutoSize -Wrap
 ```
+---
+
+
+<img width="911" height="305" alt="Screenshot_9" src="https://github.com/user-attachments/assets/03d96dde-bcf3-43ee-a2d9-150c17610b69" />
+
+---
+
+<img width="946" height="441" alt="Screenshot_10" src="https://github.com/user-attachments/assets/3971dff0-e384-4d7d-83b2-800e6411bb90" />
+
+
+---
+
 
 ### High Priority Filter – LSASS Access Only
 
@@ -171,6 +228,12 @@ ForEach-Object {
     }
 } | Format-Table -AutoSize -Wrap
 ```
+---
+
+<img width="947" height="462" alt="Screenshot_11" src="https://github.com/user-attachments/assets/04c69ddf-8adf-4bbc-93ff-37c51a499451" />
+
+---
+
 
 ### Mark Interesting Events
 
