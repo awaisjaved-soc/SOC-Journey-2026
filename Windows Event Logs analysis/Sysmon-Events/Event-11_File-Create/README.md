@@ -30,6 +30,11 @@ This event helps detect:
 
 ---
 
+<img width="469" height="332" alt="Screenshot_1" src="https://github.com/user-attachments/assets/a1080de0-8e02-4833-8fd8-68b68f641fee" />
+
+---
+
+
 ## Key Fields
 
 | Field            | Meaning                             |
@@ -61,6 +66,14 @@ New-Item -Path "C:\Users\Public\Sysmon_Test_Folder" -ItemType Directory -Force
 "Lab file" | Out-File -FilePath "C:\Users\Public\Sysmon_Test_Folder\labfile.txt"
 ```
 
+---
+
+<img width="777" height="276" alt="Screenshot_12" src="https://github.com/user-attachments/assets/390ca6f2-d798-45b5-9083-7e8bd1da5fbe" />
+
+---
+
+
+
 ### Method 3: Command Prompt
 
 ```cmd
@@ -68,6 +81,28 @@ echo Sysmon Event 11 Test > C:\Users\Public\cmd_test.txt
 ```
 
 ---
+
+
+<img width="469" height="332" alt="Screenshot_1" src="https://github.com/user-attachments/assets/d6849054-03be-4fa8-a5b9-e0d414ddf968" />
+
+---
+
+
+<img width="468" height="328" alt="Screenshot_2" src="https://github.com/user-attachments/assets/ee77cacf-9cbf-43c6-a70b-f97b2ae061f5" />
+
+---
+
+
+<img width="469" height="329" alt="Screenshot_3" src="https://github.com/user-attachments/assets/4060d454-5836-453c-98e5-f0b0819a621a" />
+
+---
+
+
+<img width="469" height="331" alt="Screenshot_4" src="https://github.com/user-attachments/assets/dbb4e1b1-8648-4f07-a71e-89c71970b225" />
+
+---
+
+
 
 ## Detection Commands
 
@@ -77,6 +112,12 @@ echo Sysmon Event 11 Test > C:\Users\Public\cmd_test.txt
 Get-WinEvent -LogName "Microsoft-Windows-Sysmon/Operational" -FilterXPath "*[System[EventID=11]]" -MaxEvents 10 |
 Select-Object TimeCreated, Id, Message | Format-List
 ```
+---
+
+<img width="619" height="295" alt="Screenshot_5" src="https://github.com/user-attachments/assets/1b358914-bce6-4a33-b4f3-3d0de030013d" />
+
+---
+
 
 ### 2. Detailed View (Recommended)
 
@@ -92,6 +133,8 @@ ForEach-Object {
     }
 } | Format-Table -AutoSize -Wrap
 ```
+---
+
 
 ### 3. Filter only interesting locations
 
@@ -113,6 +156,15 @@ ForEach-Object {
 ```
 
 ---
+
+<img width="943" height="432" alt="Screenshot_6" src="https://github.com/user-attachments/assets/b8d157d4-9192-405c-8d12-5f8801d5c004" />
+
+---
+
+<img width="899" height="310" alt="Screenshot_7" src="https://github.com/user-attachments/assets/c1c339a6-ead9-4d70-b166-b907635b3346" />
+
+---
+
 
 ## Normal vs Suspicious File Creation
 
