@@ -10,7 +10,7 @@ A SOC-style monitoring dashboard I built for a tournament website, so I could in
 
 A tournament website with player accounts, email/password login, an admin panel, and a wallet system (deposits, cashouts, coins). It already logs security events and admin actions, and it rate-limits failed logins.
 
-![Login page](screenshots/01-login-page.png)
+<img width="632" height="415" alt="Screenshot_25" src="https://github.com/user-attachments/assets/5f678013-5621-4111-9a1c-0c49367def94" />
 
 ---
 
@@ -39,13 +39,13 @@ A tournament website with player accounts, email/password login, an admin panel,
 User names are blurred.
 
 ### Failed Logins
-![Failed Logins](screenshots/02-failed-logins.png)
+<img width="1835" height="897" alt="2-failed-logins-blurred" src="https://github.com/user-attachments/assets/7dc491d6-056d-42cd-82b1-db263c8d58c9" />
 
 ### Overview
-![Overview](screenshots/03-overview.png)
+<img width="1885" height="852" alt="1-overview-blurred" src="https://github.com/user-attachments/assets/9fe4cad5-6ddc-4102-9ec8-c776dfbe8380" />
 
 ### Timeline
-![Timeline](screenshots/04-timeline.png)
+<img width="1919" height="902" alt="3-timeline-blurred" src="https://github.com/user-attachments/assets/7f4cfb03-4c82-46ee-8a70-5c07b90e347c" />
 
 ---
 
