@@ -34,7 +34,7 @@ Windows Event Logs are the main source of information that SOC teams monitor 24/
 | 5. PowerShell & Scripts | (Inside Category 3) | ✅ Completed | 4103, 4104 |
 | 6. Network & Firewall | Network-Firewall-Events | ✅ Completed | 5156, 5157, 5152, 5154, 5158, 4946, 4947, 4948, 4954 |
 | 7. Privilege Use | Privilege Use Events | ✅ Completed | 4673, 4674 |
-| 8. Sysmon Events | — | 🔄 Current | 1, 3, 7, 10, 11, 22 |
+| 8. Sysmon Events | — | ✅ Completed | 1, 3, 7, 10, 11, 22 |
 
 ---
 
