@@ -49,6 +49,14 @@ User names are blurred.
 
 ---
 
+<img width="1906" height="881" alt="05_recent_activity" src="https://github.com/user-attachments/assets/eb73a2c5-3937-4754-a036-4b9922503d00" />
+
+---
+
+<img width="1919" height="783" alt="01_deposit_admin_freq" src="https://github.com/user-attachments/assets/2c971c1d-763d-4a33-ae18-e90463b630e1" />
+
+---
+
 ## Test: brute-forcing my own account
 
 To check that detection and prevention both work, I deliberately entered wrong passwords on my own test account.
