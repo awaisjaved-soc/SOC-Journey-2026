@@ -1,45 +1,46 @@
+# 🔐 Active Directory & LDAP Enumeration — Port 389 | Practical Lab
 
-# 🔐 Lab  — Windows Active Directory & LDAP Enumeration
-### SOC Analyst Practical Lab | TechCorp Domain | May 2026
+**Author:** Muhammad Awais Javed (Mian Awais)
+**Date:** May 2026
+**Part of:** [SOC-Journey-2026](https://github.com/awaisjaved-soc/SOC-Journey-2026)
 
-> **Author:** Muhammad Awais Javed  — SOC Analyst in Training  
-> **Domain:** techcorp.local | **DC IP:** 192.168.100.110  
-> **Attacker Machine:** Kali Linux | **Target:** Windows Server 2022
+**Domain:** `techcorp.local` · **DC IP:** `192.168.100.110` · **Attacker:** Kali Linux (`192.168.100.90`) · **Target:** Windows Server 2022
 
 ---
-
 ## 📌 Table of Contents
-
-1. [What is LDAP?](#what-is-ldap)
-2. [How LDAP Works](#how-ldap-works)
-3. [What is Active Directory?](#what-is-active-directory)
-4. [Lab Environment Setup](#lab-environment-setup)
-5. [Windows Server — Domain Setup](#windows-server--domain-setup)
-6. [Creating OUs and Users (PowerShell)](#creating-ous-and-users-powershell)
-7. [Kali Linux — LDAP Tools Installation](#kali-linux--ldap-tools-installation)
-8. [Nmap — Port Scanning the DC](#nmap--port-scanning-the-dc)
-9. [LDAP Enumeration from Kali](#ldap-enumeration-from-kali)
-10. [Targeted LDAP Queries](#targeted-ldap-queries)
-11. [What the Data Reveals](#what-the-data-reveals)
-12. [How Attackers Do This in Real Life](#how-attackers-do-this-in-real-life)
-13. [SOC Detection & Defense](#soc-detection--defense)
-14. [Wireshark Analysis](#wireshark-analysis)
-15. [Key Findings Summary](#key-findings-summary)
-16. [LinkedIn Post](#linkedin-post)
+- [🎯 Objective](#-objective)
+- [📖 What is LDAP?](#-what-is-ldap)
+- [📖 What is Active Directory?](#-what-is-active-directory)
+- [⚙️ How It Works](#️-how-it-works)
+- [🧪 Lab Environment](#-lab-environment)
+- [💻 Commands Used](#-commands-used)
+- [🔍 Wireshark Analysis](#-wireshark-analysis)
+- [🚨 SOC Analyst Notes](#-soc-analyst-notes)
+- [🛡️ MITRE ATT&CK](#️-mitre-attck)
+- [📸 Screenshots](#-screenshots)
+- [✅ Key Takeaways](#-key-takeaways)
 
 ---
+## 🎯 Objective
 
-## What is LDAP?
+- Build a full **Windows Server 2022 Active Directory domain** (`techcorp.local`) with realistic departments and users
+- Enumerate the entire directory from Kali Linux using `ldapsearch` — the way real attackers do reconnaissance
+- Run **targeted LDAP queries**: find admins, weak accounts, password policy, and Kerberoasting targets
+- Capture the traffic in Wireshark and prove LDAP on port 389 is **plaintext**
+- Write it up as a findings report, the way a pentester or SOC analyst would
 
-**LDAP (Lightweight Directory Access Protocol)** is a protocol used to access and manage directory information over a network. Think of it as a **phone book for a company network** — it stores information about users, computers, groups, departments, and permissions.
+---
+## 📖 What is LDAP?
+
+**LDAP (Lightweight Directory Access Protocol)** is the protocol used to access and manage directory information over a network. Think of it as a **phone book for a company network** — it stores information about users, computers, groups, departments, and permissions.
 
 - **Port:** 389 (plain) | 636 (LDAPS — encrypted)
-- **Protocol Type:** TCP
+- **Protocol type:** TCP
 - **Used by:** Active Directory, OpenLDAP, email clients, HR systems, VPNs
 
-Every time an employee logs into their work laptop, their computer is talking LDAP in the background — asking the server "is this password correct?"
+Every time an employee logs into their work laptop, their computer is talking LDAP in the background — asking the server *"is this password correct?"*
 
-### LDAP Structure (DN — Distinguished Name)
+### LDAP structure (DN — Distinguished Name)
 
 ```
 DC=techcorp,DC=local          ← Root of the domain
@@ -56,36 +57,13 @@ DC=techcorp,DC=local          ← Root of the domain
 
 | LDAP Term | Meaning |
 |-----------|---------|
-| `DC` | Domain Component (techcorp, local) |
-| `OU` | Organizational Unit (department) |
-| `CN` | Common Name (user/group name) |
-| `DN` | Distinguished Name (full path to object) |
+| `DC` | Domain Component (`techcorp`, `local`) |
+| `OU` | Organizational Unit (a department) |
+| `CN` | Common Name (user or group name) |
+| `DN` | Distinguished Name (full path to an object) |
 
 ---
-
-## How LDAP Works
-
-```
-[ Kali Linux / Attacker ]                [ Windows Server DC ]
-         |                                        |
-         |--- 1. TCP Connect to port 389 -------> |
-         |                                        |
-         |--- 2. BIND Request (username+pass) --> |
-         |                                        |
-         |<-- 3. BIND Response (success/fail) --- |
-         |                                        |
-         |--- 4. SEARCH Request (query) --------> |
-         |                                        |
-         |<-- 5. SEARCH Results (user data) ----- |
-         |                                        |
-         |--- 6. UNBIND (disconnect) -----------> |
-```
-
-The **BIND** operation is authentication. Once you bind successfully with any valid user account, you can search the entire directory — because AD is designed for employees to look up colleagues.
-
----
-
-## What is Active Directory?
+## 📖 What is Active Directory?
 
 **Active Directory (AD)** is Microsoft's implementation of LDAP. It is the central identity and access management system used in almost every medium-to-large company worldwide.
 
@@ -94,53 +72,64 @@ The **BIND** operation is authentication. Once you bind successfully with any va
 - All computer accounts
 - All groups and their members
 - Password policies
-- Access permissions (who can access what folder/system)
+- Access permissions (who can reach what folder/system)
 
 **Real-world analogy:** AD is the company's HR database + security guard + phone book, all in one.
 
-**Why SOC analysts care:** When attackers get inside a network, the first thing they do is enumerate AD using LDAP. Understanding this is core to detecting and stopping them.
+**Why SOC analysts care:** when attackers get inside a network, the first thing they do is enumerate AD over LDAP. Understanding this traffic is core to detecting and stopping them.
 
 ---
+## ⚙️ How It Works
 
-## Lab Environment Setup
+A typical LDAP session between attacker and domain controller:
+
+```
+[ Kali Linux / Attacker ]                [ Windows Server DC ]
+         |                                        |
+         |--- 1. TCP connect to port 389 -------> |
+         |--- 2. BIND Request (user + pass) ----> |
+         |<-- 3. BIND Response (success/fail) --- |
+         |--- 4. SEARCH Request (query) --------> |
+         |<-- 5. SEARCH Results (user data) ----- |
+         |--- 6. UNBIND (disconnect) -----------> |
+```
+
+The **BIND** operation is authentication. Once you bind successfully with **any** valid user account, you can search the entire directory — because AD is designed so employees can look up colleagues. That design choice is exactly what attackers exploit.
+
+---
+## 🧪 Lab Environment
 
 ```
 ┌─────────────────────────────────────────────────────┐
 │                   HOME LAB NETWORK                   │
 │                  192.168.100.0/24                    │
 │                                                      │
-│  ┌──────────────────────┐   ┌─────────────────────┐ │
-│  │   Windows Server VM  │   │    Kali Linux        │ │
-│  │   (Domain Controller)│   │    (Attacker)        │ │
-│  │   IP: 192.168.100.110│   │    IP: 192.168.100.90 │ │
-│  │   OS: Win Server 2022│   │    Tool: ldapsearch  │ │
-│  │   Domain: techcorp   │   │    Tool: nmap        │ │
-│  │   Role: AD DS        │   │    Tool: hydra       │ │
-│  └──────────────────────┘   └─────────────────────┘ │
-│                                                      │
-│              Both on same VMware/VirtualBox NAT      │
+│  ┌──────────────────────┐   ┌─────────────────────┐  │
+│  │  Windows Server VM   │   │    Kali Linux        │  │
+│  │ (Domain Controller)  │   │    (Attacker)        │  │
+│  │  IP: 192.168.100.110 │   │    IP: 192.168.100.90│  │
+│  │  OS: Win Server 2022 │   │    Tools: ldapsearch │  │
+│  │  Domain: techcorp    │   │    nmap, hydra       │  │
+│  │  Role: AD DS         │   │    Wireshark         │  │
+│  └──────────────────────┘   └─────────────────────┘  │
+│         Both on same NAT / Host-Only network         │
 └─────────────────────────────────────────────────────┘
 ```
 
-**Prerequisites:**
-- VMware Workstation or VirtualBox
-- Windows Server 2022 ISO (Evaluation — free from Microsoft)
-- Kali Linux ISO
-- Both VMs on same network adapter (NAT or Host-Only)
+**Prerequisites I used:** VMware/VirtualBox, Windows Server 2022 ISO (free evaluation from Microsoft), Kali Linux ISO.
 
 ---
+## 💻 Commands Used
 
-## Windows Server — Domain Setup
+### On Windows Server — build the domain
 
-### Step 1: Install Active Directory Domain Services
-
-Open PowerShell as Administrator on Windows Server:
+Open PowerShell **as Administrator**:
 
 ```powershell
-# Install AD DS role
+# Install the Active Directory Domain Services role
 Install-WindowsFeature AD-Domain-Services -IncludeManagementTools
 
-# Promote server to Domain Controller
+# Promote this server to a Domain Controller (restarts automatically)
 Install-ADDSForest `
   -DomainName "techcorp.local" `
   -DomainNetbiosName "TECHCORP" `
@@ -148,26 +137,18 @@ Install-ADDSForest `
   -Force:$true
 ```
 
-Server will restart automatically after promotion.
-
-### Step 2: Verify Domain is Running
-
 ```powershell
-# Check AD DS service
+# Verify the domain services are running
 Get-Service ADWS, NTDS, DNS, Netlogon
 
-# Verify domain
+# Confirm the domain exists
 Get-ADDomain
 ```
 
----
-
-## Creating OUs and Users (PowerShell)
-
-### Step 3: Create Departments (Organizational Units)
+### Create departments (Organizational Units)
 
 ```powershell
-# Create all department OUs
+# One OU per department
 New-ADOrganizationalUnit -Name "IT"         -Path "DC=techcorp,DC=local"
 New-ADOrganizationalUnit -Name "HR"         -Path "DC=techcorp,DC=local"
 New-ADOrganizationalUnit -Name "Finance"    -Path "DC=techcorp,DC=local"
@@ -176,7 +157,7 @@ New-ADOrganizationalUnit -Name "Marketing"  -Path "DC=techcorp,DC=local"
 New-ADOrganizationalUnit -Name "Operations" -Path "DC=techcorp,DC=local"
 ```
 
-### Step 4: Create Realistic Company Users
+### Create realistic company users
 
 ```powershell
 # ── IT Department ──────────────────────────────────────
@@ -286,61 +267,44 @@ New-ADUser -Name "Omar Farooq" `
   -Enabled $true -Department "Operations" -Title "Operations Manager"
 ```
 
-### Step 5: Verify Users Were Created
-
 ```powershell
-# List all users in domain
-Get-ADUser -Filter * -Properties Department, Title | 
-  Select Name, SamAccountName, Department, Title | 
+# Verify the users were created
+Get-ADUser -Filter * -Properties Department, Title |
+  Select Name, SamAccountName, Department, Title |
   Format-Table -AutoSize
 
-# Count total users
+# Count them
 (Get-ADUser -Filter *).Count
 ```
 
----
-
-## Kali Linux — LDAP Tools Installation
+### On Kali — install the LDAP tools
 
 ```bash
-# Update package list
+# Update packages and install LDAP client utilities
 sudo apt update
-
-# Install LDAP utilities
 sudo apt install ldap-utils -y
 
-# Verify installation
+# Confirm the install
 ldapsearch --version
 
-# Install additional tools
+# Tools for scanning and follow-up attacks
 sudo apt install nmap hydra -y
 ```
 
----
-
-## Nmap — Port Scanning the DC
-
-Before LDAP enumeration, a real attacker (and SOC analyst) scans for open ports.
-
-### Basic scan:
+### Nmap — fingerprint the Domain Controller
 
 ```bash
+# Quick open-port sweep of the DC
 nmap 192.168.100.110
-```
 
-### Full service version scan:
-
-```bash
+# Full service/version/OS detection (slow but thorough)
 nmap -sV -sC -p- 192.168.100.110
-```
 
-### Scan specifically for AD-related ports:
-
-```bash
+# Targeted scan of AD-related ports only
 nmap -sV -p 53,88,135,139,389,445,464,636,3268,3269,3389 192.168.100.110
 ```
 
-### Expected output for a Domain Controller:
+Expected result on a real DC:
 
 ```
 PORT     STATE SERVICE       VERSION
@@ -357,339 +321,251 @@ PORT     STATE SERVICE       VERSION
 3389/tcp open  ms-wbt-server RDP
 ```
 
-### What each port tells an attacker:
+What each open port tells an attacker:
 
-| Port | Service | What it means |
-|------|---------|---------------|
+| Port | Service | Attacker reads it as |
+|------|---------|----------------------|
 | 389 | LDAP | Directory enumeration possible |
 | 88 | Kerberos | Kerberoasting attacks possible |
-| 445 | SMB | File share enumeration possible |
-| 3389 | RDP | Remote desktop brute force possible |
+| 445 | SMB | Share enumeration possible |
+| 3389 | RDP | RDP brute force possible |
 | 53 | DNS | Domain name confirmed |
 
----
-
-## LDAP Enumeration from Kali
-
-### Step 1: Test anonymous bind (unauthenticated)
+### LDAP enumeration from Kali
 
 ```bash
+# 1. Test anonymous bind (no credentials)
 ldapsearch -x -H ldap://192.168.100.110 \
   -b "dc=techcorp,dc=local" \
   "(objectClass=*)" 2>/dev/null | head -20
 ```
-
-If this returns data — **critical misconfiguration** (anonymous bind allowed).  
-In our lab it returns error — anonymous bind is blocked (correct security posture).
-
-### Step 2: Authenticated bind — dump everything
+> If this returns data, anonymous bind is allowed — a **critical misconfiguration**. In my lab it errored out: anonymous bind is correctly blocked.
 
 ```bash
+# 2. Authenticated bind — dump the entire directory with one valid account
 ldapsearch -x -H ldap://192.168.100.110 \
   -D "awais@techcorp.local" -W \
   -b "dc=techcorp,dc=local" \
   "(objectclass=*)"
+# Enter the account password when prompted
 ```
 
-Enter password when prompted. This dumps the **entire AD database**.
-
-### Step 3: Save output to file for analysis
-
 ```bash
+# 3. Save the dump and measure it
 ldapsearch -x -H ldap://192.168.100.110 \
   -D "awais@techcorp.local" -W \
   -b "dc=techcorp,dc=local" \
   "(objectclass=*)" > full_dump.txt
 
-wc -l full_dump.txt    # count lines
-grep "dn:" full_dump.txt | wc -l   # count objects
+wc -l full_dump.txt              # how many lines of directory data
+grep "dn:" full_dump.txt | wc -l # how many objects were returned
 ```
 
----
-
-## Targeted LDAP Queries
-
-### Query 1: Get all users with key attributes
+### Targeted LDAP queries (the attacker shortlist)
 
 ```bash
-ldapsearch -x -H ldap://192.168.100.110 \
-  -D "awais@techcorp.local" -W \
-  -b "dc=techcorp,dc=local" \
-  "(objectClass=user)" \
+# Q1 — every user with useful attributes
+ldapsearch -x -H ldap://192.168.100.110 -D "awais@techcorp.local" -W \
+  -b "dc=techcorp,dc=local" "(objectClass=user)" \
   sAMAccountName displayName department title userPrincipalName
-```
 
-### Query 2: Get single user's full details
+# Q2 — one user's full record
+ldapsearch -x -H ldap://192.168.100.110 -D "awais@techcorp.local" -W \
+  -b "dc=techcorp,dc=local" "(sAMAccountName=fatima)"
 
-```bash
-ldapsearch -x -H ldap://192.168.100.110 \
-  -D "awais@techcorp.local" -W \
-  -b "dc=techcorp,dc=local" \
-  "(sAMAccountName=fatima)"
-```
-
-### Query 3: Get all users in IT department
-
-```bash
-ldapsearch -x -H ldap://192.168.100.110 \
-  -D "awais@techcorp.local" -W \
-  -b "OU=IT,DC=techcorp,DC=local" \
-  "(objectClass=user)" \
+# Q3 — everyone in the IT department
+ldapsearch -x -H ldap://192.168.100.110 -D "awais@techcorp.local" -W \
+  -b "OU=IT,DC=techcorp,DC=local" "(objectClass=user)" \
   sAMAccountName displayName title
-```
 
-### Query 4: Find all Domain Admins
-
-```bash
-ldapsearch -x -H ldap://192.168.100.110 \
-  -D "awais@techcorp.local" -W \
+# Q4 — who are the Domain Admins? (privilege-escalation targeting)
+ldapsearch -x -H ldap://192.168.100.110 -D "awais@techcorp.local" -W \
   -b "dc=techcorp,dc=local" \
   "(memberOf=CN=Domain Admins,CN=Users,DC=techcorp,DC=local)" \
   sAMAccountName displayName
-```
 
-### Query 5: Find accounts with password never set
-
-```bash
-ldapsearch -x -H ldap://192.168.100.110 \
-  -D "awais@techcorp.local" -W \
-  -b "dc=techcorp,dc=local" \
-  "(&(objectClass=user)(pwdLastSet=0))" \
+# Q5 — accounts whose password was never set (pwdLastSet=0)
+ldapsearch -x -H ldap://192.168.100.110 -D "awais@techcorp.local" -W \
+  -b "dc=techcorp,dc=local" "(&(objectClass=user)(pwdLastSet=0))" \
   sAMAccountName displayName
-```
 
-### Query 6: Find accounts where password never expires
-
-```bash
-ldapsearch -x -H ldap://192.168.100.110 \
-  -D "awais@techcorp.local" -W \
+# Q6 — accounts where the password never expires (bit 65536 in userAccountControl)
+ldapsearch -x -H ldap://192.168.100.110 -D "awais@techcorp.local" -W \
   -b "dc=techcorp,dc=local" \
   "(&(objectClass=user)(userAccountControl:1.2.840.113556.1.4.803:=65536))" \
   sAMAccountName displayName
-```
 
-### Query 7: List all groups
+# Q7 — list all groups and their members
+ldapsearch -x -H ldap://192.168.100.110 -D "awais@techcorp.local" -W \
+  -b "dc=techcorp,dc=local" "(objectClass=group)" cn member
 
-```bash
-ldapsearch -x -H ldap://192.168.100.110 \
-  -D "awais@techcorp.local" -W \
-  -b "dc=techcorp,dc=local" \
-  "(objectClass=group)" \
-  cn member
-```
+# Q8 — list all departments (OUs)
+ldapsearch -x -H ldap://192.168.100.110 -D "awais@techcorp.local" -W \
+  -b "dc=techcorp,dc=local" "(objectClass=organizationalUnit)" ou
 
-### Query 8: List all OUs (departments)
-
-```bash
-ldapsearch -x -H ldap://192.168.100.110 \
-  -D "awais@techcorp.local" -W \
-  -b "dc=techcorp,dc=local" \
-  "(objectClass=organizationalUnit)" \
-  ou
-```
-
-### Query 9: Get password policy
-
-```bash
-ldapsearch -x -H ldap://192.168.100.110 \
-  -D "awais@techcorp.local" -W \
-  -b "dc=techcorp,dc=local" \
-  "(objectClass=domain)" \
+# Q9 — read the domain password policy
+ldapsearch -x -H ldap://192.168.100.110 -D "awais@techcorp.local" -W \
+  -b "dc=techcorp,dc=local" "(objectClass=domain)" \
   minPwdLength lockoutThreshold maxPwdAge pwdHistoryLength
-```
 
-### Query 10: Find Service Principal Names (SPNs) — Kerberoasting prep
-
-```bash
-ldapsearch -x -H ldap://192.168.100.110 \
-  -D "awais@techcorp.local" -W \
-  -b "dc=techcorp,dc=local" \
-  "(&(objectClass=user)(servicePrincipalName=*))" \
+# Q10 — find Service Principal Names (Kerberoasting preparation)
+ldapsearch -x -H ldap://192.168.100.110 -D "awais@techcorp.local" -W \
+  -b "dc=techcorp,dc=local" "(&(objectClass=user)(servicePrincipalName=*))" \
   sAMAccountName servicePrincipalName
 ```
 
 ---
+## 🔍 Wireshark Analysis
 
-## What the Data Reveals
+Start the capture on Kali **before** running `ldapsearch`:
 
-From a single ldapsearch with one valid user credential, an attacker learns:
+```bash
+# GUI capture
+sudo wireshark &
 
-### Users Discovered:
+# or headless capture to a file
+sudo tcpdump -i eth0 -w ldap_capture.pcap port 389
+```
 
-| Username | Full Name | Department | Title | Risk |
-|----------|-----------|------------|-------|------|
-| `awais` | Awais Javed | IT | Network Engineer | Used for initial access |
+**Display filters:**
+
+```
+ldap
+```
+> All LDAP traffic.
+
+```
+tcp.port == 389
+```
+> Everything on the LDAP port (includes TCP handshake around it).
+
+```
+ip.addr == 192.168.100.110 && ldap
+```
+> Only LDAP traffic to/from the Domain Controller.
+
+### What the packets show
+
+```
+Packet 1:   TCP SYN  (Kali → DC)              — connection starts
+Packet 2:   TCP SYN-ACK (DC → Kali)          — connection accepted
+Packet 3:   LDAP bindRequest                 — your username + password
+Packet 4:   LDAP bindResponse                — success or failure
+Packet 5:   LDAP searchRequest               — your query
+Packet 6-N: LDAP searchResEntry × many       — user data returned
+Packet N+1: LDAP unbindRequest               — disconnect
+```
+
+> 🔑 Key observation from my capture: LDAP on port 389 is **plaintext** — the bind request shows the username and password in cleartext, and every search result comes back readable. This is why production must use LDAPS (port 636).
+
+### What the data revealed
+
+From **one** `ldapsearch` with **one** valid user credential, an attacker learns the whole company:
+
+| Username | Full Name | Department | Title | Attacker value |
+|----------|-----------|------------|-------|----------------|
+| `awais` | Awais Javed | IT | Network Engineer | Initial access account |
 | `mianawais` | Mian Awais | IT | SOC Analyst | Security team member |
-| `hamza` | Hamza Khan | IT | Sysadmin | High privilege target |
-| `sara` | Sara Ahmad | IT | IT Helpdesk | Weak/no password |
+| `hamza` | Hamza Khan | IT | Sysadmin | High-privilege target |
+| `sara` | Sara Ahmad | IT | IT Helpdesk | Weak password (`Welcome1`) |
 | `ayeshak` | Ayesha Khan | HR | HR Manager | Employee data access |
-| `fatima` | Fatima Ahmed | Finance | Finance Manager | **Critical target** |
+| `fatima` | Fatima Ahmed | Finance | Finance Manager | **Critical target** (wire fraud) |
 | `bilal` | Bilal Hassan | Finance | Accountant | Financial data access |
 | `sana` | Sana Malik | Sales | Sales Manager | CRM access |
 
-### Security Findings:
+### Security findings from the dump
 
 | Finding | Severity | Detail |
 |---------|----------|--------|
-| Authenticated LDAP enumeration allowed | Medium | Any domain user can read all AD objects |
-| No lockout threshold | **Critical** | Brute force possible without lockout |
-| Weak password policy | High | Min length 7, no complexity enforced |
-| `sara` — pwdLastSet=0 | **Critical** | Password never properly set |
+| No account lockout threshold | **Critical** | Brute force possible without lockout |
+| `sara` — `pwdLastSet=0` | **Critical** | Password never properly set |
+| Weak password policy | High | Minimum length 7, no complexity enforced |
 | Administrator password never expires | High | Long-term credential exposure |
+| Authenticated enumeration allowed | Medium | Any domain user can read all AD objects |
 
 ---
+## 🚨 SOC Analyst Notes
 
-## How Attackers Do This in Real Life
+### How this happens in real life
 
-### The Reality: LDAP Port 389 is NOT exposed to the internet
+Port 389 is **not** exposed to the internet in a real company — it's behind the firewall. So how do real attackers reach it?
 
-In a real company, port 389 is behind a firewall. You cannot just run ldapsearch from your home against a company's server.
+**Phase 1 — Initial access (getting inside):**
+- **Phishing email** → employee clicks → credentials stolen → attacker gets VPN access
+- **Password spray on VPN/OWA** → public login page + common passwords (`Password123`, `Welcome1`) + no lockout = thousands of free guesses
+- **Exposed RDP** → attacker finds it on Shodan/Censys and brute-forces it
+- **Third-party breach** → employee reused a breached LinkedIn password on the VPN
 
-**So how do real attackers get in?**
+**Phase 2 — Inside the network (this lab's scenario):** once the attacker has VPN access, the internal `192.168.x.x` range — and LDAP port 389 — is reachable. Every `ldapsearch` command in this lab now works against the real company.
 
-### Attack Chain — External to Internal:
+**Phase 3 — Lateral movement:** from the LDAP dump the attacker knows who the Finance Manager is (wire-fraud target), who the sysadmin is (privilege-escalation target), what the password policy allows, and which groups lead to Domain Admin.
 
-```
-Phase 1: Initial Access (Getting Inside)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Method 1 — Phishing Email
-  Attacker sends fake email to employee (e.g., sara@techcorp.com)
-  Employee clicks link → credentials stolen
-  Now attacker has sara's VPN password
+**Phase 4 — Impact:** ransomware, data theft, financial fraud.
 
-Method 2 — Password Spray on VPN/OWA
-  Attacker finds company's VPN login page (public)
-  Tries common passwords: Password123, Welcome1, Company@2024
-  No lockout policy → tries thousands without getting blocked
+> Attackers find exposed servers with Shodan queries like `port:389 country:PK` or `port:3389 country:PK` — which is why these ports must **never** face the internet.
 
-Method 3 — Exposed RDP (Port 3389 on internet)
-  Attacker scans internet with Shodan/Censys
-  Finds company's RDP exposed
-  Brute forces RDP credentials
+### My lab vs a real-world attack
 
-Method 4 — Third-party breach
-  Employee reused their LinkedIn password
-  LinkedIn got breached → attacker tries same password on VPN
-
-Phase 2: Inside the Network (Your Lab Scenario)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Once attacker has VPN access, they are "inside"
-Now 192.168.x.x range is accessible
-Now LDAP port 389 is reachable
-Now your exact ldapsearch commands work against the real company
-
-Phase 3: Lateral Movement
-━━━━━━━━━━━━━━━━━━━━━━━━
-From LDAP dump attacker knows:
-  - Who is the Finance Manager (fatima) → target for wire fraud
-  - Who is the Sysadmin (hamza) → target for privilege escalation
-  - Password policy → plan brute force accordingly
-  - Groups → find path to Domain Admin
-
-Phase 4: Impact
-━━━━━━━━━━━━━━
-Ransomware deployment, data exfiltration, financial fraud
-```
-
-### Shodan — How attackers find targets:
-
-Real attackers use `shodan.io` to search:
-```
-port:389 country:PK org:"Company Name"
-port:3389 country:PK
-```
-This shows every exposed LDAP or RDP server in Pakistan. This is why companies must **never** expose these ports directly to the internet.
-
-### Your Lab vs Real World:
-
-| Aspect | Your Lab | Real Company Attack |
-|--------|----------|---------------------|
-| Network | Same LAN (192.168.x.x) | VPN → Internal LAN |
-| Credential source | You set them | Phishing / password spray |
-| LDAP access | Direct | After VPN or breach |
+| Aspect | My lab | Real company attack |
+|--------|--------|---------------------|
+| Network | Same LAN (`192.168.x.x`) | VPN → internal LAN |
+| Credential source | I set them myself | Phishing / password spray |
+| LDAP access | Direct on the LAN | After VPN access or breach |
 | Purpose | Learning | Malicious |
 | Detection | Optional | Should be monitored 24/7 |
 
----
-
-## SOC Detection & Defense
-
-### Windows Event IDs to Monitor:
+### Windows Event IDs to monitor
 
 | Event ID | Meaning | Triggered by |
 |----------|---------|--------------|
 | 4624 | Successful logon | LDAP bind success |
 | 4625 | Failed logon | LDAP bind failure / brute force |
 | 4776 | Credential validation | Any authentication attempt |
-| 4740 | Account locked out | Brute force detected |
-| 4662 | Object access | LDAP directory enumeration |
+| 4740 | Account locked out | Brute force tripping lockout |
+| 4662 | Directory object access | LDAP directory enumeration |
 | 4728 | Member added to group | Privilege escalation |
 
-### Detection Rule (SIEM logic):
+### Example SIEM detection rule
 
 ```
-IF same source IP makes > 50 LDAP queries in 60 seconds
-AND queries span multiple OUs
-THEN alert: "Possible AD Enumeration"
-Severity: HIGH
+IF   same source IP makes > 50 LDAP queries in 60 seconds
+AND  the queries span multiple OUs
+THEN alert "Possible AD Enumeration" — Severity: HIGH
 ```
 
-### Defensive Recommendations:
+### Defensive recommendations
 
-```
 1. Enable account lockout (threshold: 5 attempts)
-2. Enforce password complexity (min 12 chars)
+2. Enforce password complexity (minimum 12 characters)
 3. Block LDAP port 389 from all non-admin workstations
-4. Use LDAPS (port 636) — encrypted LDAP
-5. Implement MFA on all accounts
-6. Monitor Event ID 4662 for bulk directory reads
-7. Never expose RDP/LDAP to internet
+4. Use **LDAPS (port 636)** — encrypted LDAP everywhere
+5. Enforce MFA on all accounts
+6. Monitor Event ID **4662** for bulk directory reads
+7. Never expose RDP or LDAP to the internet
 8. Use privileged access workstations for admin tasks
-```
 
 ---
+## 🛡️ MITRE ATT&CK
 
-## Wireshark Analysis
-
-### How to capture LDAP traffic:
-
-On Kali Linux, start Wireshark before running ldapsearch:
-
-```bash
-# Start capture on your network interface
-sudo wireshark &
-
-# Or use tcpdump to capture to file
-sudo tcpdump -i eth0 -w ldap_capture.pcap port 389
-```
-
-### Wireshark filter for LDAP:
-
-```
-ldap
-tcp.port == 389
-ip.addr == 192.168.100.110 && ldap
-```
-
-### What you will see in Wireshark:
-
-```
-Packet 1: TCP SYN (Kali → DC) — connection start
-Packet 2: TCP SYN-ACK (DC → Kali) — connection accepted
-Packet 3: LDAPMessage bindRequest — your username/password
-Packet 4: LDAPMessage bindResponse — success/failure
-Packet 5: LDAPMessage searchRequest — your query
-Packet 6-N: LDAPMessage searchResEntry — user data returned
-Packet N+1: LDAPMessage unbindRequest — disconnect
-```
-
-### Key observation:
-
-LDAP on port 389 is **plaintext** — Wireshark shows your username, search queries, and all returned data in clear text. This is why LDAPS (port 636) should always be used instead.
+| Technique | ID | Relevance |
+|-----------|----|-----------|
+| Remote System Discovery | T1018 | Scanning for the DC and LDAP on 389 |
+| Account Discovery: Domain Account | T1087.002 | Dumping users, groups, OUs via `ldapsearch` |
+| Brute Force | T1110 | Password guessing against LDAP binds |
+| Valid Accounts | T1078 | One compromised domain account enumerates everything |
+| Steal or Forge Kerberos Tickets | T1558 | SPN enumeration (Query 10) as Kerberoasting prep |
 
 ---
+## 📸 Screenshots
 
-## Key Findings Summary
+| Screenshot | Description |
+|------------|-------------|
+| ![Full LDAP dump](LDAP%20%281%29.jpeg) | Kali terminal — `ldapsearch` full directory dump saved to `full_dump.txt`, then counting lines and objects with `wc -l` and `grep "dn:"` |
+| ![Bind request in Wireshark](LDAP%20%282%29.jpeg) | Wireshark packet detail — LDAP bindRequest from `192.168.100.90` to the DC, username and password visible in cleartext |
+| ![LDAP session in Wireshark](LDAP%20%283%29.jpeg) | Wireshark packet list — full session: `bindRequest` → `bindResponse(success)` → `searchRequest` → `searchResEntry` results (`CN=Administrator`, `CN=Guest`, `CN=Sara Ahmad`) → `unbindRequest` |
+
+---
+## ✅ Key Takeaways
 
 ```
 ════════════════════════════════════════════════════════
@@ -704,7 +580,7 @@ TARGET INFORMATION
   Domain Level      : Windows Server 2016+ (Level 7)
 
 USERS DISCOVERED    : 12
-DEPARTMENTS FOUND   : 6 (IT, HR, Finance, Sales, Marketing, Ops)
+DEPARTMENTS FOUND   : 6 (IT, HR, Finance, Sales, Marketing, Operations)
 GROUPS FOUND        : 30+
 
 CRITICAL FINDINGS
@@ -715,17 +591,20 @@ CRITICAL FINDINGS
   [MED]  Any authenticated user can enumerate full AD
 
 ATTACK PATH IDENTIFIED
-  1. Obtain one valid credential (awais / any user)
-  2. Run ldapsearch → dump entire company directory
+  1. Obtain one valid credential (any domain user)
+  2. Run ldapsearch → dump the entire company directory
   3. Identify high-value targets (Finance Manager, Sysadmin)
-  4. Use password spray against weak accounts
+  4. Password-spray the weak accounts
   5. Escalate to Domain Admin
 
 TOOLS USED
-  nmap, ldapsearch (ldap-utils), Wireshark, Kali Linux
+  nmap, ldapsearch (ldap-utils), hydra, Wireshark, Kali Linux
 ════════════════════════════════════════════════════════
+```
 
+**Bottom line:** I built the domain, populated it, enumerated it with a single low-privilege account, watched the credentials cross the wire in cleartext, and documented every finding — the full attacker *and* defender view of LDAP.
 
+---
+## 📣 LinkedIn Post (draft)
 
-
-
+> 🛡️ I just finished a full Active Directory & LDAP enumeration lab! Built a Windows Server 2022 domain (techcorp.local) with 12 users across 6 departments, then enumerated the entire directory from Kali with ldapsearch — and captured it all in Wireshark. Key lesson: LDAP on port 389 is plaintext, and one valid account is enough to map a whole company. Full write-up in my SOC-Journey-2026 repo. #BlueTeam #SOCAnalyst #ActiveDirectory #CyberSecurity

