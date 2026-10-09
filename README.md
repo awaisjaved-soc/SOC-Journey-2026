@@ -1,6 +1,11 @@
 <div align="center">
+  
+<img width="1280" height="640" alt="github-profile-banner (1)" src="https://github.com/user-attachments/assets/3b4c5dbe-103d-4751-83c2-3b5b2b1e6823" />
+
+
 
 # 🛡️ Muhammad Awais Javed
+
 
 ### Aspiring SOC Analyst (L1 / L2) · Blue Team · Detection & Investigation
 
