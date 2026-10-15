@@ -11,4 +11,4 @@ The four foundational detection labs — each one a complete attack-or-scenario 
 
 Every lab README follows the same shape: **Overview → What Is This Lab → Lab Steps (every command explained) → What Wazuh Said → SOC Takeaways**, with screenshots embedded where they were captured.
 
-For the deep dive that grew out of these labs — 25 account-management events mapped to Wazuh rule by rule — see [02-Account-Management-25-Events](../02-Account-Management-25-Events/).
+For the deep dive that grew out of these labs — 27 account-management events mapped to Wazuh rule by rule — see [02-Account-Management-27-Events](../02-Account-Management-27-Events/).

@@ -67,7 +67,7 @@ And the uncomfortable detail: **Machine Account Quota.** By default, *any* authe
 Key insight from the lab: an **interactive (type 2)** logon by a privileged-group member gets a *filtered* token (UAC split-token), while a **network (type 3)** logon carries the *full* token. Attackers don't sit at the console — they come over the network, where their stolen privileges work at full strength. **A type-3 logon by a privileged-group member from an unusual source is the lateral-movement pattern to watch.**
 
 ---
-## The 25 events
+## The 27 events
 
 Each event: what it is, why a SOC analyst cares (as an interview answer), the Wazuh rule that fired in this lab, how to generate it, and how to clean up.
 
@@ -374,6 +374,25 @@ New-ADGroup -Name "DL-SecretData-Read" -GroupScope DomainLocal -GroupCategory Se
 
 ---
 
+### 4732 — Member added to security-enabled local group
+
+**What it means:** A member was added to a domain local security group — someone just got a key cut for a specific door.
+
+**Why a SOC analyst cares:** *"This is the moment access is granted to a resource. In this lab it was the GG-Sales badge being nested into DL-SecretData-Read — the key being cut. My questions on shift: who got access to what, who approved it, and does a business need justify it? Attackers love this event because it's quieter than creating accounts — they just collect keys to doors."*
+
+**Wazuh:** rule **(verify from fired alert)** — verdict: **covered**.
+
+**Generate:**
+```powershell
+Add-ADGroupMember -Identity "DL-SecretData-Read" -Members "GG-Sales"
+```
+
+**Cleanup:** `Remove-ADGroupMember -Identity "DL-SecretData-Read" -Members "GG-Sales" -Confirm:$false`
+
+![Add-ADGroupMember to DL group](screenshots/4732-powershell-add-member-history.png)
+*No fired-alert screenshot was captured for 4732 — the generation command above is the lab evidence. Read the rule ID off your own fired alert to confirm.*
+
+---
 ### 4733 — Member removed from security-enabled local group
 
 **What it means:** Someone's key to a *specific* resource was revoked.
@@ -394,6 +413,24 @@ Remove-ADGroupMember -Identity "DL-SecretData-Read" -Members "GG-Sales" -Confirm
 
 ---
 
+### 4734 — Security-enabled local group deleted
+
+**What it means:** A domain local security group was deleted — a lock was removed from a door, along with the record of who held its keys.
+
+**Why a SOC analyst cares:** *"Deleting the group destroys the access structure itself. Legitimate when a resource is decommissioned; suspicious when it follows sensitive access — it can be cleanup after data theft, erasing the evidence of who could open that door. I always check what the group guarded before it vanished."*
+
+**Wazuh:** rule **60146**, level **5** — verdict: **covered**.
+
+**Generate:**
+```powershell
+Remove-ADGroup -Identity "DL-SecretData-Read" -Confirm:$false
+```
+
+![Threat Hunting alert, rule 60146](screenshots/4734-list-60146.png)
+![Alert detail: local group deleted](screenshots/4734-detail-group-name.png)
+![Event message](screenshots/4734-message-local-group-deleted.png)
+
+---
 ### 4737 — Security-enabled global group changed
 
 **What it means:** A global group's own attributes were modified — description, managed-by, notes.
@@ -644,7 +681,9 @@ Real troubleshooting from this lab. Every one of these is an interview story.
 | 4729 | Member removed from security-enabled global group | 60142 | 5 | covered |
 | 4730 | Security-enabled global group deleted | 60202 | 5 | covered |
 | 4731 | Security-enabled local group created | 60143 | 5 | covered |
+| 4732 | Member added to security-enabled local group | (verify) |  | covered |
 | 4733 | Member removed from security-enabled local group | 60145 | 5 | covered |
+| 4734 | Security-enabled local group deleted | 60146 | 5 | covered |
 | 4737 | Security-enabled global group changed | 60148 | 5 | covered |
 | 4738 | User account changed | 60110 | 8 | needs tuning |
 | 4740 | Account locked out | 60115 | 9 | covered |
@@ -675,8 +714,8 @@ Real troubleshooting from this lab. Every one of these is an interview story.
 | 4728, 4756 | **T1098** — Account Manipulation | Added to privileged group — privilege escalation / persistence |
 | 4722, 4725, 4723, 4724, 4738, 4742, 4767 | **T1098** — Account Manipulation | Enable/disable, password changes/resets, attribute edits, unlocks |
 | 4727, 4731, 4754 | **T1098** — Account Manipulation | New groups as access infrastructure (staging) |
-| 4729, 4733, 4757, 4737, 4755 | **T1098** — Account Manipulation | Membership/attribute changes (also read as possible cleanup) |
-| 4726, 4743, 4730, 4758 | **T1070** — Indicator Removal | Deletions that destroy evidence or access structures |
+| 4729, 4732, 4733, 4757, 4737, 4755 | **T1098** — Account Manipulation | Membership/attribute changes (also read as possible cleanup) |
+| 4726, 4743, 4730, 4734, 4758 | **T1070** — Indicator Removal | Deletions that destroy evidence or access structures |
 | 4781 | **T1036** — Masquerading | Rename to blend in (e.g. mimic a service account) |
 | 4740 | *(indicator for)* **T1110** — Brute Force | Lockouts are the visible symptom of password guessing / spraying |
 
@@ -684,13 +723,13 @@ Real troubleshooting from this lab. Every one of these is an interview story.
 
 ## Revision sheet
 
-**[phase-1-sheet.pdf](phase-1-sheet.pdf)** — the one-page-per-section memorization sheet: all 25 events in numerical order with one-line meanings, plus the full rule/level/verdict mapping table. When an interview is coming, drill this until the IDs are reflex.
+**[phase-1-sheet.pdf](phase-1-sheet.pdf)** — the one-page-per-section memorization sheet: all 27 events in numerical order with one-line meanings, plus the full rule/level/verdict mapping table. When an interview is coming, drill this until the IDs are reflex.
 
 ---
 
 ## Field notes: two alerts worth knowing
 
-Spotted during lab work, outside the 25 events — both are good triage exercises:
+Spotted during lab work, outside the 27 events — both are good triage exercises:
 
 - **Rule 60104 — "Windows audit failure event" (level 5).** A *generic bucket* for any Windows event carrying the Audit Failure keyword — not "an attack failed." The instance seen here was event **5061** (cryptographic operation: the Software Key Storage Provider handling a Connected Devices Platform device certificate). Benign OS noise. Lesson: read the underlying `eventID` before reacting to a bucket rule's name.
 - **Rule 92307 — "Evidence of new service creation" (level 3).** Fires on **Sysmon Event 13** (registry value set) when a service `ImagePath` is written under `HKLM\System\CurrentControlSet\Services\` — the **T1050** (New Service) persistence technique. The instances seen were legitimate Windows per-user services (`cbdhsvc_*`, `CaptureService_*`, created by `services.exe` as SYSTEM). Benign *here* — but the detection pattern is exactly right, and the same alert on an unknown service with a suspicious `ImagePath` is an immediate investigation. Behavior fires the rule; context decides the verdict.
