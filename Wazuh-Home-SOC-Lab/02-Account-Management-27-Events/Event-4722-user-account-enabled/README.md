@@ -15,5 +15,5 @@
 
 **Watch out:** usually stacks with a 4738 (account changed) in the same second — same operation, two events.
 
-![Enable-ADAccount command](screenshots/4722-alert-detail-testuser01-enabled.png)
-![Threat Hunting alert, rule 60109](screenshots/4722-detail-soc-lab-enabled.png)
+![Enable-ADAccount command](images/4722-alert-detail-testuser01-enabled.png)
+![Threat Hunting alert, rule 60109](images/4722-detail-soc-lab-enabled.png)

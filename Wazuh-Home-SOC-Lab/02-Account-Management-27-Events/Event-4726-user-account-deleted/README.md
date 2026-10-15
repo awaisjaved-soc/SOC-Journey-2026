@@ -13,5 +13,5 @@
 
 **Cleanup:** the deletion *is* the cleanup; to undo it, recreate the account (fires a new 4720).
 
-![Remove-ADUser command](screenshots/4726-aduc-delete-confirmation.png)
-![Threat Hunting alert, rule 60111](screenshots/4726-list-60111-disabled-or-deleted.png)
+![Remove-ADUser command](images/4726-aduc-delete-confirmation.png)
+![Threat Hunting alert, rule 60111](images/4726-list-60111-disabled-or-deleted.png)

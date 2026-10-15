@@ -16,5 +16,5 @@ New-ADComputer -Name "TEST-PC01" -SamAccountName 'TEST-PC01$'
 
 **Cleanup:** `Remove-ADComputer -Identity "TEST-PC01" -Confirm:$false` (fires 4743).
 
-![New-ADComputer command](screenshots/4741-powershell-new-adcomputer.png)
-![Threat Hunting alert, rule 60121](screenshots/4741-list-60121-computer-account.png)
+![New-ADComputer command](images/4741-powershell-new-adcomputer.png)
+![Threat Hunting alert, rule 60121](images/4741-list-60121-computer-account.png)

@@ -13,5 +13,5 @@
 
 **Cleanup:** recreate the group (fires a new 4754).
 
-![Remove-ADGroup universal](screenshots/4758-detail-universal-deleted.png)
-![Threat Hunting alert, rule 60153](screenshots/4758-message-universal-group-deleted.png)
+![Remove-ADGroup universal](images/4758-detail-universal-deleted.png)
+![Threat Hunting alert, rule 60153](images/4758-message-universal-group-deleted.png)

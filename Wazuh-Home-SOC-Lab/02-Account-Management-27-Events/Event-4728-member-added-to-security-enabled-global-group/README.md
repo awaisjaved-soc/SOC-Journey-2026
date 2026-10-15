@@ -18,6 +18,6 @@ Add-ADGroupMember -Identity "GG-Sales" -Members "testuser01"
 
 **Watch out:** verify group scope in the alert — 4728 (global), 4732 (local), and 4756 (universal) are three different events with three different blast radii, and they fire three different Wazuh rules.
 
-![Add-ADGroupMember command](screenshots/4728-alert-detail-eventid-4728.png)
-![Threat Hunting alert, rule 60141 firing](screenshots/4728-threat-hunting-search-60141.png)
-![alert detail: who added whom to what](screenshots/4728-detail-testuser01-gg-sales.png)
+![Add-ADGroupMember command](images/4728-alert-detail-eventid-4728.png)
+![Threat Hunting alert, rule 60141 firing](images/4728-threat-hunting-search-60141.png)
+![alert detail: who added whom to what](images/4728-detail-testuser01-gg-sales.png)

@@ -13,5 +13,5 @@
 
 **Cleanup:** none needed.
 
-![Unlock-ADAccount command](screenshots/4767-alert-detail-testuser01-unlocked.png)
-![Threat Hunting alert, rule 60133](screenshots/4767-threat-hunting-list-60133.png)
+![Unlock-ADAccount command](images/4767-alert-detail-testuser01-unlocked.png)
+![Threat Hunting alert, rule 60133](images/4767-threat-hunting-list-60133.png)

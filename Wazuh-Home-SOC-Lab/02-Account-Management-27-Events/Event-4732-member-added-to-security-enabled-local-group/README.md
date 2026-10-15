@@ -16,5 +16,5 @@ Add-ADGroupMember -Identity "DL-SecretData-Read" -Members "GG-Sales"
 
 **Cleanup:** `Remove-ADGroupMember -Identity "DL-SecretData-Read" -Members "GG-Sales" -Confirm:$false`
 
-![Add-ADGroupMember to DL group](screenshots/4732-powershell-add-member-history.png)
+![Add-ADGroupMember to DL group](images/4732-powershell-add-member-history.png)
 *No fired-alert screenshot was captured for 4732 — the generation command above is the lab evidence. Read the rule ID off your own fired alert to confirm.*

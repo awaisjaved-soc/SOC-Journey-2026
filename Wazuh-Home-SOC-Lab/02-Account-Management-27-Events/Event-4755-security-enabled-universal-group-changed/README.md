@@ -16,5 +16,5 @@ Set-ADGroup -Identity "U-TestUniversal" -Description "Test universal group"
 
 **Cleanup:** revert the attribute.
 
-![Set-ADGroup on universal group](screenshots/4755-detail-universal-group-changed.png)
-![Threat Hunting alert, rule 60150](screenshots/4755-list-60150-group-changed.png)
+![Set-ADGroup on universal group](images/4755-detail-universal-group-changed.png)
+![Threat Hunting alert, rule 60150](images/4755-list-60150-group-changed.png)

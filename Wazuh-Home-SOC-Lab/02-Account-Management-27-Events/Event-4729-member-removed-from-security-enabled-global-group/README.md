@@ -16,5 +16,5 @@ Remove-ADGroupMember -Identity "GG-Sales" -Members "testuser01" -Confirm:$false
 
 **Cleanup:** re-add the member (`Add-ADGroupMember`).
 
-![Remove-ADGroupMember command](screenshots/4729-powershell-remove-member-history.png)
-![Threat Hunting alert, rule 60142](screenshots/4729-threat-hunting-search-60142.png)
+![Remove-ADGroupMember command](images/4729-powershell-remove-member-history.png)
+![Threat Hunting alert, rule 60142](images/4729-threat-hunting-search-60142.png)

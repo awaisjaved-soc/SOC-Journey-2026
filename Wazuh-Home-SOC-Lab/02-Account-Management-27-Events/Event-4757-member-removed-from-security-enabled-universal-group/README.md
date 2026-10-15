@@ -16,5 +16,5 @@ Remove-ADGroupMember -Identity "U-TestUniversal" -Members "testuser01" -Confirm:
 
 **Cleanup:** re-add the member.
 
-![Remove-ADGroupMember from universal group](screenshots/4757-powershell-remove-member.png)
-![Threat Hunting alert, rule 60152](screenshots/4757-list-60152-member-removed.png)
+![Remove-ADGroupMember from universal group](images/4757-powershell-remove-member.png)
+![Threat Hunting alert, rule 60152](images/4757-list-60152-member-removed.png)

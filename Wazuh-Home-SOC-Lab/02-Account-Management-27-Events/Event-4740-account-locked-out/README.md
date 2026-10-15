@@ -15,6 +15,6 @@
 
 **Watch out:** without a lockout-threshold policy, **4740 can never fire** — the lab initially had no threshold, so this event was untestable until the policy was added. A detection that can't fire is the same as no detection.
 
-![lockout threshold GPO setting](screenshots/4740-logon-screen-account-locked-out.png)
-![Threat Hunting alert, rule 60115, level 9](screenshots/4740-threat-hunting-search-60115.png)
-![failed logons leading to the lockout](screenshots/4740-alert-detail-smitchell-locked.png)
+![lockout threshold GPO setting](images/4740-logon-screen-account-locked-out.png)
+![Threat Hunting alert, rule 60115, level 9](images/4740-threat-hunting-search-60115.png)
+![failed logons leading to the lockout](images/4740-alert-detail-smitchell-locked.png)

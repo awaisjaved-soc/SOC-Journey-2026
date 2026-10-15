@@ -13,5 +13,5 @@
 
 **Cleanup:** `Enable-ADAccount -Identity "testuser02"`
 
-![Disable-ADAccount command](screenshots/4725-alert-detail-rpatel-disabled.png)
-![Threat Hunting alert, rule 60111](screenshots/4725-list-60111.png)
+![Disable-ADAccount command](images/4725-alert-detail-rpatel-disabled.png)
+![Threat Hunting alert, rule 60111](images/4725-list-60111.png)

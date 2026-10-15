@@ -13,5 +13,5 @@
 
 **Cleanup:** recreate the group (fires a new 4727).
 
-![Remove-ADGroup command](screenshots/4730-detail-gg-sales-deleted.png)
-![Threat Hunting alert, rule 60202](screenshots/4730-list-60202.png)
+![Remove-ADGroup command](images/4730-detail-gg-sales-deleted.png)
+![Threat Hunting alert, rule 60202](images/4730-list-60202.png)

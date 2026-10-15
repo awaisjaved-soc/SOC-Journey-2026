@@ -16,5 +16,5 @@ Add-ADGroupMember -Identity "U-TestUniversal" -Members "testuser01"
 
 **Cleanup:** `Remove-ADGroupMember -Identity "U-TestUniversal" -Members "testuser01" -Confirm:$false` (fires 4757).
 
-![Add-ADGroupMember to universal group](screenshots/4756-powershell-add-member-universal.png)
-![Threat Hunting alert, rule 60151](screenshots/4756-message-member-added.png)
+![Add-ADGroupMember to universal group](images/4756-powershell-add-member-universal.png)
+![Threat Hunting alert, rule 60151](images/4756-message-member-added.png)

@@ -13,5 +13,5 @@
 
 **Cleanup:** recreate the account if the machine still needs domain membership (fires a new 4741).
 
-![Remove-ADComputer command](screenshots/4743-message-computer-account-deleted.png)
-![Threat Hunting alert, rule 60121](screenshots/4743-detail-test-pc01-deleted.png)
+![Remove-ADComputer command](images/4743-message-computer-account-deleted.png)
+![Threat Hunting alert, rule 60121](images/4743-detail-test-pc01-deleted.png)

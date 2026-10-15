@@ -19,5 +19,5 @@ Set-ADAccountPassword -Identity "testuser02" `
 
 **Watch out:** same generic 60110 as 4723/4738/4781 — Wazuh can't distinguish an admin reset from a user edit at this rule level.
 
-![Set-ADAccountPassword command](screenshots/4724-powershell-set-adaccountpassword-reset.png)
+![Set-ADAccountPassword command](images/4724-powershell-set-adaccountpassword-reset.png)
 *No screenshot captured for this step — Threat Hunting alert, rule 60110.*

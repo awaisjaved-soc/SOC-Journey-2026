@@ -16,5 +16,5 @@ Set-ADComputer -Identity "TEST-PC01" -Description "Test computer"
 
 **Cleanup:** revert the attribute (`-Clear Description`).
 
-![Set-ADComputer command](screenshots/4742-powershell-set-adcomputer.png)
-![Threat Hunting alert, rule 60121](screenshots/4742-message-computer-account-changed.png)
+![Set-ADComputer command](images/4742-powershell-set-adcomputer.png)
+![Threat Hunting alert, rule 60121](images/4742-message-computer-account-changed.png)

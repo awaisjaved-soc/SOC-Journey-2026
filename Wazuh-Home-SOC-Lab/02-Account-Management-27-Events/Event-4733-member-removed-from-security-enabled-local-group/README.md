@@ -16,5 +16,5 @@ Remove-ADGroupMember -Identity "DL-SecretData-Read" -Members "GG-Sales" -Confirm
 
 **Cleanup:** re-add the member (fires 4732).
 
-![Remove-ADGroupMember from DL group](screenshots/4733-powershell-remove-member-history.png)
+![Remove-ADGroupMember from DL group](images/4733-powershell-remove-member-history.png)
 *No screenshot captured for this step — Threat Hunting alert, rule 60145.*

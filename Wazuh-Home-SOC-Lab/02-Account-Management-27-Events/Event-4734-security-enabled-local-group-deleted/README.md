@@ -14,6 +14,6 @@
 Remove-ADGroup -Identity "DL-SecretData-Read" -Confirm:$false
 ```
 
-![Threat Hunting alert, rule 60146](screenshots/4734-list-60146.png)
-![Alert detail: local group deleted](screenshots/4734-detail-group-name.png)
-![Event message](screenshots/4734-message-local-group-deleted.png)
+![Threat Hunting alert, rule 60146](images/4734-list-60146.png)
+![Alert detail: local group deleted](images/4734-detail-group-name.png)
+![Event message](images/4734-message-local-group-deleted.png)

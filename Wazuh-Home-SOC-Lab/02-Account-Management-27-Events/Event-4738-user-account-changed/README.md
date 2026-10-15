@@ -17,5 +17,5 @@ Set-ADUser -Identity "testuser02" -Description "Updated role"
 
 **Cleanup:** `Set-ADUser -Identity "testuser02" -Clear Description`
 
-![Set-ADUser command](screenshots/4738-alert-detail-eventid.png)
-![Threat Hunting alert, rule 60110](screenshots/4738-threat-hunting-list-60110.png)
+![Set-ADUser command](images/4738-alert-detail-eventid.png)
+![Threat Hunting alert, rule 60110](images/4738-threat-hunting-list-60110.png)

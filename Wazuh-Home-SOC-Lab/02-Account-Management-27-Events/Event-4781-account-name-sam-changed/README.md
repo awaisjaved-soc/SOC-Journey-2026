@@ -16,5 +16,5 @@ Set-ADUser -Identity "testuser02" -SamAccountName "renamed02"
 
 **Cleanup:** `Set-ADUser -Identity "renamed02" -SamAccountName "testuser02"`
 
-![rename command](screenshots/4781-detail-old-new-names.png)
-![Threat Hunting alert, rule 60110](screenshots/4781-message-name-changed.png)
+![rename command](images/4781-detail-old-new-names.png)
+![Threat Hunting alert, rule 60110](images/4781-message-name-changed.png)

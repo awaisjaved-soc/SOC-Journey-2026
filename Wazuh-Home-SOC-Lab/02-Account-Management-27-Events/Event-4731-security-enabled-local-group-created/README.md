@@ -17,5 +17,5 @@ New-ADGroup -Name "DL-SecretData-Read" -GroupScope DomainLocal -GroupCategory Se
 
 **Cleanup:** `Remove-ADGroup -Identity "DL-SecretData-Read" -Confirm:$false`
 
-![New-ADGroup DomainLocal command](screenshots/4731-powershell-new-dl-group-and-acl.png)
-![Threat Hunting alert, rule 60143](screenshots/4731-detail-dl-group-created.png)
+![New-ADGroup DomainLocal command](images/4731-powershell-new-dl-group-and-acl.png)
+![Threat Hunting alert, rule 60143](images/4731-detail-dl-group-created.png)

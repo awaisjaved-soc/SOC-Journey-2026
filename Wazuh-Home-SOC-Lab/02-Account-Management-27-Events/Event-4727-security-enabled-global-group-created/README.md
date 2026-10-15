@@ -17,5 +17,5 @@ New-ADGroup -Name "G-TestGlobal" -GroupScope Global -GroupCategory Security `
 
 **Cleanup:** `Remove-ADGroup -Identity "G-TestGlobal" -Confirm:$false` (fires 4730).
 
-![New-ADGroup command](screenshots/4727-detail-gg-sales-created.png)
-![Threat Hunting alert, rule 60140](screenshots/4727-message-global-group-created.png)
+![New-ADGroup command](images/4727-detail-gg-sales-created.png)
+![Threat Hunting alert, rule 60140](images/4727-message-global-group-created.png)

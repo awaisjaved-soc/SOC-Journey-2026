@@ -17,5 +17,5 @@ New-ADGroup -Name "U-TestUniversal" -GroupScope Universal -GroupCategory Securit
 
 **Cleanup:** `Remove-ADGroup -Identity "U-TestUniversal" -Confirm:$false` (fires 4758).
 
-![New-ADGroup Universal command](screenshots/4754-powershell-new-universal-group.png)
-![Threat Hunting alert, rule 60149](screenshots/4754-list-60149-created.png)
+![New-ADGroup Universal command](images/4754-powershell-new-universal-group.png)
+![Threat Hunting alert, rule 60149](images/4754-list-60149-created.png)

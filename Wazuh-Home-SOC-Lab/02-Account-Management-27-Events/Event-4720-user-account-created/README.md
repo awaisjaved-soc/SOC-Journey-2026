@@ -20,6 +20,6 @@ New-ADUser -Name "testuser02" -SamAccountName "testuser02" `
 
 **Watch out:** `New-ADUser -Enabled $true` fires **4720 + two 4738s + 4722 in the same second** — one automated operation, not four human actions. Also: 4720 *immediately followed by 4726* for the same account means failed provisioning (e.g. the password violated policy and AD rolled the object back) — not an attack. Windows audits operations, not outcomes.
 
-![PowerShell New-ADUser command](screenshots/4720-powershell-new-aduser.png)
-![Threat Hunting alert, rule 60109 firing](screenshots/4720-threat-hunting-list-60109.png)
-![alert detail showing the new account name](screenshots/4720-alert-detail-testuser01-created.png)
+![PowerShell New-ADUser command](images/4720-powershell-new-aduser.png)
+![Threat Hunting alert, rule 60109 firing](images/4720-threat-hunting-list-60109.png)
+![alert detail showing the new account name](images/4720-alert-detail-testuser01-created.png)
