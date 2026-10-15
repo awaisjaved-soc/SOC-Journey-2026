@@ -131,7 +131,7 @@ Full write-ups with screenshots live in **[Lab-Errors-and-Bonus-Detections](Lab-
 | 4729 | Member removed from security-enabled global group | 60142 | 5 | covered |
 | 4730 | Security-enabled global group deleted | 60202 | 5 | covered |
 | 4731 | Security-enabled local group created | 60143 | 5 | covered |
-| 4732 | Member added to security-enabled local group | (verify) |  | covered |
+| 4732 | Member added to security-enabled local group | 60144 | 5 | covered |
 | 4733 | Member removed from security-enabled local group | 60145 | 5 | covered |
 | 4734 | Security-enabled local group deleted | 60146 | 5 | covered |
 | 4737 | Security-enabled global group changed | 60148 | 5 | covered |
