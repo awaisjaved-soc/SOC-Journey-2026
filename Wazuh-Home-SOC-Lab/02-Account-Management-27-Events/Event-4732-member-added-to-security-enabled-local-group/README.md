@@ -21,3 +21,5 @@ Add-ADGroupMember -Identity "DL-SecretData-Read" -Members "GG-Sales"
 ![Alert detail: member added to DL-SecretData-Read](images/4732-alert-detail-dl-secretdata-read.png)
 ![Alert detail: the member (Alex Rivera)](images/4732-alert-detail-member-alex-rivera.png)
 ![Alert detail: the group](images/4732-alert-detail-group-dl.png)
+![Alert detail: Account Operators group](images/4732-alert-detail-account-operators-group.png)
+![Alert detail: Account Operators](images/4732-alert-detail-account-operators.png)

@@ -20,4 +20,11 @@ Set-ADAccountPassword -Identity "testuser02" `
 **Watch out:** same generic 60110 as 4723/4738/4781 — Wazuh can't distinguish an admin reset from a user edit at this rule level.
 
 ![Set-ADAccountPassword command](images/4724-powershell-set-adaccountpassword-reset.png)
-*No screenshot captured for this step — Threat Hunting alert, rule 60110.*
+
+**Lab note (honest):** the admin password reset did **not** generate a distinct 4724 event in this lab — it surfaced as **4738**, with `Password Last Set` updated in the changed attributes:
+
+![4738 detail — the reset appeared here, not as 4724](images/4724-reset-appears-as-4738-detail.png)
+![4738 changed attributes](images/4724-reset-appears-as-4738-changed-attributes.png)
+![Password Last Set updated to the reset time](images/4724-reset-appears-as-4738-password-last-set.png)
+
+Takeaway: Wazuh rule 60110 still fires (on the 4738), so the reset *is* detected — but the SIEM can't distinguish an admin reset from any other account edit. Same fidelity gap as 4723, and a future custom-rule idea.

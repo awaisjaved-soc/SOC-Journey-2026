@@ -15,5 +15,8 @@
 
 **Watch out:** Wazuh maps this to the generic **60110** ("user account changed") — the same rule as 4738, 4724, and 4781. The SIEM sees "account changed," not *which kind* of change. That's a fidelity gap and a future custom-rule idea.
 
-*No screenshot captured for this step — password change dialog.*
-*No screenshot captured for this step — Threat Hunting alert, rule 60110.*
+**Lab note (honest):** in this environment, the GUI password-change attempt was **denied** — 4723 never fired as a separate event:
+
+![Change a password — Access is denied](images/4723-change-password-access-denied.png)
+
+Password changes in this lab surface as **4738** ("user account changed") instead — see [Event 4738](../Event-4738-user-account-changed/). The SIEM sees "account changed," not *who* changed the password or *how*.
