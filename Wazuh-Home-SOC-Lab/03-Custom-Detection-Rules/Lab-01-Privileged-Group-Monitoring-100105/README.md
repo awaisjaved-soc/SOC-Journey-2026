@@ -50,6 +50,18 @@ While testing, I noticed something odd: the built-in **60141** never fired on pr
 
 ---
 
+
+<img width="960" height="226" alt="Screenshot_9 - Copy" src="https://github.com/user-attachments/assets/a17d0a6d-14f2-4b5b-a098-ae70c1958113" />
+
+
+---
+
+<img width="960" height="270" alt="Screenshot_53" src="https://github.com/user-attachments/assets/f4d58925-6f40-4616-af5f-f4414e0dc324" />
+
+---
+
+
+
 **Conclusion:** 100105 *shadows* 60141. When the custom rule matches, the built-in chain never completes. This is not a bug — it's how Wazuh rule matching works — but you have to know it's happening, or you'll misread your coverage.
 
 ## Nesting test
