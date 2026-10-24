@@ -27,6 +27,11 @@ The tuning strategy (same pattern as Lab 01): narrow to the dangerous subset, fi
   <group>privilege_escalation,</group>
 </rule>
 ```
+---
+
+<img width="960" height="220" alt="Screenshot_75" src="https://github.com/user-attachments/assets/e2e74901-a733-46fb-b0e9-f692afe64c27" />
+
+---
 
 HR creates accounts during the day — that's normal. An account created at 3 AM is a potential backdoor. The `<time>` element is evaluated against the manager's clock.
 
