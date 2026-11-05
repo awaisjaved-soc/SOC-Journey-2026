@@ -18,4 +18,39 @@ Set-ADUser -Identity "testuser02" -Description "Updated role"
 **Cleanup:** `Set-ADUser -Identity "testuser02" -Clear Description`
 
 ![Set-ADUser command](images/4738-alert-detail-eventid.png)
+
+---
 ![Threat Hunting alert, rule 60110](images/4738-threat-hunting-list-60110.png)
+
+---
+
+## Threat Hunting in Wazuh
+
+Threat Hunting uses DQL. Paste these into the search bar (Events tab) over the time window of the lab. Threat Hunting shows the **alerts** index only — if an event fired no rule, it is invisible here; check the archives index or `Get-WinEvent` on the DC instead.
+
+**All of them:**
+```
+data.win.system.eventID: 4738
+```
+
+**Just one account:**
+```
+data.win.system.eventID: 4738 AND data.win.eventdata.targetUserName: testuser02
+```
+
+**Who did it:**
+```
+data.win.system.eventID: 4738 AND data.win.eventdata.subjectUserName: administrator
+```
+
+**By rule:**
+```
+rule.id: 60110 AND data.win.system.eventID: 4738
+```
+
+**Human accounts only** (drops computer accounts ending in `$` and SYSTEM noise):
+```
+data.win.system.eventID: 4738 AND NOT data.win.eventdata.targetUserName: *$ AND NOT data.win.eventdata.targetUserName: SYSTEM
+```
+
+Rule 60110 is shared with 4723, 4724, and 4781 — one rule, four different real-world meanings. Use the eventID to tell them apart, and filter on the account.

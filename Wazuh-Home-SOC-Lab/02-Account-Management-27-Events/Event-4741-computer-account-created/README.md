@@ -17,4 +17,34 @@ New-ADComputer -Name "TEST-PC01" -SamAccountName 'TEST-PC01$'
 **Cleanup:** `Remove-ADComputer -Identity "TEST-PC01" -Confirm:$false` (fires 4743).
 
 ![New-ADComputer command](images/4741-powershell-new-adcomputer.png)
+
+---
 ![Threat Hunting alert, rule 60121](images/4741-list-60121-computer-account.png)
+
+---
+
+## Threat Hunting in Wazuh
+
+Threat Hunting uses DQL. Paste these into the search bar (Events tab) over the time window of the lab. Threat Hunting shows the **alerts** index only — if an event fired no rule, it is invisible here; check the archives index or `Get-WinEvent` on the DC instead.
+
+**All of them:**
+```
+data.win.system.eventID: 4741
+```
+
+**One computer:**
+```
+data.win.system.eventID: 4741 AND data.win.eventdata.targetUserName: TEST-PC01
+```
+
+**Who did it:**
+```
+data.win.system.eventID: 4741 AND data.win.eventdata.subjectUserName: administrator
+```
+
+**By rule:**
+```
+rule.id: 60121 AND data.win.system.eventID: 4741
+```
+
+Note: the target here is a computer account, so it ends in `$` — do not use the human-only `NOT *$` filter on this event.

@@ -17,4 +17,39 @@ Set-ADUser -Identity "testuser02" -SamAccountName "renamed02"
 **Cleanup:** `Set-ADUser -Identity "renamed02" -SamAccountName "testuser02"`
 
 ![rename command](images/4781-detail-old-new-names.png)
+
+---
 ![Threat Hunting alert, rule 60110](images/4781-message-name-changed.png)
+
+---
+
+## Threat Hunting in Wazuh
+
+Threat Hunting uses DQL. Paste these into the search bar (Events tab) over the time window of the lab. Threat Hunting shows the **alerts** index only — if an event fired no rule, it is invisible here; check the archives index or `Get-WinEvent` on the DC instead.
+
+**All of them:**
+```
+data.win.system.eventID: 4781
+```
+
+**Just one account:**
+```
+data.win.system.eventID: 4781 AND data.win.eventdata.targetUserName: testuser02
+```
+
+**Who did it:**
+```
+data.win.system.eventID: 4781 AND data.win.eventdata.subjectUserName: administrator
+```
+
+**By rule:**
+```
+rule.id: 60110 AND data.win.system.eventID: 4781
+```
+
+**Human accounts only** (drops computer accounts ending in `$` and SYSTEM noise):
+```
+data.win.system.eventID: 4781 AND NOT data.win.eventdata.targetUserName: *$ AND NOT data.win.eventdata.targetUserName: SYSTEM
+```
+
+The rename itself is only visible in the document message and the changed attributes — the rule only says 'account changed'. Nothing in the alert says *renamed*.

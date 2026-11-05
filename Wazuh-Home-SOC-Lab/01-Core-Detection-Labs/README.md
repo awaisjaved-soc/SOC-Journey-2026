@@ -1,6 +1,6 @@
 # Core Detection Labs
 
-The four foundational detection labs — each one a complete attack-or-scenario → event → Wazuh alert → triage loop. Work them in order; each assumes the previous lab's setup.
+The five foundational detection labs — each one a complete attack-or-scenario → event → Wazuh alert → triage loop. Work them in order; each assumes the previous lab's setup.
 
 | # | Lab | What it proves | Key event IDs |
 |---|---|---|---|
@@ -8,6 +8,7 @@ The four foundational detection labs — each one a complete attack-or-scenario 
 | 02 | [Privilege Escalation Detection](02-Privilege-Escalation-Detection-4728-4729/) | The classic attack pattern: an account added to a privileged group, then removed — the 4728 moment | 4728, 4729 |
 | 03 | [Account Lifecycle Auditing](03-Account-Lifecycle-Auditing-4720-to-4740/) | The full account story (create → disable → enable → delete) plus a real lockout — and a Kerberos logging blind spot worth knowing | 4720, 4725, 4722, 4726, 4740, 4767 |
 | 04 | [Brute-Force Mini-Incident: Triage](04-Brute-Force-Mini-Incident-Triage/) | Failures → lockout → unlock → success, worked end-to-end as a SOC triage case with a written verdict | 4625, 4740, 4767, 4624 |
+| 05 | [Chained Attack: One Incident, Five Alerts](05-Chained-Attack-One-Incident-Five-Alerts/) | One attacker story, five alerts — backdoor account → privileged group → RDP logon → process → log cleared, verified end to end on the rebuilt DC | 4720, 4728, 4624, 4688, 1102 |
 
 Every lab README follows the same shape: **Overview → What Is This Lab → Lab Steps (every command explained) → What Wazuh Said → SOC Takeaways**, with screenshots embedded where they were captured.
 

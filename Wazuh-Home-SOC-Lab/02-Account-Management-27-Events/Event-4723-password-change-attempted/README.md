@@ -19,4 +19,42 @@
 
 ![Change a password — Access is denied](images/4723-change-password-access-denied.png)
 
+---
+
 Password changes in this lab surface as **4738** ("user account changed") instead — see [Event 4738](../Event-4738-user-account-changed/). The SIEM sees "account changed," not *who* changed the password or *how*.
+
+## Threat Hunting in Wazuh
+
+Threat Hunting uses DQL. Paste these into the search bar (Events tab) over the time window of the lab. Threat Hunting shows the **alerts** index only — if an event fired no rule, it is invisible here; check the archives index or `Get-WinEvent` on the DC instead.
+
+**All of them:**
+```
+data.win.system.eventID: 4723
+```
+
+**Just one account:**
+```
+data.win.system.eventID: 4723 AND data.win.eventdata.targetUserName: testuser02
+```
+
+**Who did it:**
+```
+data.win.system.eventID: 4723 AND data.win.eventdata.subjectUserName: administrator
+```
+
+**By rule:**
+```
+rule.id: 60110 AND data.win.system.eventID: 4723
+```
+
+**Human accounts only** (drops computer accounts ending in `$` and SYSTEM noise):
+```
+data.win.system.eventID: 4723 AND NOT data.win.eventdata.targetUserName: *$ AND NOT data.win.eventdata.targetUserName: SYSTEM
+```
+
+**Fallback — the 4738 it surfaced as:**
+```
+data.win.system.eventID: 4738 AND data.win.eventdata.targetUserName: testuser02
+```
+
+Fidelity note from this lab: the GUI password-change attempt was denied, so 4723 never fired as a separate event here — it surfaced as 4738. If the 4723 query returns nothing, hunt the 4738 for the same account instead.

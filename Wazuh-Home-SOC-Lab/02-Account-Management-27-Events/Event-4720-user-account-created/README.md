@@ -21,5 +21,47 @@ New-ADUser -Name "testuser02" -SamAccountName "testuser02" `
 **Watch out:** `New-ADUser -Enabled $true` fires **4720 + two 4738s + 4722 in the same second** — one automated operation, not four human actions. Also: 4720 *immediately followed by 4726* for the same account means failed provisioning (e.g. the password violated policy and AD rolled the object back) — not an attack. Windows audits operations, not outcomes.
 
 ![PowerShell New-ADUser command](images/4720-powershell-new-aduser.png)
+
+---
 ![Threat Hunting alert, rule 60109 firing](images/4720-threat-hunting-list-60109.png)
+
+---
 ![alert detail showing the new account name](images/4720-alert-detail-testuser01-created.png)
+
+---
+
+## Threat Hunting in Wazuh
+
+Threat Hunting uses DQL. Paste these into the search bar (Events tab) over the time window of the lab. Threat Hunting shows the **alerts** index only — if an event fired no rule, it is invisible here; check the archives index or `Get-WinEvent` on the DC instead.
+
+**All of them:**
+```
+data.win.system.eventID: 4720
+```
+
+**Just one account:**
+```
+data.win.system.eventID: 4720 AND data.win.eventdata.targetUserName: testuser02
+```
+
+**Who did it:**
+```
+data.win.system.eventID: 4720 AND data.win.eventdata.subjectUserName: administrator
+```
+
+**By rule:**
+```
+rule.id: 60109 AND data.win.system.eventID: 4720
+```
+
+**Human accounts only** (drops computer accounts ending in `$` and SYSTEM noise):
+```
+data.win.system.eventID: 4720 AND NOT data.win.eventdata.targetUserName: *$ AND NOT data.win.eventdata.targetUserName: SYSTEM
+```
+
+**The off-hours custom rule:**
+```
+rule.id: 100109
+```
+
+Rule 60109 is shared with 4722 — use the eventID to tell a creation from an enable. The off-hours custom rule 100109 also fires on 4720 (see Lab 02 in 03-Custom-Detection-Rules).

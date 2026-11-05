@@ -21,10 +21,54 @@ Set-ADAccountPassword -Identity "testuser02" `
 
 ![Set-ADAccountPassword command](images/4724-powershell-set-adaccountpassword-reset.png)
 
+---
+
 **Lab note (honest):** the admin password reset did **not** generate a distinct 4724 event in this lab — it surfaced as **4738**, with `Password Last Set` updated in the changed attributes:
 
 ![4738 detail — the reset appeared here, not as 4724](images/4724-reset-appears-as-4738-detail.png)
+
+---
 ![4738 changed attributes](images/4724-reset-appears-as-4738-changed-attributes.png)
+
+---
 ![Password Last Set updated to the reset time](images/4724-reset-appears-as-4738-password-last-set.png)
 
+---
+
 Takeaway: Wazuh rule 60110 still fires (on the 4738), so the reset *is* detected — but the SIEM can't distinguish an admin reset from any other account edit. Same fidelity gap as 4723, and a future custom-rule idea.
+
+## Threat Hunting in Wazuh
+
+Threat Hunting uses DQL. Paste these into the search bar (Events tab) over the time window of the lab. Threat Hunting shows the **alerts** index only — if an event fired no rule, it is invisible here; check the archives index or `Get-WinEvent` on the DC instead.
+
+**All of them:**
+```
+data.win.system.eventID: 4724
+```
+
+**Just one account:**
+```
+data.win.system.eventID: 4724 AND data.win.eventdata.targetUserName: testuser02
+```
+
+**Who did it:**
+```
+data.win.system.eventID: 4724 AND data.win.eventdata.subjectUserName: administrator
+```
+
+**By rule:**
+```
+rule.id: 60110 AND data.win.system.eventID: 4724
+```
+
+**Human accounts only** (drops computer accounts ending in `$` and SYSTEM noise):
+```
+data.win.system.eventID: 4724 AND NOT data.win.eventdata.targetUserName: *$ AND NOT data.win.eventdata.targetUserName: SYSTEM
+```
+
+**Fallback — the 4738 it surfaced as:**
+```
+data.win.system.eventID: 4738 AND data.win.eventdata.targetUserName: testuser02
+```
+
+Fidelity note from this lab: the admin reset did not generate a distinct 4724 event here — it surfaced as 4738 with `Password Last Set` updated. If the 4724 query returns nothing, hunt the 4738 for the same account instead.

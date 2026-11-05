@@ -15,5 +15,35 @@ Remove-ADGroup -Identity "DL-SecretData-Read" -Confirm:$false
 ```
 
 ![Threat Hunting alert, rule 60146](images/4734-list-60146.png)
+
+---
 ![Alert detail: local group deleted](images/4734-detail-group-name.png)
+
+---
 ![Event message](images/4734-message-local-group-deleted.png)
+
+---
+
+## Threat Hunting in Wazuh
+
+Threat Hunting uses DQL. Paste these into the search bar (Events tab) over the time window of the lab. Threat Hunting shows the **alerts** index only — if an event fired no rule, it is invisible here; check the archives index or `Get-WinEvent` on the DC instead.
+
+**All of them:**
+```
+data.win.system.eventID: 4734
+```
+
+**One group:**
+```
+data.win.system.eventID: 4734 AND data.win.eventdata.targetUserName: DL-SecretData-Read
+```
+
+**Who did it:**
+```
+data.win.system.eventID: 4734 AND data.win.eventdata.subjectUserName: administrator
+```
+
+**By rule:**
+```
+rule.id: 60146 AND data.win.system.eventID: 4734
+```
