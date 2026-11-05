@@ -10,14 +10,14 @@ Most detections are single events. Real incidents are not. This lab runs one att
 | # | Step | Event | Wazuh rule | Level | Time (Nov 5, 2026) |
 |---|---|---|---|---|---|
 | 1 | New account created | 4720 | 60109 | 8 | ~14:55 |
-| 2 | Added to a privileged group | 4728 | 100105 (custom) | 10 | user-confirmed |
+| 2 | Added to a privileged group | 4728 | 100105 (custom) | 10 | Nov 3 01:40:41 (svc-backup run); Nov 5 user-confirmed |
 | 3 | RDP logon, type 10 | 4624 | 92653 | 3 | 15:05:55 |
 | 4 | Process created (notepad.exe) | 4688 | 67027 | 3 | 15:31:03 |
 | 5 | Security log cleared | 1102 | 100108 (custom) | 12 | 15:38:54 |
 
 Test account: **svc-chain02** (SID ending `-1141`). Attacker path in this lab: the analyst's own PC (`192.168.100.27`) → DC `WIN-SOCLAB` (`192.168.100.146`, `soclab.local`) → Wazuh agent 001 → Wazuh 4.14.5 on Kali (`192.168.100.50`).
 
-**Evidence honesty:** Steps 1, 3, 4, and 5 are screenshot-verified below. Step 2 is **user-confirmed** — no screenshot of rule 100105 firing for `svc-chain02` exists in this run. (A 100105 screenshot from the November 3 `svc-backup` attempt exists, but it belongs to a different account on a different day, so it is deliberately *not* used here.)
+**Evidence honesty:** Steps 1, 3, 4, and 5 are screenshot-verified below. Step 2 is supported by the November 3 screenshot of rule 100105 firing for `svc-backup` (same rule, same group, Nov 3 01:40:41) plus user confirmation for the November 5 `svc-chain02` run — the screenshot is from the earlier run, not this run, and it is labelled as such where it appears.
 
 ---
 ## What is this lab
@@ -69,7 +69,11 @@ Add-ADGroupMember -Identity "Domain-Admins-Custom" -Members "svc-chain02"
 
 **What Wazuh said:** custom rule **100105**, level **10**, "Account added to a privileged group (possible privilege escalation)". The built-in **60141** stayed silent on this event — the shadowing finding from Lab 01, confirmed again: when the custom rule matches, the built-in chain never completes.
 
-> **Evidence note:** this step is user-confirmed, not screenshot-verified. No 100105 alert screenshot for `svc-chain02` was captured in this run. The `wazuh-logtest` check for 100105 vs 60141 (which rule wins on the same event, without removing rules) is still open — see [Lessons learned](#lessons-learned).
+> **Evidence note:** the screenshot below is from the November 3 run (`svc-backup` added to `Domain-Admins-Custom`, Nov 3 01:40:41) — same rule, same group. The November 5 run for `svc-chain02` was user-confirmed. The `wazuh-logtest` check for 100105 vs 60141 (which rule wins on the same event, without removing rules) is still open — see [Lessons learned](#lessons-learned).
+
+![Rule 100105 firing — "Account added to a privileged group (possible privilege escalation)", Nov 3 run, svc-backup](images/100105-privileged-group-nov3-svc-backup.png)
+
+---
 
 ### Step 3 — RDP logon as the new account (4624, LogonType 10)
 
@@ -166,7 +170,7 @@ Clearing the log empties the DC's local Security log — that is the point of th
 | Time (Nov 5) | Event | Rule | Level | What proves it |
 |---|---|---|---|---|
 | ~14:55 | 4720 — account created | 60109 | 8 | New Account `svc-chain02`, SID ending `-1141` |
-| — | 4728 — added to privileged group | 100105 | 10 | User-confirmed (no screenshot this run); 60141 silent |
+| Nov 3 01:40:41 | 4728 — added to privileged group | 100105 | 10 | Screenshot from Nov 3 svc-backup run; Nov 5 user-confirmed; 60141 silent |
 | 15:05:55 | 4624 — RDP logon, type 10 | 92653 | 3 | From `192.168.100.27`, Logon ID `0x222F38` |
 | 15:31:03 | 4688 — notepad.exe created | 67027 | 3 | Parent `powershell.exe`, SubjectLogonId `0x222F38` |
 | 15:38:54 | 1102 — audit log cleared | 100108 | 12 | MITRE T1070.001, cleared by `administrator` |
