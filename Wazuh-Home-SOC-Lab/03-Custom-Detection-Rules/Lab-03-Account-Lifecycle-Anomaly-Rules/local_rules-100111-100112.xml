@@ -1,0 +1,41 @@
+<!--
+  Lab 03 — Account-Lifecycle Anomaly Rules (100111, 100112)
+  Wazuh 4.14.5, SOCLAB home lab. UNTESTED — written from the documented
+  rule syntax; the lab test (see README.md) has not been run yet.
+
+  Deploy: append these two rules inside the <group> of
+  /var/ossec/etc/rules/local_rules.xml on the manager, then restart
+  analysisd (no -it — these are non-interactive commands):
+    docker cp local_rules.xml single-node-wazuh.manager-1:/var/ossec/etc/rules/local_rules.xml
+    docker exec single-node-wazuh.manager-1 /var/ossec/bin/wazuh-control restart
+  Then run the chain test in the README before trusting these rules.
+-->
+
+  <!-- 100111: new account added to a privileged group within 1 hour -->
+  <!-- Parent is 100105, NOT 60141: on a privileged 4728, 100105 shadows -->
+  <!-- 60141, so 60141 never fires and a rule chained on it would go blind. -->
+  <rule id="100111" level="12" frequency="1" timeframe="3600">
+    <if_sid>100105</if_sid>
+    <if_matched_sid>60109</if_matched_sid>
+    <same_user />
+    <description>New account added to a privileged group within 1 hour of creation</description>
+    <mitre>
+      <id>T1098</id>
+    </mitre>
+    <group>privilege_escalation,</group>
+  </rule>
+
+  <!-- 100112: the full chain in ONE alert — new privileged account logged on -->
+  <!-- Parent is 92653 (RDP logon, type 10), the exact rule that fired in -->
+  <!-- the chain lab. Console (type 2) or network (type 3) logons will NOT -->
+  <!-- trigger this rule — that is a known scope limit, see README.md. -->
+  <rule id="100112" level="14" frequency="1" timeframe="3600">
+    <if_sid>92653</if_sid>
+    <if_matched_sid>100111</if_matched_sid>
+    <same_user />
+    <description>New privileged account logged on via RDP within 1 hour of the group add (full account-lifecycle chain)</description>
+    <mitre>
+      <id>T1078</id>
+    </mitre>
+    <group>privilege_escalation,</group>
+  </rule>

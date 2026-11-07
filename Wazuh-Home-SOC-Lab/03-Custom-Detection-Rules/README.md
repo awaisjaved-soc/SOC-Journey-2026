@@ -16,9 +16,14 @@ Custom rule that fires at level 10 when anyone is added to a privileged group (b
 
 Two rules I wrote myself for the "needs tuning" verdicts: **100109** (account created outside business hours, MITRE T1136) and **100110** (built-in Administrator modified, MITRE T1098). Includes the **rename discovery** — I accidentally evaded my own rule by renaming the Administrator account, then fixed it by matching on SID instead of name.
 
-## Key lessons across both labs
+### [Lab 03 — Account-Lifecycle Anomaly Rules (100111 & 100112)](Lab-03-Account-Lifecycle-Anomaly-Rules/)
+
+Two correlation rules that catch the whole chain in one alert: **100111** (new account added to a privileged group within an hour of creation, level 12) and **100112** (that new privileged account logging on via RDP within an hour, level 14). Built on the shadowing lesson — 100111 chains on 100105, not on 60141, because 60141 never fires on privileged 4728s. **Status: untested** — written from the documented syntax, awaiting the lab run.
+
+## Key lessons across all three labs
 
 - **Tuning pattern:** broad built-in → narrow dangerous subset → louder alert.
 - **Always test both directions:** positive (should fire) and negative (should stay silent).
 - **Names are fragile, SIDs are stone.** Match on what attackers can't easily change.
 - **Boundary-test every rule.** Know exactly where your detection works and where it goes blind.
+- **Correlation chains on what actually fires.** A parent rule that is shadowed can never trigger its children — check the chain link by link.
