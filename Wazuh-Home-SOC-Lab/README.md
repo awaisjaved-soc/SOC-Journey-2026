@@ -69,9 +69,9 @@ That's **Wazuh's own SCA (compliance) scanner** checking a CIS benchmark setting
 
 ## Coming next
 
-- [ ] Sysmon install + `Microsoft-Windows-Sysmon/Operational` channel in `ossec.conf`
-- [ ] Custom detection rule: **1102** (audit log cleared)
-- [ ] Custom detection rule: louder **4728** for privileged-group additions
+- [x] Sysmon install + `Microsoft-Windows-Sysmon/Operational` channel in `ossec.conf` — verified Nov 5, 2026, Sysmon 11 FileCreate flowing (see Lab 05)
+- [x] Custom detection rule: **1102** (audit log cleared) — done, rule **100108**, level 12 (Lab 05, Step 5)
+- [x] Custom detection rule: louder **4728** for privileged-group additions — done, rule **100105**, level 10 (Lab 01)
 - [ ] `wazuh-archives` index for full event retention
 - [ ] More attack scenarios (persistence, lateral movement, living-off-the-land)
 
