@@ -1,6 +1,6 @@
 # Core Detection Labs
 
-The five foundational detection labs — each one a complete attack-or-scenario → event → Wazuh alert → triage loop. Work them in order; each assumes the previous lab's setup.
+The six foundational detection labs — each one a complete attack-or-scenario → event → Wazuh alert → triage loop. Work them in order; each assumes the previous lab's setup.
 
 | # | Lab | What it proves | Key event IDs |
 |---|---|---|---|
@@ -9,6 +9,7 @@ The five foundational detection labs — each one a complete attack-or-scenario 
 | 03 | [Account Lifecycle Auditing](03-Account-Lifecycle-Auditing-4720-to-4740/) | The full account story (create → disable → enable → delete) plus a real lockout — and a Kerberos logging blind spot worth knowing | 4720, 4725, 4722, 4726, 4740, 4767 |
 | 04 | [Brute-Force Mini-Incident: Triage](04-Brute-Force-Mini-Incident-Triage/) | Failures → lockout → unlock → success, worked end-to-end as a SOC triage case with a written verdict | 4625, 4740, 4767, 4624 |
 | 05 | [Chained Attack: One Incident, Five Alerts](05-Chained-Attack-One-Incident-Five-Alerts/) | One attacker story, five alerts — backdoor account → privileged group → RDP logon → process → log cleared, verified end to end on the rebuilt DC | 4720, 4728, 4624, 4688, 1102 |
+| 06 | [Rogue Admin: The Chain as a Purple-Team Story](06-Rogue-Admin-Purple-Team/) | The Lab 05 chain retold as one attack story — then broken: per-step evasion, what still catches it, and three re-tests to break your own detection | 4720, 4728, 4624, 4688, 1102 |
 
 Every lab README follows the same shape: **Overview → What Is This Lab → Lab Steps (every command explained) → What Wazuh Said → SOC Takeaways**, with screenshots embedded where they were captured.
 
