@@ -57,6 +57,18 @@ The built-in rule 60141 fires at level 5 on **every** 4728, whether the group is
 - **Nesting test:** added an entire group (`Privileged-Users`) as a member of `Domain Admins` → **100105 still fired**, proving the rule checks the destination (WHERE), not the member (WHO). Whether an attacker adds a user or nests a whole group, the rule catches it.
 - **Chain-lab re-confirmation (Nov 3–5, 2026):** `svc-backup` added to `Domain-Admins-Custom` → 100105 fired at L10 (Nov 3 01:40:41), 60141 absent — shadowing reconfirmed. `svc-chain02` added to the same group Nov 5 (user-confirmed; no screenshot of that run exists — the chain README carries the Nov 3 screenshot, clearly labelled as the earlier run).
 
+![100105 firing, Lab 01 positive test, Oct 17 23:20-23:22](images/100105-lab01-positive-test-oct17.png)
+
+*100105 at level 10, Oct 17 23:21:56 and 23:20:02 — "Account added to a privileged group (possible privilege escalation)". The Lab 01 positive test: labuser01 added to Domain-Admins-Custom.*
+
+---
+
+![100105 firing, chain lab, Nov 3 01:40:41](../01-Core-Detection-Labs/05-Chained-Attack-One-Incident-Five-Alerts/images/100105-privileged-group-nov3-svc-backup.png)
+
+*100105 at level 10, Nov 3 01:40:41.094 — svc-backup added to Domain-Admins-Custom (chain-lab step 2). Built-in 60141 is absent from the list: shadowing reconfirmed.*
+
+---
+
 ## Find it in Wazuh
 
 ```

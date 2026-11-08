@@ -4,7 +4,7 @@
 
 ---
 
-> **Status: UNTESTED.** These rules are written from Wazuh's documented rule syntax. They have not been run in the lab yet. Do not treat them as verified detection until the test below has been executed and the alerts observed in Threat Hunting.
+> **Status: TESTED Nov 8–9, 2026.** Both rules fired on every logon type (2, 3, 10) for both tiers — see [Test results](#test-results--tested-nov-89-2026) below.
 
 ## The problem
 
@@ -100,6 +100,33 @@ For each one, check in Threat Hunting that **60106 did not also fire** for the s
 - A service logon (type 5) → neither custom rule (logonType is outside 2/3/10).
 - A logon as `svc-chain02` via RDP → **100114 fires** (this is the known privilege limit, not a bug — record it as such).
 
+## Test results — TESTED Nov 8–9, 2026
+
+Both rules fired on every logon type, for both tiers. Types 2, 3 and 10 all verified:
+
+- **Admin (100113):** type 10 at 01:15:32 (fresh RDP after `logoff`); type 3s at 01:15:31, 01:13:10, 01:04:44, 00:21:18; type 2 console from 127.0.0.1 at 01:19:12, 01:10:51.
+- **svc-chain02 (100114):** type 10 at 01:17:29 (fresh RDP after `logoff`); type 3s at 01:17:28, 00:55:11, 00:28:39, 00:14:38; type 2 console from 127.0.0.1 at 01:21:19, 01:00:00.
+- **Shadowing confirmed:** 60106 stayed silent on human logons (its flood rows are the DC logging on to itself, IPs `::1` and `fe80::7410:22f:12c7:f70`); 92653 last fired Nov 8 18:08, before these rules loaded.
+- **False positives fixed in the run:** the DWM flood (four SID negates) and the UMFD-2 virtual account (`^UMFD-` negate). Descriptions were upgraded to the 92653 style (username + IP + logon type) and confirmed rendering from Nov 9 00:14.
+
+![Lab 04 first test, Nov 8 22:45, old descriptions](../../05-Logon-and-Authentication-14-Events/Event-4624-logon-success/images/100113-100114-first-test-old-descriptions.png)
+
+*The Lab 04 first test, Nov 8 22:45:20–22:45:28 — 100113 at level 10 and 100114 at level 5 with the original descriptions, 60106 alongside on machine logons. This is the one old-description shot; the descriptions were upgraded the same night.*
+
+---
+
+![Admin type 10, fresh RDP, Nov 9 01:15:32](../../05-Logon-and-Authentication-14-Events/Event-4624-logon-success/images/100113-type10-fresh-rdp.png)
+
+*Administrator type 10 at 01:15:32.771 under 100113, new description. The missing type 10s earlier that night were session reconnections, not a rule problem — after `logoff` and a fresh RDP, the type 10 fired.*
+
+---
+
+![svc-chain02 type 10, fresh RDP, Nov 9 01:17:29](../../05-Logon-and-Authentication-14-Events/Event-4624-logon-success/images/100114-type10-fresh-rdp.png)
+
+*svc-chain02 type 10 at 01:17:29.819/.773 under 100114, new description. Note the known limit in action: svc-chain02 is a Domain-Admins-Custom member, but 100113 only catches the Administrator SID (-500), so the privileged-group member fires 100114 ("normal user") — the 4672-correlation follow-up is the fix.*
+
+---
+
 ## Troubleshooting — if the rules do not fire
 
 **1. 60106 fires but the custom rules do not.** First check the rules loaded (config test + logtest on a captured 4624). Then check the field names in the document detail: `win.eventdata.logonType`, `win.eventdata.targetUserName`, `win.eventdata.targetUserSid` — if any of them is absent or named differently on your events, the rule can never match. Do not guess; read the field.
@@ -136,8 +163,8 @@ data.win.system.eventID: 4624 AND data.win.eventdata.targetUserName: labuser01
 
 ## Open items
 
-- **These rules are untested.** Status changes only after the test above runs and the alerts are observed.
+- **These rules are tested (Nov 8–9, 2026).** See [Test results](#test-results--tested-nov-89-2026) above.
 - **4672-correlation follow-up:** a rule chaining 4624 to a recent 4672 for the same Logon ID would catch privileged-group members (like `svc-chain02`), which 100113 cannot. Blocked on verifying the 4672 rule ID first.
-- **Phase 2 sheet:** the 4624 row currently reads "needs tuning (floods)". It flips to "covered" only after this test passes.
+- **Phase 2 sheet:** the 4624 row can now flip from "needs tuning (floods)" to "covered" — the test passed.
 - **Edge case:** `ANONYMOUS LOGON` (type 3) is not excluded by 100114's negates — if it appears in testing, add a `^ANONYMOUS LOGON$` negate and note it here.
 - **Scope limit:** type 11 (cached) and type 5 (service) logons are outside these rules by design.

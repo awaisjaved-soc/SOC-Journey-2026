@@ -50,6 +50,12 @@ Event 1102 is rare in normal operation — administrators almost never clear the
 
 - **Positive:** `Clear-EventLog -LogName Security` run from the **admin** session on the DC → **100108 fired at level 12**, Nov 5 15:38:54, eventRecordID 27176. (The svc-chain02 session could not clear the log — its token is UAC-filtered, so Access Denied was expected there; the admin session was required.)
 - The alert was screenshot-verified (Admin PowerShell generation shot, 100108 alert list, detail, rule/MITRE detail) in the chain-lab folder.
+
+![100108 firing, chain lab step 5, Nov 5 15:38:54](../01-Core-Detection-Labs/05-Chained-Attack-One-Incident-Five-Alerts/images/1102-log-cleared-100108-list.png)
+
+*100108 at level 12, Nov 5 15:38:54.177 — "Windows audit log was cleared (possible defense evasion, event 1102)". The single alert from the chain lab's final step.*
+
+---
 - **Negative (by design):** no other lab action generates 1102 — the rule only fires on an actual log clear, so there is no routine false positive to record.
 
 ## Find it in Wazuh

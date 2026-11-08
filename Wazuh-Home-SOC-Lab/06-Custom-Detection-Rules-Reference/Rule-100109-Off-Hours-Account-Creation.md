@@ -54,6 +54,12 @@ The built-in rule 60109 fires at level 8 on every account creation, so a backdoo
 - **Negative:** an account created during business hours → no 100109 alert (60109 fires alone at level 8).
 - **Chain-lab re-confirmation (Nov 3, 2026):** the fresh 4720 for `svc-backup` fired 100109 at L10 (01:37:13) — the off-hours window held.
 
+![100109 firing, first test, Oct 17 23:28:10](images/100109-first-firing-oct17.png)
+
+*100109 at level 10, Oct 17 23:28:10.806 — "Account created outside business hours (possible backdoor)". The first custom rule of Lab 02, fired on the first try. Built-in 60109 (level 8) is visible alongside it.*
+
+---
+
 ## Find it in Wazuh
 
 ```
