@@ -20,10 +20,15 @@ Two rules I wrote myself for the "needs tuning" verdicts: **100109** (account cr
 
 Two correlation rules that catch the whole chain in one alert: **100111** (new account added to a privileged group within an hour of creation, level 12) and **100112** (that new privileged account logging on via RDP within an hour, level 14). Built on the shadowing lesson — 100111 chains on 100105, not on 60141, because 60141 never fires on privileged 4728s. **Status: untested** — written from the documented syntax, awaiting the lab run.
 
-## Key lessons across all three labs
+### [Lab 04 — Logon Tuning Rules (100113 & 100114)](Lab-04-Logon-Tuning-100113-100114/)
+
+Two rules that split the 4624 flood by privilege: **100113** (a high-privilege account logged on, Administrator SID `-500`, level 10) and **100114** (a normal human user logged on, level 5, machine accounts excluded). Covers logon types 2, 3 and 10. **Status: untested** — written from the documented syntax, awaiting the lab run. Includes the honest limit: SID matching catches the Administrator account, not privileged-group members — the 4672-correlation follow-up is the fix for that.
+
+## Key lessons across all four labs
 
 - **Tuning pattern:** broad built-in → narrow dangerous subset → louder alert.
 - **Always test both directions:** positive (should fire) and negative (should stay silent).
 - **Names are fragile, SIDs are stone.** Match on what attackers can't easily change.
 - **Boundary-test every rule.** Know exactly where your detection works and where it goes blind.
 - **Correlation chains on what actually fires.** A parent rule that is shadowed can never trigger its children — check the chain link by link.
+- **Split the flood by exclusion, not by volume.** A human-only rule is built by excluding machine accounts, not by raising the level on everything.

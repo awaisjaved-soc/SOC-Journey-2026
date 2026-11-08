@@ -1,0 +1,54 @@
+<!--
+  Lab 04 — Logon Tuning Rules (100113, 100114)
+  Wazuh 4.14.5, SOCLAB home lab. UNTESTED — written from the documented
+  rule syntax; the lab test (see README.md) has not been run yet.
+
+  Problem: rule 60106 fires on EVERY 4624 — Kerberos tickets, computer
+  accounts (WIN-SOCLAB$), SYSTEM, services — so the human logons drown.
+  These two rules split the flood by privilege, for logon types 2
+  (console), 3 (network) and 10 (RDP) only.
+
+  Deploy: append these two rules inside the <group> of
+  /var/ossec/etc/rules/local_rules.xml on the manager, then restart
+  analysisd (no -it — these are non-interactive commands):
+    docker cp local_rules.xml single-node-wazuh.manager-1:/var/ossec/etc/rules/local_rules.xml
+    docker exec single-node-wazuh.manager-1 /var/ossec/bin/wazuh-control restart
+  Then run the test in the README before trusting these rules.
+-->
+
+  <!-- 100113: a high-privilege account logged on (Administrator, SID -500) -->
+  <!-- SID-based, rename-proof (the Lab 02 lesson): matching the -500 RID, -->
+  <!-- not the name "Administrator". Group members (e.g. svc-chain02 in -->
+  <!-- Domain-Admins-Custom) are NOT caught by this rule — their own RID -->
+  <!-- is not privileged. The 4672-correlation follow-up is in the README. -->
+  <rule id="100113" level="10">
+    <if_group>windows</if_group>
+    <field name="win.system.eventID">^4624$</field>
+    <field name="win.eventdata.logonType">^2$|^3$|^10$</field>
+    <field name="win.eventdata.targetUserSid">-500$</field>
+    <description>A high-privilege account was logged on</description>
+    <mitre>
+      <id>T1078</id>
+    </mitre>
+    <group>privilege_escalation,</group>
+  </rule>
+
+  <!-- 100114: a normal (human, non-privileged) user logged on -->
+  <!-- Human-only by exclusion: computer accounts end in $ (WIN-SOCLAB$), -->
+  <!-- SYSTEM is not a person, and -500 is covered by 100113 above. The -->
+  <!-- three negates make 100113 and 100114 mutually exclusive — one logon -->
+  <!-- fires exactly one of them. Machine logons match neither, so 60106 -->
+  <!-- still fires for them: coverage is preserved, the flood is split. -->
+  <rule id="100114" level="5">
+    <if_group>windows</if_group>
+    <field name="win.system.eventID">^4624$</field>
+    <field name="win.eventdata.logonType">^2$|^3$|^10$</field>
+    <field name="win.eventdata.targetUserName" negate="yes">\$$</field>
+    <field name="win.eventdata.targetUserName" negate="yes">^SYSTEM$</field>
+    <field name="win.eventdata.targetUserSid" negate="yes">-500$</field>
+    <description>A normal user was logged on</description>
+    <mitre>
+      <id>T1078</id>
+    </mitre>
+    <group>authentication_success,</group>
+  </rule>
