@@ -33,6 +33,8 @@ Built October 2026 as the SIEM phase of my SOC Analyst journey. This lab is desi
 | 05 | [Chained Attack: One Incident, Five Alerts](01-Core-Detection-Labs/05-Chained-Attack-One-Incident-Five-Alerts/) | One attacker story, five alerts — backdoor account → privileged group → RDP → process → log cleared, verified end to end | 4720, 4728, 4624, 4688, 1102 |
 | 06 | [Rogue Admin: The Chain as a Purple-Team Story](01-Core-Detection-Labs/06-Rogue-Admin-Purple-Team/) | Lab 05 retold as one attack story, then broken step by step — evasion, what still catches it, and re-tests | 4720, 4728, 4624, 4688, 1102 |
 | 07 | [Alert Triage SOP](01-Core-Detection-Labs/07-Alert-Triage-SOP/) | What the analyst does when an alert arrives — one triage flow, per-alert playbooks, severity ranking, escalation criteria, and what to record | 4720, 4728, 4624, 4688, 1102, 4738 |
+| 08 | [Logon & Authentication: 14 Events Mapped to Wazuh](05-Logon-and-Authentication-14-Events/) | Logon success and failure, tuned with custom rules — 4624 split by privilege and time, 4625 split by off-hours, with the DWM/UMFD-2 false positives, the type-3-vs-type-10 lessons, and the detection commands | 4624, 4625 (+ 12 to verify) |
+| 09 | [Custom Detection Rules — Master Reference](06-Custom-Detection-Rules-Reference/) | One file per rule for all 17 custom rules (100100–100116): exact XML, purpose, line-by-line explanation, shadowing map, test evidence or test plan, DQL query, MITRE mapping | 4624, 4625, 4720, 4728, 4738, 4769, 7045, 1102 |
 
 ## How to use this repo
 

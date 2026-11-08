@@ -1,0 +1,60 @@
+<!--
+  Lab 05 — Off-Hours Logon Rules (100115, 100116)
+  Wazuh 4.14.5, SOCLAB home lab. TESTED Nov 9, 2026 — see README.md.
+
+  Deploy: append these two rules inside the <group> of
+  /var/ossec/etc/rules/local_rules.xml on the manager, then restart
+  analysisd (no -it — these are non-interactive commands):
+    docker cp local_rules.xml single-node-wazuh.manager-1:/var/ossec/etc/rules/local_rules.xml
+    docker exec single-node-wazuh.manager-1 chown wazuh:wazuh /var/ossec/etc/rules/local_rules.xml
+    docker exec single-node-wazuh.manager-1 /var/ossec/bin/wazuh-analysisd -t
+    docker exec single-node-wazuh.manager-1 /var/ossec/bin/wazuh-control restart
+  Always chown after docker cp (docker cp leaves the file owned by uid 1000
+  and wazuh-db cannot read it), and always run wazuh-analysisd -t before
+  restarting. Back the file up first: cp local_rules.xml local_rules.xml.bak
+
+  NOTE: both rules use <time>5 pm - 8 am</time>, evaluated against the
+  manager's clock (UTC) — 10 PM - 1 PM PKT. During the Nov 9 on-hours test
+  the 100116 window was temporarily flipped to "8 am - 5 pm" and reverted
+  with a global sed. Verify on the manager that all three time rules
+  (100109, 100115, 100116) show "5 pm - 8 am" before trusting off-hours
+  detection.
+-->
+
+  <!-- 100115: any human account logging on outside business hours -->
+  <!-- Independent rule (no if_sid): it fires IN ADDITION to 100113/100114, -->
+  <!-- adding the time dimension on top of the privilege split. An off-hours -->
+  <!-- Administrator logon fires both 100113 (L10) and this rule (L12). -->
+  <!-- No -500$ negate here — this rule covers the Administrator too. -->
+  <rule id="100115" level="12">
+    <if_group>windows</if_group>
+    <field name="win.system.eventID">^4624$</field>
+    <field name="win.eventdata.logonType">^2$|^3$|^10$</field>
+    <field name="win.eventdata.targetUserName" negate="yes">\$$</field>
+    <field name="win.eventdata.targetUserName" negate="yes">^SYSTEM$</field>
+    <field name="win.eventdata.targetUserName" negate="yes">^UMFD-</field>
+    <field name="win.eventdata.targetUserSid" negate="yes">^S-1-5-90-</field>
+    <field name="win.eventdata.targetUserSid" negate="yes">^S-1-5-7$</field>
+    <field name="win.eventdata.targetUserSid" negate="yes">^S-1-5-19$</field>
+    <field name="win.eventdata.targetUserSid" negate="yes">^S-1-5-20$</field>
+    <time>5 pm - 8 am</time>
+    <description>Off-hours logon: $(win.eventdata.targetUserName) logged on from ip:$(win.eventdata.ipAddress) (logon type $(win.eventdata.logonType)) - possible compromise</description>
+    <mitre>
+      <id>T1078</id>
+    </mitre>
+    <group>authentication_success,</group>
+  </rule>
+
+  <!-- 100116: a failed logon outside business hours -->
+  <!-- Child of 60122: it inherits 60122's matching (any 4625) and adds only -->
+  <!-- the time condition. When it fires, 60122 stays silent (shadowing); -->
+  <!-- during on-hours it does not match, so 60122 fires again. -->
+  <rule id="100116" level="8">
+    <if_sid>60122</if_sid>
+    <time>5 pm - 8 am</time>
+    <description>Off-hours failed logon for $(win.eventdata.targetUserName) from ip:$(win.eventdata.ipAddress) - possible brute-force attempt</description>
+    <mitre>
+      <id>T1110</id>
+    </mitre>
+    <group>authentication_failed,</group>
+  </rule>
