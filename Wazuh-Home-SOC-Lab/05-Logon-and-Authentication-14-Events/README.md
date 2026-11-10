@@ -16,7 +16,7 @@ This is my interview-prep document: when I get the call, I revise from here.
 | Test accounts | `administrator` (built-in, SID ending `-500`), `svc-chain02` (lab-created, member of `Domain-Admins-Custom`) |
 | Events covered | 14 — logon success/failure, logoff, explicit credentials, special privileges, Kerberos, NTLM validation, RDP session, workstation lock/unlock |
 | Method | Generate each event → find the alert in Threat Hunting → read the rule ID **off the fired alert** (`data.win.system.eventID`), never off the rules list |
-| Status | **2 of 14 mapped from real lab alerts (4624, 4625 — both tuned with custom rules). The other 12 are "verify in lab" — not yet generated.** |
+| Status | **5 of 14 mapped from real lab alerts (4624, 4625 — both tuned; 4768, 4769, 4771 — Kerberos triad covered). The other 9 are "verify in lab" — not yet generated.** |
 
 ## How to use this for interview prep
 
@@ -73,9 +73,9 @@ The `<time>` element in a Wazuh rule is evaluated against the **manager's clock*
 | 4647 | User-initiated logoff | — | verify in lab |
 | 4648 | Logon with explicit credentials (RunAs) | — | verify in lab |
 | 4672 | Special privileges assigned to new logon | — | verify in lab |
-| 4768 | Kerberos TGT requested | — | verify in lab |
-| 4769 | Kerberos service ticket requested | — | verify in lab |
-| 4771 | Kerberos pre-authentication failed | — | verify in lab |
+| 4768 | Kerberos TGT requested | [Event-4768-tgt-requested](Event-4768-tgt-requested/) | **CUSTOM — covered (100117)** |
+| 4769 | Kerberos service ticket requested | [Event-4769-service-ticket-requested](Event-4769-service-ticket-requested/) | **COVERED (60106 / 100102)** |
+| 4771 | Kerberos pre-authentication failed | [Event-4771-preauth-failed](Event-4771-preauth-failed/) | **COVERED (60104)** |
 | 4776 | Credential validation (NTLM) | — | verify in lab |
 | 4778 | Session reconnected (RDP) | — | verify in lab |
 | 4779 | Session disconnected (RDP) | — | verify in lab |
@@ -96,9 +96,9 @@ The `<time>` element in a Wazuh rule is evaluated against the **manager's clock*
 | 4647 | User-initiated logoff | verify in lab | — | to verify |
 | 4648 | Logon with explicit credentials (RunAs) | verify in lab | — | to verify |
 | 4672 | Special privileges assigned to new logon | verify in lab | — | to verify |
-| 4768 | Kerberos TGT requested | verify in lab | — | to verify |
-| 4769 | Kerberos service ticket requested | verify in lab | — | to verify |
-| 4771 | Kerberos pre-authentication failed | verify in lab | — | to verify |
+| 4768 | Kerberos TGT requested | 100117 (custom) | 3 | **covered** |
+| 4769 | Kerberos service ticket requested | 60106 (built-in) / 100102 (custom) | 3 / 10 | **covered** |
+| 4771 | Kerberos pre-authentication failed | 60104 (built-in) | 5 | **covered** |
 | 4776 | Credential validation (NTLM) | verify in lab | — | to verify |
 | 4778 | Session reconnected (RDP) | verify in lab | — | to verify |
 | 4779 | Session disconnected (RDP) | verify in lab | — | to verify |

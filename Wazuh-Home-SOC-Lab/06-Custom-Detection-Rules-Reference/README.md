@@ -31,12 +31,13 @@ The rule pack that ships these rules to the manager lives in the goals workspace
 | [100114](Rule-100114-Normal-User-Logon.md) | 5 | 4624 | Normal human user logged on | **TESTED** | Lab 04 |
 | [100115](Rule-100115-Off-Hours-Logon.md) | 12 | 4624 | Any human account logged on outside business hours | **TESTED** | Lab 05 |
 | [100116](Rule-100116-Off-Hours-Failed-Logon.md) | 8 | 4625 | Failed logon outside business hours — brute force | **TESTED** | Lab 05 |
+| [100117](Rule-100117-Kerberos-TGT-Requested.md) | 3 | 4768 | Kerberos TGT ticket requested (AS-REP Roasting vector) | **TESTED** | Lab 08 |
 
 **Status meanings:**
 - **TESTED** — the rule fired on a generated event in the lab, and the alert was observed in Threat Hunting. The file records when and what fired.
 - **UNTESTED** — the rule is written from Wazuh's documented syntax and has not been run in the lab yet. The file carries a test plan, not test evidence. Do not treat it as verified detection.
 
-**Count:** 17 custom rules — 8 tested, 9 untested.
+**Count:** 18 custom rules — 9 tested, 9 untested.
 
 ## Shadowing map
 

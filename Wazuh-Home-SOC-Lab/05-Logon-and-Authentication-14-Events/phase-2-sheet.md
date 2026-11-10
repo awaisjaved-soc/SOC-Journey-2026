@@ -55,7 +55,7 @@ Scoring: 14/14 cold = solid. Anything you blanked on → re-read that README, th
 3. Watch **Threat Hunting** — does an alert fire? At what level? Does the rule name match what you expected?
 4. Verdict: **covered** (good as-is), **needs tuning** (fires but noisy/weak), or **GAP** (nothing fires).
 
-**Status of this sheet:** only 4624 and 4625 are mapped from real lab alerts so far. Every other row says **verify in lab** — generate the event, read the rule ID off the fired alert, fill the row. Never copy a rule ID from the Rules page alone; the alert is the proof. Two notes before you start: 4771 only appears if the **Kerberos Authentication Service** audit subcategory is enabled (same lesson as 4688 needing Process Creation), and 4624 fires 60106 on *every* logon — filter by account and type or you will drown.
+**Status of this sheet:** 5 of 14 events are now mapped from real lab alerts (4624, 4625, 4768, 4769, 4771). Every other row says **verify in lab** — generate the event, read the rule ID off the fired alert, fill the row. Never copy a rule ID from the Rules page alone; the alert is the proof. Two notes before you start: 4771 only appears if the **Kerberos Authentication Service** audit subcategory is enabled (same lesson as 4688 needing Process Creation), and 4624 fires 60106 on *every* logon — filter by account and type or you will drown.
 
 | Event | Meaning | Wazuh rule ID | Level | Verdict |
 | --- | --- | --- | --- | --- |
@@ -65,9 +65,9 @@ Scoring: 14/14 cold = solid. Anything you blanked on → re-read that README, th
 | 4647 | User-initiated logoff | verify in lab | — | to verify |
 | 4648 | Logon with explicit credentials (RunAs) | verify in lab | — | to verify |
 | 4672 | Special privileges assigned to new logon | verify in lab | — | to verify |
-| 4768 | Kerberos TGT requested | verify in lab | — | to verify |
-| 4769 | Kerberos service ticket requested | verify in lab | — | to verify |
-| 4771 | Kerberos pre-authentication failed | verify in lab | — | to verify |
+| 4768 | Kerberos TGT requested | 100117 (custom) | 3 | covered |
+| 4769 | Kerberos service ticket requested | 60106 / 100102 | 3 / 10 | covered |
+| 4771 | Kerberos pre-authentication failed | 60104 | 5 | covered |
 | 4776 | Credential validation (NTLM) | verify in lab | — | to verify |
 | 4778 | Session reconnected (RDP) | verify in lab | — | to verify |
 | 4779 | Session disconnected (RDP) | verify in lab | — | to verify |
