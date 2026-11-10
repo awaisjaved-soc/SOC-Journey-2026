@@ -56,6 +56,20 @@ Start-Process powershell.exe -Credential $cred -NoNewWindow -ErrorAction Silentl
 
 ![PowerShell RunAs Failure generating Event 4771](images/powershell-runas-failure.png)
 
+---
+
+<img width="1919" height="563" alt="image" src="https://github.com/user-attachments/assets/d5d25963-9897-4cec-9c17-d13780920549" />
+
+---
+
+<img width="1018" height="714" alt="image" src="https://github.com/user-attachments/assets/86de878a-48e7-4987-be97-ca4bf6dd098a" />
+
+---
+
+<img width="968" height="199" alt="image" src="https://github.com/user-attachments/assets/5988e5f6-342a-49cc-965b-4fbff197721d" />
+
+---
+
 *Intentional wrong password entered via command line generating Kerberos error 1326 / 4771.*
 
 ### Detection Command via PowerShell
