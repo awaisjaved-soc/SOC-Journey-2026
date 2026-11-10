@@ -24,6 +24,25 @@ Unlike AS-REP Roasting (which targets accounts without pre-authentication), Kerb
 
 ![Event Viewer 4769 General Tab](images/eventvwr-4769-general.png)
 
+
+---
+
+<img width="1919" height="766" alt="image" src="https://github.com/user-attachments/assets/8b28e153-fc6b-457f-8f5f-5b77c5d04e7c" />
+
+---
+
+<img width="1001" height="775" alt="image" src="https://github.com/user-attachments/assets/30d0cc45-3746-4745-8466-3c460a239b80" />
+
+---
+
+<img width="996" height="335" alt="image" src="https://github.com/user-attachments/assets/4f18b0ed-d15d-44ae-b5e8-93ae827c3e28" />
+
+---
+
+<img width="996" height="335" alt="image" src="https://github.com/user-attachments/assets/acad5807-6b15-4f62-85e1-75ad3834e9fc" />
+
+---
+
 *Windows Event Viewer Event 4769 — Kerberos Service Ticket requested for file share access on `WIN-SOCLAB`.*
 
 ---
