@@ -34,7 +34,23 @@ Rule **100117** captures TGT issuance and extracts the target account, client IP
 </group>
 ```
 
-![Wazuh Threat Hunting alert list showing Rule 100117 hits](images/wazuh-4768-alert-list.png)
+---
+
+
+<img width="1919" height="770" alt="image" src="https://github.com/user-attachments/assets/e89365ae-003c-45c5-b393-86a06d6079e3" />
+
+
+---
+
+<img width="995" height="696" alt="image" src="https://github.com/user-attachments/assets/31d0d92e-46ff-4bd3-a133-a3052152ba48" />
+
+---
+
+<img width="985" height="802" alt="image" src="https://github.com/user-attachments/assets/977a8bbc-68fb-4287-87cb-4399e08d5e5f" />
+
+---
+
+
 
 *Wazuh Threat Hunting alert list showing 13 hits for custom Rule 100117 (level 3) firing on TGT requests for `victim-asrep` on `WIN-SOCLAB`.*
 
