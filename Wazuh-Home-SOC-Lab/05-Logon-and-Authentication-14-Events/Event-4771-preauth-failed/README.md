@@ -70,8 +70,14 @@ Get-WinEvent -FilterHashtable @{LogName='Security'; Id=4771} -MaxEvents 5 | ForE
     }
 } | Format-Table -AutoSize
 ```
+---
+<img width="960" height="82" alt="aa (27)" src="https://github.com/user-attachments/assets/92963464-aad6-425c-99cd-df5adb89e848" />
+
+---
 
 ![Wazuh Document Details for Event 4771](images/wazuh-4771-document-details.png)
+
+
 
 *Wazuh Threat Hunting alert detail confirming Rule 60104 firing on Kerberos pre-authentication failure.*
 
