@@ -63,7 +63,25 @@ While this saves storage, it blinds the SOC to **AS-REP Roasting attacks**. When
 
 Tested and verified live in the SOC lab environment on November 10, 2026. The alert fired 13 times when requesting TGTs for `victim-asrep` from `WIN-SOCLAB` (192.168.100.146).
 
-![Rule 100117 Alert Firing in Wazuh Dashboard](images/100117-tgt-requested-firing.png)
+<img width="1919" height="553" alt="image" src="https://github.com/user-attachments/assets/ee9d310d-ff8e-4978-8165-abe336e29b84" />
+
+
+---
+
+<img width="962" height="891" alt="image" src="https://github.com/user-attachments/assets/fc41a5fb-0e72-463a-aac6-0a3a79dfafb0" />
+
+---
+
+<img width="998" height="525" alt="image" src="https://github.com/user-attachments/assets/e442f9dc-a463-4a58-91f7-b8f3717d7143" />
+
+---
+
+
+<img width="993" height="430" alt="image" src="https://github.com/user-attachments/assets/592ef6ba-8d03-4472-956f-8a461114b173" />
+
+---
+
+
 
 *Wazuh Threat Hunting view showing 13 hits for Rule 100117 (level 3) displaying "Kerberos: TGT ticket requested by victim-asrep from 192.168.100.146".*
 
