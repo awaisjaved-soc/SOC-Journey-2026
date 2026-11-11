@@ -66,7 +66,7 @@ Scoring: 14/14 cold = solid. Anything you blanked on → re-read that README, th
 | 4648 | Logon with explicit credentials (RunAs) | verify in lab | — | to verify |
 | 4672 | Special privileges assigned to new logon | verify in lab | — | to verify |
 | 4768 | Kerberos TGT requested | 100117 (custom) | 3 | covered |
-| 4769 | Kerberos service ticket requested | 60106 / 100102 | 3 / 10 | covered |
+| 4769 | Kerberos service ticket requested | 60106 / 100102 | 3 / 12 | covered |
 | 4771 | Kerberos pre-authentication failed | 60104 | 5 | covered |
 | 4776 | Credential validation (NTLM) | verify in lab | — | to verify |
 | 4778 | Session reconnected (RDP) | verify in lab | — | to verify |

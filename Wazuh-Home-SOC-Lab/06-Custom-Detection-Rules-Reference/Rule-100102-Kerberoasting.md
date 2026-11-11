@@ -1,6 +1,6 @@
 # Rule 100102 — Possible Kerberoasting (RC4 Service Ticket Requested)
 
-*Part of [Custom Detection Rules — Master Reference](README.md). Status: **UNTESTED**.*
+*Part of [Custom Detection Rules — Master Reference](README.md). Status: **TESTED**.*
 
 | Field | Value |
 |---|---|
@@ -28,7 +28,7 @@
 
 ## What it detects
 
-A Kerberos service ticket (event 4769) requested with **RC4 encryption** (ticket encryption type `0x17`). RC4 tickets can be cracked offline — that is the Kerberoasting attack: request a ticket for a service account, take it home, crack it, and you have the service account's password.
+A Kerberos service ticket (event 4769) requested with **RC4 encryption** (ticket encryption type `0x17`). RC4 tickets can be cracked offline — that is the Kerberoasting attack: request a ticket for a service account, extract the ciphertext hash, crack it offline, and recover the service account's plaintext password.
 
 ## Purpose
 
@@ -43,17 +43,21 @@ Event 4769 fires on every legitimate service-ticket request, so the event alone 
 
 ## Shadowing and dependencies
 
-- **No parent, no shadowing.** This is an independent rule (no `<if_sid>`). It does not suppress any built-in rule, and no built-in rule suppresses it.
-- **Depends on event 4769 being generated and decoded.** The 4769 row in the Phase 2 sheet is still "verify in lab" — the built-in rule ID and level for 4769 have not been confirmed from a fired alert yet. If 4769s are not flowing (audit subcategory, or the event not generated), this rule is blind through no fault of its own.
+- **No parent, no shadowing.** This is an independent rule (no `<if_sid>`). It evaluates directly on incoming Windows Security channel events.
+- **Depends on event 4769 flowing.** Generated when the **Kerberos Service Ticket Operations** audit subcategory is enabled on the Domain Controller.
 
-## Test evidence / test plan
+## Test evidence
 
-**UNTESTED** — this rule has not been run in the lab. Test plan:
+**TESTED** — verified live in [Lab 09 — Kerberos Service Ticket Request & Kerberoasting Incident Triage](../01-Core-Detection-Labs/09-Kerberos-Service-Ticket-and-Kerberoasting/) on November 11, 2026.
 
-1. First verify 4769 is flowing: request a service ticket in the lab (e.g. access a share or service as a domain user) and confirm a 4769 alert appears in Threat Hunting. Note the built-in rule ID and level, and fill the Phase 2 sheet row.
-2. Positive: request a ticket with RC4 encryption (e.g. against a service account configured for RC4, or with a tool that requests RC4) → rule 100102 fires at level 12.
-3. Negative: a normal AES ticket request → no 100102 alert (the built-in 4769 rule fires, this one stays silent).
-4. Record the service account, the encryption type on the alert, and the ticket's target service name.
+1. **Adversary Emulation:** Kali Linux (`192.168.100.50`) executed `impacket-GetUserSPNs` against Domain Controller (`192.168.100.146`) querying SPN `MSSQLSvc/db01.soclab.local:1433`.
+2. **SIEM Detection:** Wazuh fired Rule **100102** at **Level 12** on Event 4769.
+   - `TargetUserName`: `svc-mssql`
+   - `ServiceName`: `MSSQLSvc/db01.soclab.local:1433`
+   - `TicketEncryptionType`: `0x17` (RC4-HMAC)
+   - `IpAddress`: `192.168.100.50`
+   - `Status`: `0x0` (Audit Success)
+3. **Remediation Verification:** Account updated with `Set-ADUser -KerberosEncryptionType AES128,AES256`. Subsequent TGS queries issued `$krb5tgs$18$` (AES-256), completely stopping Rule 100102 alerts and defeating offline cracking.
 
 ## Find it in Wazuh
 

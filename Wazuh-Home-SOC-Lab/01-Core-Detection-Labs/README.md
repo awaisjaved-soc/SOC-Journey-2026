@@ -1,6 +1,6 @@
 # Core Detection Labs
 
-The eight foundational detection labs — each one a complete attack-or-scenario → event → Wazuh alert → triage loop. Work them in order; each assumes the previous lab's setup.
+The nine foundational detection labs — each one a complete attack-or-scenario → event → Wazuh alert → triage loop. Work them in order; each assumes the previous lab's setup.
 
 | # | Lab | What it proves | Key event IDs |
 |---|---|---|---|
@@ -12,6 +12,7 @@ The eight foundational detection labs — each one a complete attack-or-scenario
 | 06 | [Rogue Admin: The Chain as a Purple-Team Story](06-Rogue-Admin-Purple-Team/) | The Lab 05 chain retold as one attack story — then broken: per-step evasion, what still catches it, and three re-tests to break your own detection | 4720, 4728, 4624, 4688, 1102 |
 | 07 | [Alert Triage SOP](07-Alert-Triage-SOP/) | What the analyst does when an alert arrives — one triage flow, per-alert playbooks for every rule in the chain, severity ranking, escalation criteria, and what to record | 4720, 4728, 4624, 4688, 1102, 4738 |
 | 08 | [Kerberos Authentication & AS-REP Roasting](08-Kerberos-Authentication-and-AS-REP-Roasting/) | Full purple-team attack and detection loop: pre-auth bypass, ticket extraction, offline cracking, SMB access, and session termination | 4768, 4769, 4771, 4624 |
+| 09 | [Kerberos Service Ticket & Kerberoasting](09-Kerberos-Service-Ticket-and-Kerberoasting/) | Full purple-team Kerberoasting attack and detection: SPN enumeration, TGS extraction, offline cracking, Rule 100102 Level 12 firing, and AES-256/gMSA remediation | 4720, 4768, 4769, 4624, 4738 |
 
 Every lab README follows the same shape: **Overview → What Is This Lab → Lab Steps (every command explained) → What Wazuh Said → SOC Takeaways**, with screenshots embedded where they were captured.
 

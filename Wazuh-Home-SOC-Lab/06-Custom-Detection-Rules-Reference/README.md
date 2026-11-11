@@ -16,7 +16,7 @@ The rule pack that ships these rules to the manager lives in the goals workspace
 |---|---|---|---|---|---|
 | [100100](Rule-100100-Brute-Force.md) | 10 | 4625 | 8 failed logons in 120 seconds — brute force | UNTESTED | Pack |
 | [100101](Rule-100101-RDP-Brute-Force.md) | 10 | 4625 (type 10) | 8 failed RDP logons in 120 seconds — RDP brute force | UNTESTED | Pack |
-| [100102](Rule-100102-Kerberoasting.md) | 12 | 4769 | RC4-encrypted service ticket — Kerberoasting | UNTESTED | Pack |
+| [100102](Rule-100102-Kerberoasting.md) | 12 | 4769 | RC4-encrypted service ticket — Kerberoasting | **TESTED** | Lab 09 |
 | [100103](Rule-100103-LSASS-Access.md) | 12 | Sysmon 10 | A process opened LSASS memory — credential dumping | UNTESTED | Pack |
 | [100104](Rule-100104-New-Service.md) | 8 | 7045 | A new service was installed — persistence | UNTESTED | Pack |
 | [100105](Rule-100105-Privileged-Group.md) | 10 | 4728 / 4732 / 4756 | Account added to a privileged group — privilege escalation | **TESTED** | Lab 01 |
@@ -37,7 +37,7 @@ The rule pack that ships these rules to the manager lives in the goals workspace
 - **TESTED** — the rule fired on a generated event in the lab, and the alert was observed in Threat Hunting. The file records when and what fired.
 - **UNTESTED** — the rule is written from Wazuh's documented syntax and has not been run in the lab yet. The file carries a test plan, not test evidence. Do not treat it as verified detection.
 
-**Count:** 18 custom rules — 9 tested, 9 untested.
+**Count:** 18 custom rules — 10 tested, 8 untested.
 
 ## Shadowing map
 

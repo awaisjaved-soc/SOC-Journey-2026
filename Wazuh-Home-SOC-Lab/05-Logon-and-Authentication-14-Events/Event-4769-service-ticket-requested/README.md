@@ -7,7 +7,7 @@
 
 **Why a SOC analyst cares:** *"4769 is the single most important event for detecting Kerberoasting (MITRE ATT&CK T1558.003) and internal lateral movement. In Active Directory, any authenticated user can request a service ticket for any account with a registered Service Principal Name (SPN). Because the service ticket is encrypted with the service account's NTLM password hash, an attacker requests service tickets in bulk, extracts the encrypted blobs, and cracks the passwords offline. If I see a burst of 4769s requesting weak RC4-HMAC encryption (`0x17`) instead of AES-256 (`0x12`), that is a Kerberoasting attack in progress."*
 
-**Wazuh:** Built-in rule **60106** / **60104** captures Windows authentication events. Mapped to custom rule **100102** ("Kerberoasting attempt — Service ticket requested with weak RC4 encryption", level **10**). Status: **COVERED**.
+**Wazuh:** Built-in rule **60106** / **60104** captures Windows authentication events. Mapped to custom rule **100102** ("Possible Kerberoasting: RC4-encrypted Kerberos service ticket requested", level **12**). Status: **COVERED** (Full attack & detection verified in [Lab 09](../../01-Core-Detection-Labs/09-Kerberos-Service-Ticket-and-Kerberoasting/)).
 
 ---
 
