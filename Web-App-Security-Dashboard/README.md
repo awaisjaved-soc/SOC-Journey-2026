@@ -1,5 +1,7 @@
 # CX Arena SOC Dashboard — Final Year Project
 
+v3.18 · 15 tabs · single-file HTML + vanilla JS + Chart.js
+
 A SOC operations console I built for my own tournament website (CX Arena). I was running the site blind — every time I wanted to see failed logins, admin actions, or money movement, I had to dig through Supabase tables by hand. So I built a single-file dashboard where every user log, alert, and transaction is visible in one place, with live Telegram + Discord alerting.
 
 It is also useful beyond my site: any website with user accounts, logins, and tournament-style activity (deposits, cashouts, prize payouts) faces the same visibility problem.
@@ -17,6 +19,18 @@ The dashboard sits behind a 6-digit MPIN login (masked boxes, auto-advance, SHA-
 ---
 
 ![MPIN login — desktop app](screenshots/00-mpin-login-desktop.png)
+
+---
+
+The website admin account itself is protected by a second factor: after the password, Google Authenticator (TOTP) asks for a 6-digit code — no code, no admin access. The dashboard records every 2FA login (verified and failed) in Admin Audit, so a failed code attempt is visible the same way a failed password is.
+
+![Admin 2FA login — Google Authenticator](screenshots/21-admin-2fa-login.png)
+
+---
+
+Bulk balance actions are 2FA-gated too. Adding, removing, or resetting coins and winnings for all players — and the dangerous ones, Reset all and Delete ALL Players — all require the Authenticator code before they run. Single-player actions stay unblocked.
+
+![Bulk actions — all 2FA-gated](screenshots/22-bulk-actions-2fa.png)
 
 ---
 
@@ -194,6 +208,41 @@ A mini detection engine in the browser — evaluated on the live sample, zero da
 - Example: *IF ≥5 × Failed logins grouped by IP in 60 min → HIGH, T1110*
 
 ![Custom Rules](screenshots/13-custom-rules.png)
+
+---
+
+## 👥 14. Players
+
+Every registered player in one live ledger — balances included.
+
+- **371 players** in the live sample, with live coins balance and winning PKR per player
+- **Filters:** All · Google · Email/Pass · 💰 Has Coins · 🏆 Has Winnings · 🔒 Banned / Locked
+- **Columns:** Player Name · Email · Auth Provider · Free Fire IGN · Coins Balance · Winning PKR · Status · Registered At
+- Search by name, email, IGN, or user ID; **Export CSV Backup** dumps the whole ledger
+- The ledger syncs on room joins and cash events, so a balance here is the balance right now — not yesterday's
+
+![Players ledger — has coins](screenshots/17-players-ledger-coins.png)
+
+---
+
+![Players ledger — has winnings](screenshots/18-players-ledger-winnings.png)
+
+---
+
+## 🏟️ 15. Rooms
+
+Tournament rooms — who joined, and what happened when a room was deleted.
+
+- **Stat cards:** Room Joins (25) · Rooms Deleted (20) · Players Affected (64)
+- **Room deletions keep a full snapshot:** the table shows which admin deleted the room, when, and exactly which players were in it at delete time — so a deleted room can still be audited after the fact
+- **Room players view:** every player in a room with their coins, deposits, winnings, and join time
+- **Filters:** All · Joins · Deletions
+
+![Rooms — joins and deletions](screenshots/20-rooms-tab.png)
+
+---
+
+![Room players](screenshots/19-room-players.png)
 
 ---
 
