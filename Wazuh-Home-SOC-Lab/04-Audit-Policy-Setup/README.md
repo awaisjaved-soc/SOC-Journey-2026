@@ -150,7 +150,7 @@ notepad.exe
 data.win.system.eventID: 4688 AND data.win.eventdata.subjectUserName: <your-user>
 ```
 
-If the 4688 appears, `Process Creation` is on. The same test works for any subcategory — generate the event, then hunt it. The chained-attack lab ([05-Chained-Attack-One-Incident-Five-Alerts](../01-Core-Detection-Labs/05-Chained-Attack-One-Incident-Five-Alerts/)) is the end-to-end proof: its Step 4 only exists because this setup ran first.
+If the 4688 appears, `Process Creation` is on. The same test works for any subcategory — generate the event, then hunt it. The chained-attack lab ([05-Chained-Attack-One-Incident-Five-Alerts](../01-Core-Detection-Labs/01-Account-Management-Event-Detection-Labs/05-Chained-Attack-One-Incident-Five-Alerts/)) is the end-to-end proof: its Step 4 only exists because this setup ran first.
 
 Note: changing audit policy itself generates 4719 events (Audit Policy Change) — expect a burst of them right after running the list. That is the audit trail of the change, not an attack.
 

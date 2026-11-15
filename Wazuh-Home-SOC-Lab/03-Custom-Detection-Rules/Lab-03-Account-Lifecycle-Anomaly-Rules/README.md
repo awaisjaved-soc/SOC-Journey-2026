@@ -8,7 +8,7 @@
 
 ## The problem
 
-The chained-attack lab ([Lab 05](../01-Core-Detection-Labs/05-Chained-Attack-One-Incident-Five-Alerts/)) produced five separate alerts: 4720 (60109), 4728 (100105), 4624 (92653), 4688 (67027), 1102 (100108). Each one is a single event. Nothing fires on the **sequence** — and the sequence is the attack. A brand-new account that is added to a privileged group and then logs on within the hour is a very different story from any one of those events alone. An analyst staring at a flood of 60106 logon rows will miss it. Lab 06 (the purple-team story) named this as the gap underneath all five steps. This lab closes it.
+The chained-attack lab ([Lab 05](../01-Core-Detection-Labs/01-Account-Management-Event-Detection-Labs/05-Chained-Attack-One-Incident-Five-Alerts/)) produced five separate alerts: 4720 (60109), 4728 (100105), 4624 (92653), 4688 (67027), 1102 (100108). Each one is a single event. Nothing fires on the **sequence** — and the sequence is the attack. A brand-new account that is added to a privileged group and then logs on within the hour is a very different story from any one of those events alone. An analyst staring at a flood of 60106 logon rows will miss it. Lab 06 (the purple-team story) named this as the gap underneath all five steps. This lab closes it.
 
 ## The design
 

@@ -48,7 +48,7 @@ Event 4769 fires on every legitimate service-ticket request, so the event alone 
 
 ## Test evidence
 
-**TESTED** — verified live in [Lab 09 — Kerberos Service Ticket Request & Kerberoasting Incident Triage](../01-Core-Detection-Labs/09-Kerberos-Service-Ticket-and-Kerberoasting/) on November 11, 2026.
+**TESTED** — verified live in [Lab 09 — Kerberos Service Ticket Request & Kerberoasting Incident Triage](../01-Core-Detection-Labs/02-Kerberos-Attacks-and-Defense-Labs/09-Kerberos-Service-Ticket-and-Kerberoasting/) on November 11, 2026.
 
 1. **Adversary Emulation:** Kali Linux (`192.168.100.50`) executed `impacket-GetUserSPNs` against Domain Controller (`192.168.100.146`) querying SPN `MSSQLSvc/db01.soclab.local:1433`.
 2. **SIEM Detection:** Wazuh fired Rule **100102** at **Level 12** on Event 4769.

@@ -63,7 +63,7 @@ The built-in rule 60141 fires at level 5 on **every** 4728, whether the group is
 
 ---
 
-![100105 firing, chain lab, Nov 3 01:40:41](../01-Core-Detection-Labs/05-Chained-Attack-One-Incident-Five-Alerts/images/100105-privileged-group-nov3-svc-backup.png)
+![100105 firing, chain lab, Nov 3 01:40:41](../01-Core-Detection-Labs/01-Account-Management-Event-Detection-Labs/05-Chained-Attack-One-Incident-Five-Alerts/images/100105-privileged-group-nov3-svc-backup.png)
 
 *100105 at level 10, Nov 3 01:40:41.094 — svc-backup added to Domain-Admins-Custom (chain-lab step 2). Built-in 60141 is absent from the list: shadowing reconfirmed.*
 
