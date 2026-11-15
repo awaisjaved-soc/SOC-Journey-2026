@@ -57,13 +57,6 @@ However, Overpass-the-Hash introduces a critical cryptographic anomaly: **modern
 
 ## Architectural Deep Dive: RFC 4757 & Key Equivalence
 
-In Kerberos RFC 4757, Microsoft introduced `rc4-hmac` (`0x17`) to allow Kerberos to operate in Active Directory without requiring users to reset their passwords upon migrating from NT4 domains. 
-
-The RFC defines the secret key for RC4-HMAC as:
-$$\text{Key}_{\text{RC4}} = \text{MD4}(\text{UTF-16LE}(\text{Password})) \equiv \text{NTLM Hash}$$
-
-Because the RC4-HMAC key is **mathematically identical** to the user's NTLM hash, an adversary who dumps an NTLM hash from `LSASS.exe` or `NTDS.dit` already possesses the exact cryptographic secret required to request a Kerberos TGT:
-
 ```
 +==================================================================================================+
 |                        OVERPASS-THE-HASH (PASS-THE-KEY) WORKFLOW                                 |
@@ -105,9 +98,9 @@ Because the RC4-HMAC key is **mathematically identical** to the user's NTLM hash
 
 ## Phase 1: Red Team Attack Execution
 
-### 1. Requesting the TGT via Impacket (`impacket-getTGT`)
+### Step 1: Red Team — Requesting Kerberos TGT with NTLM Hash (impacket-getTGT)
 
-The adversary supplies the stolen NTLM hash to the KDC on Port 88:
+The adversary supplies the harvested NTLM hash to the KDC on Port 88:
 
 ```bash
 impacket-getTGT soclab.local/spray-user03 -hashes :[REDACTED_HASH] -dc-ip 192.168.100.146
@@ -122,7 +115,9 @@ Impacket v0.14.0.dev0 - Copyright Fortra, LLC and its affiliated companies
 
 ![01 Kali Impacket getTGT](images/01_kali_impacket_getTGT_overpass_the_hash_request.png)
 
-### 2. Inspecting the Kerberos Ticket Cache (`klist`)
+---
+
+### Step 2: Red Team — Inspecting Acquired TGT in Linux Ticket Cache (klist)
 
 The generated `.ccache` file is inspected using the Linux Kerberos userland utility:
 
@@ -141,7 +136,9 @@ Valid starting       Expires              Service principal
 
 ![02 Kali klist Inspect Cache](images/02_kali_klist_inspect_ticket_cache_tgt.png)
 
-### 3. Lateral Movement over Kerberos (`impacket-smbclient -k`)
+---
+
+### Step 3: Red Team — Kerberos SMB Lateral Movement & Share Enumeration (-k -no-pass)
 
 The session ticket is exported into the environment, and an SMB connection is initiated using the Domain Controller's **Fully Qualified Domain Name (FQDN)**:
 
@@ -159,12 +156,22 @@ C$
 IPC$
 NETLOGON
 SYSVOL
+```
+
+![03 Kali SMBClient Kerberos Shares](images/03_kali_smbclient_kerberos_auth_shares_enumerated.png)
+
+---
+
+### Step 4: Red Team — Traversing C$ File System via Kerberos SMB Session
+
+The adversary mounts and browses the administrative root `C$` share:
+
+```text
 # use C$
 # ls
 ```
 
-![03 Kali SMBClient Kerberos Shares](images/03_kali_smbclient_kerberos_auth_shares_enumerated.png)
-![06 Kali SMBClient Kerberos C Drive](images/06_kali_smbclient_kerberos_c_drive_browsed.png)
+![04 Kali SMBClient Kerberos C Drive](images/04_kali_smbclient_kerberos_c_drive_browsed.png)
 
 *Forensic Note: Zero passwords or hashes were passed to Port 445. Authentication occurred entirely through the Kerberos AP-REQ exchange.*
 
@@ -172,51 +179,93 @@ SYSVOL
 
 ## Phase 2: Blue Team SIEM Telemetry & Forensic Analysis
 
-### Evidence A: The Cryptographic Tell — Event 4768 (RC4 Downgrade)
+### Step 5: SIEM Discovery — Wazuh Rule 100117 (Kerberos TGT Requested)
 
-When the TGT was requested, Active Directory recorded **Event ID 4768** under Wazuh Rule **100117**:
+When the TGT was requested via `impacket-getTGT`, Active Directory logged **Event ID 4768** under Wazuh Rule **100117** (Level 3 — "Kerberos: TGT ticket requested by spray-user03"):
 
-```yaml
-EventID: 4768
-Keywords: Audit Success
-TargetUserName: spray-user03
-TargetDomainName: SOCLAB.LOCAL
-ServiceName: krbtgt
-ResultCode: 0x0
-TicketEncryptionType: 0x17            # KEY DETECTION ANOMALY: RC4-HMAC instead of 0x12 (AES-256)
-PreAuthType: 2                        # PA-ENC-TIMESTAMP
-IpAddress: 192.168.100.50             # Attacker IP
-```
+![05 Wazuh Rule 100117 TGT Requested](images/05_wazuh_rule_100117_tgt_ticket_requested_discovery.png)
 
-![04 Wazuh Rule 100117 TGT Requested](images/04_wazuh_rule_100117_tgt_ticket_requested_discovery.png)
-![07 Wazuh Event 4768 RC4 0x17 Proof](images/07_wazuh_event_4768_document_details_rc4_0x17_downgrade.png)
-![08 Wazuh Event 4768 Message Header](images/08_wazuh_event_4768_message_header_spray_user03.png)
-![09 Wazuh Event 4768 Service Info](images/09_wazuh_event_4768_service_information_krbtgt.png)
-![10 Wazuh Event 4768 Client IP](images/10_wazuh_event_4768_client_ip_result_code_0x0.png)
+---
 
-### Evidence B: The Kerberos Masquerade — Event 4624 (Logon Type 3)
+### Step 6: Forensic Smoking Gun — Event 4768 Document Details (0x17 RC4 Downgrade)
 
-When the SMB share was mounted via the Kerberos ticket, the Domain Controller generated **Event ID 4624**:
+Opening Document Details for the Event 4768 alert reveals the cryptographic tell:
+- **`data.win.eventdata.resultCode`:** `0x0` (Audit Success)
+- **`data.win.eventdata.targetUserName`:** `spray-user03`
+- **`data.win.eventdata.serviceName`:** `krbtgt`
+- **`data.win.eventdata.ticketEncryptionType`:** **`0x17` (RC4-HMAC Downgrade)**
+- **`data.win.eventdata.preAuthType`:** `2` (PA-ENC-TIMESTAMP)
+- **`data.win.eventdata.ipAddress`:** `192.168.100.50` (Attacker IP)
 
-```yaml
-EventID: 4624
-Keywords: Audit Success
-TargetUserName: spray-user03
-TargetDomainName: SOCLAB
-LogonType: 3                          # Network Logon (SMB)
-LogonProcessName: Kerberos            # MASQUERADE: Bypasses NtLmSsp rules!
-AuthenticationPackageName: Kerberos   # Kerberos Protocol
-ElevatedToken: Yes                    # Domain Admins privilege token
-WorkstationName: -
-IpAddress: 192.168.100.50             # Attacker IP
-```
+![06 Wazuh Event 4768 RC4 0x17 Proof](images/06_wazuh_event_4768_document_details_rc4_0x17_downgrade.png)
 
-Because the logon occurred off-hours (`01:11:46`), custom Rule **100115** elevated the event to **Severity Level 12**:
+---
 
-![05 Wazuh Rule 100115 Off-Hours Alert](images/05_wazuh_rule_100115_off_hours_logon_kerberos_network.png)
+### Step 7: Event Telemetry — Event 4768 Account Information (spray-user03)
+
+The system message header identifies the requesting account:
+
+![07 Wazuh Event 4768 Message Header](images/07_wazuh_event_4768_message_header_spray_user03.png)
+
+---
+
+### Step 8: Event Telemetry — Event 4768 Service Information (krbtgt)
+
+The service information confirms the ticket request targeted the domain's Key Distribution Center service principal:
+
+![08 Wazuh Event 4768 Service Info](images/08_wazuh_event_4768_service_information_krbtgt.png)
+
+---
+
+### Step 9: Event Telemetry — Event 4768 Client IP Address & Success Code 0x0
+
+Network telemetry confirms the request originated from `::ffff:192.168.100.50` and succeeded with `Result Code: 0x0`:
+
+![09 Wazuh Event 4768 Client IP](images/09_wazuh_event_4768_client_ip_result_code_0x0.png)
+
+---
+
+### Step 10: SIEM Detection — Wazuh Rule 100115 Level 12 (Off-Hours Network Logon)
+
+When the SMB share was accessed via Kerberos during off-hours (`01:11:46`), custom Rule **100115** elevated the event to **Severity Level 12**:
+
+![10 Wazuh Rule 100115 Off-Hours Alert](images/10_wazuh_rule_100115_off_hours_logon_kerberos_network.png)
+
+---
+
+### Step 11: Forensic Evidence — Event 4624 Document Details (Kerberos Masquerade)
+
+Inspecting Document Details for Event 4624 proves that authentication masqueraded under Kerberos:
+- **`data.win.eventdata.logonProcessName`:** **`Kerberos`** *(Not `NtLmSsp`)*
+- **`data.win.eventdata.authenticationPackageName`:** **`Kerberos`**
+- **`data.win.eventdata.logonType`:** `3` (Network Logon)
+- **`data.win.eventdata.elevatedToken`:** `Yes`
+- **`data.win.eventdata.ipAddress`:** `192.168.100.50`
+
 ![11 Wazuh Event 4624 Kerberos Package](images/11_wazuh_event_4624_document_details_kerberos_package.png)
+
+---
+
+### Step 12: Event Telemetry — Event 4624 Logon Subject Header (spray-user03)
+
+The logon message header confirms successful authentication for `spray-user03`:
+
 ![12 Wazuh Event 4624 Message Header](images/12_wazuh_event_4624_message_header_successful_logon.png)
+
+---
+
+### Step 13: Event Telemetry — Event 4624 Logon Type 3 & Elevated Token Validation
+
+Logon details confirm administrative access: `Logon Type: 3`, `Restricted Admin Mode: No`, and `Elevated Token: Yes`:
+
 ![13 Wazuh Event 4624 Elevated Token](images/13_wazuh_event_4624_logon_type3_elevated_token.png)
+
+---
+
+### Step 14: Forensic Comparison — Event 4624 Kerberos Authentication Package Proof
+
+The close-up authentication package crop verifies `Logon Process: Kerberos` and `Package Name (NTLM only): -`:
+
 ![14 Wazuh Event 4624 Kerberos Comparison](images/14_wazuh_event_4624_details_kerberos_process_package.png)
 
 ---

