@@ -20,7 +20,8 @@ The curriculum is structured into **two primary pillars**:
     ├── 09-Kerberos-Service-Ticket-and-Kerberoasting/
     ├── 10-Kerberos-Pre-Auth-Password-Spraying/
     ├── 11-Classic-Pass-the-Hash-NTLM/
-    └── 12-Overpass-the-Hash-Pass-the-Key/
+    ├── 12-Overpass-the-Hash-Pass-the-Key/
+    └── 13-Golden-Ticket-TGT-Forgery-and-DCSync/
 ```
 
 ---
@@ -52,6 +53,7 @@ Advanced Active Directory authentication security: dissecting Kerberos protocol 
 | **10** | [Kerberos Password Spraying](02-Kerberos-Attacks-and-Defense-Labs/10-Kerberos-Pre-Auth-Password-Spraying/) | Pre-auth horizontal password spray, Event 4771 failure code `0x18`, valid TGT `0x0`, and Rule 60104 | 4771, 4768, 4624 | T1110.003 |
 | **11** | [Classic Pass-the-Hash (PtH)](02-Kerberos-Attacks-and-Defense-Labs/11-Classic-Pass-the-Hash-NTLM/) | Post-compromise NTLM lateral movement, SMB file system traversal, Event 4624 `NtLmSsp`, and Level 12 Off-Hours alert | 4728, 4624, 4672, 5140 | T1550.002 |
 | **12** | [Overpass-the-Hash (Pass-the-Key)](02-Kerberos-Attacks-and-Defense-Labs/12-Overpass-the-Hash-Pass-the-Key/) | RFC 4757 RC4 key derivation, converting NTLM to Kerberos TGT, Event 4768 `0x17` downgrade detection, and Kerberos masquerade | 4768, 4624, 5140 | T1550.002 |
+| **13** | [Golden Ticket & DCSync](02-Kerberos-Attacks-and-Defense-Labs/13-Golden-Ticket-TGT-Forgery-and-DCSync/) | DRSUAPI replication abuse, offline TGT forgery, 10-year validity anomaly, Event 4662 & 4769 missing-link detection, krbtgt double-reset | 4662, 4769, 4624, 4672, 5140 | T1558.001, T1003.006 |
 
 ---
 
