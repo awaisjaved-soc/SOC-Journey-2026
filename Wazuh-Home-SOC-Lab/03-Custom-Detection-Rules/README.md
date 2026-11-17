@@ -30,7 +30,7 @@ Two rules that split logons by **time**: **100115** (any human account logging o
 
 ## The master reference
 
-**[06-Custom-Detection-Rules-Reference](../06-Custom-Detection-Rules-Reference/)** — one file per rule for all 17 custom rules (100100–100116): exact XML, purpose, line-by-line explanation, shadowing, test evidence or test plan, DQL query, and MITRE mapping. Start here to *find* a rule; read the lab folders above to learn *how* it was built. The reference also carries the full shadowing map — including the broken dependency: rule 100112 chains on 92653, which is now shadowed by 100113/100114 and needs re-parenting before its test.
+**[06-Custom-Detection-Rules-Reference](../06-Custom-Detection-Rules-Reference/)** — one file per rule for all 21 custom rules (100100–100125): exact XML, purpose, line-by-line explanation, shadowing, test evidence or test plan, DQL query, and MITRE mapping. Start here to *find* a rule; read the lab folders above to learn *how* it was built. The reference also carries the full shadowing map — including the broken dependency: rule 100112 chains on 92653, which is now shadowed by 100113/100114 and needs re-parenting before its test.
 
 ## Key lessons across all five labs
 

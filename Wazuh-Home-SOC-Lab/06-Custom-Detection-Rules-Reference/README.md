@@ -32,12 +32,15 @@ The rule pack that ships these rules to the manager lives in the goals workspace
 | [100115](Rule-100115-Off-Hours-Logon.md) | 12 | 4624 | Any human account logged on outside business hours | **TESTED** | Lab 05 |
 | [100116](Rule-100116-Off-Hours-Failed-Logon.md) | 8 | 4625 | Failed logon outside business hours — brute force | **TESTED** | Lab 05 |
 | [100117](Rule-100117-Kerberos-TGT-Requested.md) | 3 | 4768 | Kerberos TGT ticket requested (AS-REP Roasting vector) | **TESTED** | Lab 08 |
+| [100123](Rule-100123-DCSync-Replication.md) | 13 | 4662 | Non-DC Directory Service replication — DCSync attack | **TESTED** | Lab 13 |
+| [100124](Rule-100124-Golden-Ticket-TGS-Request.md) | 11 | 4769 | Anomalous Kerberos service ticket request — Golden Ticket TGS | **TESTED** | Lab 13 |
+| [100125](Rule-100125-Golden-Ticket-Administrative-Logon.md) | 12 | 4672 / 4624 | Administrative privilege assignment on network logon — Golden Ticket takeover | **TESTED** | Lab 13 |
 
 **Status meanings:**
 - **TESTED** — the rule fired on a generated event in the lab, and the alert was observed in Threat Hunting. The file records when and what fired.
 - **UNTESTED** — the rule is written from Wazuh's documented syntax and has not been run in the lab yet. The file carries a test plan, not test evidence. Do not treat it as verified detection.
 
-**Count:** 18 custom rules — 10 tested, 8 untested.
+**Count:** 21 custom rules — 13 tested, 8 untested.
 
 ## Shadowing map
 
@@ -49,6 +52,7 @@ Shadowing is the single most important behaviour in this ruleset: when a custom 
 | **100113 / 100114** | Built-in **60106** (4624, human logons) | Nov 8, 2026 | `rule.id: 60106 AND data.win.eventdata.ipAddress: 192.168.100.27` returned nothing — 60106 silent on human logons. Machine logons still fire 60106 (coverage preserved). |
 | **100113 / 100114** | Built-in **92653** (RDP logon, type 10) | Nov 9, 2026 | 92653 last fired Nov 8 18:08, before the custom rules loaded. After loading, every RDP logon fired 100113/100114 and 92653 went silent. |
 | **100116** | Built-in **60122** (4625, off-hours only) | Nov 9, 2026 | After 100116 loaded, every failed logon fired 100116 only — 60122 showed just 4 old hits, latest 01:16:48. During on-hours 100116 does not match, so 60122 fires again (proven by the time-flip test). |
+| **100125** | Built-in **67020** (EventChannel 4672 privilege assignment) | Nov 17, 2026 | 67020 fires at Level 3 for baseline privilege assignments. Rule 100125 shadows 67020 when `normaluser01` receives special privileges via injected PAC, escalating the incident to Level 12. |
 
 ### Dependency chains — and the one that is broken
 

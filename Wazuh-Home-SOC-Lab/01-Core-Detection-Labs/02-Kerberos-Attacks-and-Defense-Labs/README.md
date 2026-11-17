@@ -20,7 +20,8 @@ This master series documents the complete theory, red-team exploitation mechanic
 ├── 09-Kerberos-Service-Ticket-and-Kerberoasting/       # MITRE T1558.003 — SPN Harvesting & TGS RC4 Cryptanalysis
 ├── 10-Kerberos-Pre-Auth-Password-Spraying/             # MITRE T1110.003 — Event 4771 Status 0x18 Telemetry
 ├── 11-Classic-Pass-the-Hash-NTLM/                      # MITRE T1550.002 — DRSUAPI Extraction & NtLmSsp Lateral Movement
-└── 12-Overpass-the-Hash-Pass-the-Key/                  # MITRE T1550.002 — RFC 4757 RC4 Downgrade (0x17) & Masquerade
+├── 12-Overpass-the-Hash-Pass-the-Key/                  # MITRE T1550.002 — RFC 4757 RC4 Downgrade (0x17) & Masquerade
+└── 13-Golden-Ticket-TGT-Forgery-and-DCSync/            # MITRE T1558.001 & T1003.006 — TGT Forgery & Directory Replication
 ```
 
 | # | Lab | Attack Vector | Key Telemetry Signature | Primary SIEM Rule | MITRE ATT&CK |
@@ -30,6 +31,7 @@ This master series documents the complete theory, red-team exploitation mechanic
 | **10** | [Kerberos Password Spray](10-Kerberos-Pre-Auth-Password-Spraying/) | Testing single passwords against multiple accounts via Kerberos pre-authentication | Event 4771 (`Status: 0x18` `KDC_ERR_PREAUTH_FAILED`) | Rule 60104 / 100117 | **T1110.003** |
 | **11** | [Classic Pass-the-Hash](11-Classic-Pass-the-Hash-NTLM/) | Lateral movement using stolen NTLM hash directly over SMB Port 445 without cleartext password | Event 4624 (`LogonType: 3`, `NtLmSsp`, `NTLM V2`) | Rule 100115 (Level 12) | **T1550.002** |
 | **12** | [Overpass-the-Hash](12-Overpass-the-Hash-Pass-the-Key/) | Converting stolen NTLM hash into genuine Kerberos TGT via RFC 4757 RC4-HMAC key derivation | Event 4768 (`TicketEncryptionType: 0x17` Downgrade) + Event 4624 (`Kerberos`) | Rule 100117 / 100115 | **T1550.002** |
+| **13** | [Golden Ticket & DCSync](13-Golden-Ticket-TGT-Forgery-and-DCSync/) | Directory replication abuse (DCSync) to harvest `krbtgt` master keys, offline TGT forgery, and injected administrative logon | Event 4662 (AccessMask `0x100`, Replication GUIDs) + Event 4769 (TGS with missing 4768) + Event 4672 (Administrative Privilege Assignment) | Rules 100123 (Level 13), 100124 (Level 11), 100125 (Level 12) | **T1558.001** / **T1003.006** |
 
 ---
 
