@@ -4,15 +4,15 @@
 
 # Lab 13 — Golden Ticket (TGT Forgery) & DCSync Detection Lab
 
-Part of the **Core Detection Labs: Kerberos Attack & Defense Series** — an end-to-end purple-team investigation: Active Directory directory replication abuse (DCSync), offline Ticket Granting Ticket (TGT) forgery using the `krbtgt` master key, Kerberos ticket injection, unauthorized administrative lateral movement, and custom **Wazuh 4.14.5** SIEM detection engineering.
+Part of the **Core Detection Labs: Kerberos Attack & Defense Series** — an end-to-end purple-team investigation: Active Directory directory replication abuse (DCSync), offline Ticket Granting Ticket (TGT) forgery using the `krbtgt` master encryption key, Kerberos ticket injection, unauthorized administrative lateral movement, and custom **Wazuh 4.14.5** SIEM detection engineering.
 
 ---
 
 ## Executive Summary & Attack Matrix
 
-Active Directory enterprise environments mein Kerberos authentication ka poora trust model ek single master secret par tika hota hai: **Domain `krbtgt` Account**. Agar koi adversary domain ke replication rights abuse karke (DCSync) ya NTDS.dit extract karke `krbtgt` account ka password hash ya AES-256 key chura le, to wo Active Directory forest ka mukammal control hasil kar leta hai.
+In enterprise Active Directory environments, the entire trust architecture of Kerberos authentication relies on a single foundational secret: the **Domain `krbtgt` Account**. If an adversary compromises directory replication permissions (via DCSync) or extracts the `NTDS.dit` database to harvest the password hash or AES-256 master key of the `krbtgt` account, they gain absolute and persistent control over the entire Active Directory forest.
 
-Is lab mein humne Kali Linux (`192.168.100.50`) se apne Windows Server 2022 Domain Controller (`WIN-SOCLAB.soclab.local` / `192.168.100.146`) par mukammal **DCSync** attack execute kiya, offline ASN.1 DER structures construct karke **Golden Ticket (TGT)** forge kiya, aur `impacket-psexec` ke zariye remote `nt authority\system` shell execute ki. Sath hi Wazuh SIEM ke andar raw Windows Security Event logs (Event IDs 4662, 4769, 4672, 4624) collect karke 3 custom production-grade detection rules (**Rules 100123, 100124, 100125**) develop aur verify kiye.
+In this lab, we executed a full **DCSync** attack from Kali Linux (`192.168.100.50`) against our Windows Server 2022 Domain Controller (`WIN-SOCLAB.soclab.local` / `192.168.100.146`), constructed offline ASN.1 DER structures to forge a **Golden Ticket (TGT)**, and achieved an interactive `nt authority\system` shell using `impacket-psexec`. In parallel, we captured the raw Windows Security Event logs (Event IDs 4662, 4769, 4672, 4624) within Wazuh SIEM and engineered three high-fidelity, production-grade custom detection rules (**Rules 100123, 100124, 100125**) to detect unauthorized directory replication, anomalous service ticket requests, and injected administrative logon privileges.
 
 | # | Attack Stage | Windows Event ID | Wazuh Rule ID | Rule Level | Technical Telemetry Signature |
 |---|---|---|---|---|---|
@@ -28,12 +28,12 @@ Is lab mein humne Kali Linux (`192.168.100.50`) se apne Windows Server 2022 Doma
 ## Architectural Mechanics: Why Active Directory Trusts a Lie
 
 ### 1. The Stateless KDC Paradox
-Normal authentication mein jab user kisi domain service (jaise file share ya database) ko access karta hai, to Domain Controller (KDC) user ke **Ticket Granting Ticket (TGT)** ko verify karta hai.
+In standard Kerberos authentication, when a user requests access to an enterprise network resource (such as a file share, database, or domain service), the Domain Controller (acting as the Key Distribution Center, or KDC) evaluates their **Ticket Granting Ticket (TGT)**.
 
-Active Directory architecture ki buniyadi vulnerability yeh hai: **KDC ticket validation ke waqt mukammal tor par STATELESS hota hai.**
-- KDC apne Active Directory database (`NTDS.dit`) se yeh check nahi karta ke TGT kis session mein issue hua tha ya user ke current group memberships kya hain.
-- KDC sirf ek mathematical verification karta hai: **Kya yeh TGT domain ke secret `krbtgt` account key se encrypt aur digitally sign hui hai?**
-- Agar cryptographic signature match ho jaye, to KDC ticket ke andar mojood **Privilege Attribute Certificate (PAC)** ko decode karta hai aur ticket mein likhe hue tamam Group SIDs (e.g., Domain Admins RID `512`, Enterprise Admins RID `519`) par aankhen band karke trust kar leta hai.
+Active Directory exhibits a fundamental architectural characteristic: **The KDC is completely STATELESS when validating TGTs.**
+- The KDC does **NOT** query its Active Directory database (`NTDS.dit`) to verify whether the session was legitimately initiated or whether the account's group memberships have changed since ticket issuance.
+- The KDC performs a purely mathematical cryptographic check: **Is the TGT encrypted and digitally signed with the secret key of the domain's `krbtgt` account?**
+- If the signature validates, the KDC decrypts the embedded **Privilege Attribute Certificate (PAC)** and implicitly trusts whatever Group SIDs (e.g., Domain Admins RID `512`, Schema Admins RID `518`, Enterprise Admins RID `519`) are contained within the ticket structure.
 
 ```text
 Normal Authentication Workflow:
@@ -49,9 +49,9 @@ Golden Ticket Attack Workflow:
 ```
 
 ### 2. The DCSync Mechanism (MS-DRSR / DRSUAPI)
-Golden Ticket banane ke liye attacker ko `krbtgt` account ka NTLM hash ya AES key chahiye hoti hai. Puraane attacks mein Domain Controller par jaakar physical `NTDS.dit` file dump karni parti thi.
+To forge a Golden Ticket, an adversary must acquire the NTLM hash or AES master key of the `krbtgt` account. Historically, this required direct access to extract the physical `NTDS.dit` database from a Domain Controller.
 
-**DCSync** ne is attack ko remote RPC execution mein badal diya. Microsoft Directory Replication Service Remote Protocol (**MS-DRSR**) ko abuse karte hue attacker ek legitimate Domain Controller ban kar peer DC ko RPC request bhejta hai: *"Main DC hoon, mujhe `krbtgt` account ki replication update do."* Target DC bina kisi suspicious process ya DLL injection ke, RPC protocol ke zariye domain secrets stream kar deta hai.
+**DCSync** transformed this attack vector into an entirely remote RPC operation. By abusing the Microsoft Directory Replication Service Remote Protocol (**MS-DRSR / DRSUAPI**), an adversary possessing directory replication rights (`Replicating Directory Changes` and `Replicating Directory Changes All`) impersonates a peer Domain Controller. The adversary transmits an RPC synchronization request: *"I am a replication partner; replicate the current account credentials for `krbtgt`."* The target Domain Controller streams the requested credentials back over RPC (Port 135 / dynamic RPC ports) without executing a single suspicious binary or touching LSASS memory on the Domain Controller.
 
 ---
 
@@ -80,13 +80,13 @@ Golden Ticket banane ke liye attacker ko `krbtgt` account ka NTLM hash ya AES ke
 
 ## Chronological Walkthrough & Evidence Analysis
 
-Poora lab execution 40 sequential screenshots par mushtamil hai jo red team exploitation aur blue team detection verification ko step-by-step document karte hain.
+The complete laboratory lifecycle comprises 40 sequential screenshots documenting the progression from initial staging and credential harvesting to offline forgery, remote takeover, and telemetry correlation.
 
 ---
 
 ### Phase 1: High-Privilege Account Creation & Elevation (Red Team Setup)
 
-DCSync attack execute karne ke liye user account ke paas Directory Replication permissions honi zaroori hain (`Replicating Directory Changes` aur `Replicating Directory Changes All`). Lab setup mein humne DC par PowerShell ke zariye dedicated service account create kiya aur use `Domain Admins` group mein add kiya taake replication rights inherit ho saken.
+To execute a DCSync attack, an account requires specific Directory Replication privileges (`Replicating Directory Changes` and `Replicating Directory Changes All`). During staging, a dedicated service account (`svc-syncadmin`) was created on the Domain Controller and added to the `Domain Admins` group, which inherits these permissions by default.
 
 ```powershell
 # Create dedicated replication service account on Domain Controller
@@ -97,32 +97,32 @@ Add-ADGroupMember -Identity "Domain Admins" -Members "svc-syncadmin"
 ```
 
 ![01 DC PowerShell Account Creation](images/01_dc_powershell_create_svc_syncadmin_add_domain_admins.png)
-*Figure 1.1: DC PowerShell par `svc-syncadmin` account creation aur `Domain Admins` group membership assignment.*
+*Figure 1.1: DC PowerShell execution creating `svc-syncadmin` and assigning `Domain Admins` group membership.*
 
 #### Blue Team SIEM Detection (Account Lifecycle Monitoring)
-Jese hi yeh account create hua aur privileged group mein add hua, Wazuh SIEM ne do alerts generate kiye:
+Upon creation and elevation, Wazuh SIEM generated two correlated alerts:
 1. **Rule 100109 (Level 10):** Account created outside business hours (Event ID 4720).
 2. **Rule 100105 (Level 10):** Account added to privileged group (Event ID 4728).
 
 ![02 Wazuh Rule 100109 Alert](images/02_wazuh_rule_100109_account_created_outside_business_hours.png)
-*Figure 1.2: Wazuh Discover dashboard par Rule 100109 ka alert — off-hours account creation capture.*
+*Figure 1.2: Wazuh Discover dashboard displaying Rule 100109 alert for off-hours account creation.*
 
 ![03 Wazuh Rule 100105 Privileged Group Alert](images/03_wazuh_rule_100105_account_added_to_privileged_group.png)
-*Figure 1.3: Wazuh Rule 100105 alert — `svc-syncadmin` ko `Domain Admins` group mein add hone par Level 10 alert trigger hua.*
+*Figure 1.3: Wazuh Rule 100105 alert triggering at Level 10 upon adding `svc-syncadmin` to `Domain Admins`.*
 
-Event 4728 ke document details aur message structure mein attacker ka account aur target security-enabled global group clear nazar aate hain:
+Event 4728 document details and Windows security message confirm the targeted security-enabled global group and member SID:
 
 ![04 Wazuh Event 4728 Details](images/04_wazuh_event_4728_document_details_domain_admins_escalation.png)
-*Figure 1.4: Event 4728 raw document details showing `MemberSid` aur `TargetUserName` (`svc-syncadmin`).*
+*Figure 1.4: Event 4728 raw document details showing `MemberSid` and `TargetUserName` (`svc-syncadmin`).*
 
 ![05 Wazuh Event 4728 Message](images/05_wazuh_event_4728_security_message_privilege_escalation.png)
-*Figure 1.5: Windows Security event message: "A member was added to a security-enabled global group" (`Domain Admins`).*
+*Figure 1.5: Windows Security event message confirming: "A member was added to a security-enabled global group" (`Domain Admins`).*
 
 ---
 
 ### Phase 2: DCSync Exploitation via DRSUAPI & Master Key Dumping
 
-Kali Linux (`192.168.100.50`) se humne Impacket ka `secretsdump.py` tool run kiya aur `-just-dc-user krbtgt` switch pass kiya taake sirf target domain ka master Kerberos account dump ho:
+From Kali Linux (`192.168.100.50`), Impacket's `secretsdump.py` was invoked with the `-just-dc-user krbtgt` switch to retrieve the master Kerberos account secrets over RPC:
 
 ```bash
 # Execute DCSync targeting krbtgt account credentials
@@ -130,41 +130,41 @@ impacket-secretsdump -just-dc-user krbtgt soclab.local/svc-syncadmin:SyncOpsPass
 ```
 
 ![06 Kali Secretsdump DCSync Output](images/06_kali_secretsdump_svc_syncadmin_dcsync_krbtgt_master_keys.png)
-*Figure 2.1: Kali terminal output showing DRSUAPI replication dumping `krbtgt` NTLM hash aur AES-256 / AES-128 / DES master encryption keys (sensitive hashes and master keys are naturally blurred).*
+*Figure 2.1: Kali terminal output demonstrating DRSUAPI replication extracting the `krbtgt` NTLM hash and AES-256, AES-128, and DES master encryption keys (sensitive credentials and hashes naturally blurred).*
 
 #### Telemetry Analysis of DCSync Network Logon (Event 4624)
-DCSync request bhejte waqt Kali machine DC ke RPC port 135 par authenticate hoti hai. Isse DC par **Event 4624 (Logon Type 3 — Network)** log hota hai jo Wazuh ke **Rule 100115 (Off-Hours Logon)** ko trigger karta hai:
+When initiating the DCSync RPC binding on Port 135, Kali authenticates against the DC, generating a **Network Logon (Logon Type 3 — Event ID 4624)**. In our SIEM, this immediately matched **Rule 100115 (Off-Hours Logon)**:
 
 ![07 Wazuh Rule 100115 Off-Hours Logon Alert](images/07_wazuh_rule_100115_off_hours_logon_type3_svc_syncadmin.png)
 *Figure 2.2: Rule 100115 alert firing at Level 12 for `svc-syncadmin` network logon during off-hours.*
 
 ![08 Wazuh Event 4624 Document Details](images/08_wazuh_event_4624_document_details_network_logon_type3.png)
-*Figure 2.3: Event 4624 document details showing `LogonType: 3` originating from Kali IP `192.168.100.50`.*
+*Figure 2.3: Event 4624 document details confirming `LogonType: 3` originating from Kali IP `192.168.100.50`.*
 
 ![09 Wazuh Event 4624 Message Header](images/09_wazuh_event_4624_message_header_successful_logon.png)
-*Figure 2.4: Windows Event 4624 successful logon message header.*
+*Figure 2.4: Windows Event 4624 header confirming successful authentication.*
 
 ![09b Wazuh Event 4624 Account Logon Message](images/09b_wazuh_event_4624_account_logged_on_message.png)
-*Figure 2.5: Windows Security log confirming `TargetUserName: svc-syncadmin` successfully authenticated.*
+*Figure 2.5: Windows Security event message confirming `TargetUserName: svc-syncadmin`.*
 
 ![10 Wazuh Event 4624 Elevated Token Details](images/10_wazuh_event_4624_details_logon_type3_elevated_token.png)
-*Figure 2.6: Logon Type 3 details confirming elevated token instantiation (`ElevatedToken: Yes`).*
+*Figure 2.6: Logon Type 3 details showing token elevation (`ElevatedToken: Yes`).*
 
 ![11 Wazuh Event 4624 Account Domain Details](images/11_wazuh_event_4624_details_svc_syncadmin_account_domain.png)
-*Figure 2.7: Target domain details verifying `TargetDomainName: SOCLAB`.*
+*Figure 2.7: Target domain parameters verifying authentication within `SOCLAB`.*
 
 ![12 Wazuh Event 4624 Authentication Package](images/12_wazuh_event_4624_details_ntlmssp_authentication_package.png)
-*Figure 2.8: Authentication package confirmation showing `AuthenticationPackageName: NTLM` / `NTLM V2`.*
+*Figure 2.8: Authentication package details verifying `AuthenticationPackageName: NTLM` / `NTLM V2`.*
 
 ---
 
 ### Phase 3: Domain SID Enumeration & Initial Offline Ticket Forgery
 
-Golden Ticket forge karne ke liye attacker ko do cheezein darkaar hoti hain:
-1. **Domain SID** (e.g., `S-1-5-21-3965529547-1709915012-255161553`).
-2. **`krbtgt` account hash / AES key**.
+Forging a valid Golden Ticket requires two key domain values:
+1. The **Domain SID** (e.g., `S-1-5-21-3965529547-1709915012-255161553`).
+2. The **`krbtgt` account hash or AES-256 master key**.
 
-Kali par humne `lookupsid.py` run karke Domain SID aur domain RID range extract ki:
+On Kali, `lookupsid.py` was executed to enumerate the Domain SID and account RID space:
 
 ```bash
 # Enumerate Domain SID and account RIDs
@@ -172,10 +172,10 @@ impacket-lookupsid soclab.local/svc-syncadmin:SyncOpsPassword2026!@192.168.100.1
 ```
 
 ![13 Kali Lookupsid SID Enumeration](images/13_kali_lookupsid_domain_sid_and_rid_enumeration.png)
-*Figure 3.1: Impacket lookupsid output verifying Domain SID `S-1-5-21-3965529547-1709915012-255161553`.*
+*Figure 3.1: Impacket lookupsid output confirming Domain SID `S-1-5-21-3965529547-1709915012-255161553`.*
 
 #### Offline Ticket Construction (Ticketer.py)
-Extracted SID aur `krbtgt` hash ke sath humne `impacket-ticketer` ko call kiya aur ek fictional identity (`GhostAdmin`) ke liye ticket banaya:
+Using the extracted Domain SID and `krbtgt` hash, `impacket-ticketer` was invoked to forge an initial Golden Ticket for a non-existent account identity (`GhostAdmin`):
 
 ```bash
 # Forge initial Golden Ticket for GhostAdmin
@@ -189,10 +189,10 @@ impacket-ticketer -nthash <KRBTGT_NTLM_HASH> \
 ```
 
 ![14 Kali Ticketer GhostAdmin Ticket Forgery](images/14_kali_ticketer_initial_ghostadmin_ticket_forgery.png)
-*Figure 3.2: `impacket-ticketer` creating ASN.1 DER structure, building PAC with RID 500 and Group SIDs 512, 513, 518, 519 (hash blurred).*
+*Figure 3.2: `impacket-ticketer` generating ASN.1 DER ticket structure with RID 500 and Group SIDs 512, 513, 518, 519 (hash blurred).*
 
-#### Golden Ticket Lateral Movement & Inspection
-Ticket ko active Linux session mein load karne ke baad humne `klist` se uski details inspect keen aur `psexec.py` run kiya:
+#### Ticket Inspection and Lateral Takeover
+After setting `KRB5CCNAME`, `klist` was utilized to inspect the cache, followed by `impacket-psexec` to execute administrative commands over SMB:
 
 ```bash
 # Load ticket into Kerberos cache
@@ -206,16 +206,16 @@ impacket-psexec -k -no-pass soclab.local/administrator@WIN-SOCLAB.soclab.local
 ```
 
 ![15 Kali PSExec Administrator Takeover](images/15_kali_psexec_administrator_golden_ticket_remote_takeover.png)
-*Figure 3.3: `impacket-psexec` gaining interactive administrative command shell on `WIN-SOCLAB.soclab.local` using forged ticket.*
+*Figure 3.3: `impacket-psexec` establishing an interactive administrative command shell on `WIN-SOCLAB.soclab.local` using the forged ticket.*
 
 ![16 Kali Klist Ticket Cache Details](images/16_kali_klist_inspect_administrator_ticket_cache.png)
-*Figure 3.4: Linux `klist` output showing 10-year validity lifetime (`11/17/2026` to `11/15/2036`) for `krbtgt/SOCLAB.LOCAL`.*
+*Figure 3.4: Linux `klist` output verifying a 10-year validity window (`11/17/2026` to `11/15/2036`) for `krbtgt/SOCLAB.LOCAL`.*
 
-#### SIEM Telemetry for Initial Golden Ticket Logon
-Wazuh dashboard par Kerberos authentication package ke sath Administrator account ka logon capture hua:
+#### Telemetry for Initial Golden Ticket Logon
+Wazuh captured the resulting Kerberos network authentication under Rule 100115:
 
 ![17 Wazuh Rule 100115 Kerberos Logon Events](images/17_wazuh_rule_100115_administrator_kerberos_logon_events.png)
-*Figure 3.5: Wazuh Threat Hunting showing off-hours Kerberos logon events.*
+*Figure 3.5: Wazuh Threat Hunting dashboard displaying off-hours Kerberos logon events.*
 
 ![18 Wazuh Event 4624 Kerberos Package Details](images/18_wazuh_event_4624_document_details_kerberos_package.png)
 *Figure 3.6: Event 4624 document details confirming `AuthenticationPackageName: Kerberos`.*
@@ -224,13 +224,13 @@ Wazuh dashboard par Kerberos authentication package ke sath Administrator accoun
 *Figure 3.7: Event 4624 message confirming elevated token creation via Kerberos.*
 
 ![20 Wazuh Rule 60106 Logon Baseline](images/20_wazuh_rule_60106_windows_logon_success_baseline.png)
-*Figure 3.8: Wazuh built-in Rule 60106 baseline firing on successful Windows authentication.*
+*Figure 3.8: Wazuh built-in Rule 60106 baseline alert firing on successful Windows authentication.*
 
 ---
 
-### Phase 4: Non-Privileged User Escalation & PAC Validation Engineering
+### Phase 4: Standard User Escalation & Modern Windows Server 2022 PAC Validation
 
-Adversary emulation ko realistic enterprise threat landscape ke mutabiq test karne ke liye humne ek standard non-privileged domain user (`normaluser01`, RID `1153`) create kiya. Iska maqsad yeh prove karna tha ke ek zero-privilege account ko Golden Ticket ke zariye domain administrator kaise banaya jata hai aur Windows Server 2022 ka KDC PAC verification kaise behave karta hai.
+To simulate an authentic enterprise attack path, we staged an unprivileged standard user (`normaluser01`, RID `1153`). This test validated how an unprivileged identity can be elevated into domain administration using a Golden Ticket, and evaluated how Windows Server 2022 KDC validates the Privilege Attribute Certificate (PAC).
 
 ```powershell
 # Create unprivileged standard user on Domain Controller
@@ -241,43 +241,43 @@ New-ADUser -Name "normaluser01" -SamAccountName "normaluser01" -AccountPassword 
 ```
 
 ![21 DC PowerShell Create normaluser01](images/21_dc_powershell_create_normaluser01_extract_rid_1153.png)
-*Figure 4.1: DC PowerShell creating standard domain user `normaluser01` and extracting SID ending in RID `1153`.*
+*Figure 4.1: DC PowerShell creating standard user `normaluser01` and querying its object SID (RID `1153`).*
 
-Kali par dobara DCSync execute kiya gaya taake complete directory database verify ho:
+Full directory replication was re-executed from Kali to verify target account hashes and master keys:
 
 ![22 Kali Secretsdump DCSync Redacted](images/22_kali_secretsdump_administrator_dcsync_krbtgt_redacted.png)
-*Figure 4.2: Full DCSync dump verifying `krbtgt` AES-256 key (`9a32c2...`) with credentials and keys naturally blurred.*
+*Figure 4.2: Secretsdump output verifying `krbtgt` AES-256 master key extraction (credentials and hashes naturally blurred).*
 
 #### DCSync Detection Firing (Rule 100123 — Event 4662)
-DC par jab DCSync RPC request pohnchi, to Windows Security ne **Event ID 4662** log kiya. Wazuh ke **Rule 100123** ne is request ko pakad kar **Level 13 (Critical Alert)** trigger kiya:
+When the DCSync RPC synchronization request reached the Domain Controller, Windows Security logged **Event ID 4662**. Custom Wazuh **Rule 100123** immediately matched this activity, triggering a **Level 13 (Critical Alert)**:
 
 ![23 Wazuh Rule 100123 Initial Alert](images/23_wazuh_rule_100123_dcsync_attack_detection_initial_alert.png)
 *Figure 4.3: Wazuh Rule 100123 firing at Level 13: "Active Directory: Potential DCSync Attack - Directory replication extended rights requested by non-DC account".*
 
 ![24 Wazuh Event 4662 DCSync Properties](images/24_wazuh_event_4662_document_details_dcsync_properties.png)
-*Figure 4.4: Event 4662 details showing `AccessMask: 0x100` and `Properties` containing DRSUAPI Replication Extended Rights GUID (`1131f6aa-9c07-11d1-f79f-00c04fc2dcd2`).*
+*Figure 4.4: Event 4662 document details showing `AccessMask: 0x100` and `Properties` containing the DRSUAPI replication GUID (`1131f6aa-9c07-11d1-f79f-00c04fc2dcd2`).*
 
-Account creation aur baseline network access ke additional alerts:
+Correlated account creation and network authentication telemetry:
 
 ![25 Wazuh Rule 100109 normaluser01 Created](images/25_wazuh_rule_100109_normaluser01_account_created.png)
-*Figure 4.5: Rule 100109 alert for `normaluser01` account creation.*
+*Figure 4.5: Rule 100109 alert logging `normaluser01` account creation.*
 
 ![26 Wazuh Rule 100107 Network Logon High Value](images/26_wazuh_rule_100107_network_logon_high_value_account.png)
 *Figure 4.6: Rule 100107 alert firing on high-value network logon.*
 
 ![27 Wazuh Rule 100123 Level 13 Discover Dashboard](images/27_wazuh_rule_100123_dcsync_attack_detected_level13_discover.png)
-*Figure 4.7: Wazuh Discover dashboard timeline showing Rule 100123 firing at Level 13.*
+*Figure 4.7: Wazuh Discover dashboard timeline demonstrating Rule 100123 firing at Level 13.*
 
 ![28 Wazuh Rule 100123 Expanded Alert List](images/28_wazuh_rule_100123_dcsync_expanded_alert_list.png)
 *Figure 4.8: Expanded alert hit list confirming repeated DCSync replication attempts.*
 
 ---
 
-### Phase 5: Clock Skew Resync, Ticket Injection & Full Takeover
+### Phase 5: Clock Skew Resync, Ticket Injection & Full Remote Takeover
 
-Kerberos protocol timestamp-sensitive hota hai (maximum default clock skew: 5 minutes / 300 seconds). Agar Kali machine aur DC ka time desynchronize ho jaye, to KDC error code `KRB_AP_ERR_SKEW` (`0x25`) return karta hai.
+Because Kerberos authentication relies on precise timestamp validation (with an allowable default clock skew of 5 minutes / 300 seconds), time drift between the attacker host and the Domain Controller will trigger error code `KRB_AP_ERR_SKEW` (`0x25`).
 
-Humne Kali ka time NTP ke zariye DC ke sath synchronize kiya aur `normaluser01` ke liye AES-256 encrypted Golden Ticket forge kiya jisme RID `1153` aur Domain Admins RID `512` inject kiye:
+Kali's clock was synchronized against the Domain Controller via NTP, followed by forging a dedicated AES-256 encrypted Golden Ticket for `normaluser01` embedding RID `1153` and Domain Admins RID `512`:
 
 ```bash
 # Resync time with Domain Controller
@@ -294,18 +294,18 @@ impacket-ticketer -aesKey <KRBTGT_AES256_KEY> \
 ```
 
 ![29 Kali Ticketer Golden Ticket normaluser01](images/29_kali_ticketer_forge_golden_ticket_normaluser01_domain_admins.png)
-*Figure 5.1: `impacket-ticketer` forging Golden Ticket for `normaluser01` injecting Domain Admins RID 512 using AES-256 master key (key argument blurred).*
+*Figure 5.1: `impacket-ticketer` forging Golden Ticket for `normaluser01` injecting Domain Admins RID 512 with AES-256 master key (key argument blurred).*
 
-Remote shell session mein group membership verification:
+Verification of administrative group membership within the remote shell:
 
 ![30 DC CMD PSExec Builtin Administrators](images/30_dc_cmd_psexec_whoami_system_builtin_administrators.png)
-*Figure 5.2: Target DC command prompt confirming session belongs to `BUILTIN\Administrators`.*
+*Figure 5.2: Remote command prompt confirming execution under `BUILTIN\Administrators`.*
 
 ![31 Kali Ticketer Clock Skew Resync](images/31_kali_ticketer_clock_skew_resync_and_ticket_forgery.png)
 *Figure 5.3: Kali terminal executing clock skew resynchronization and fresh ticket generation.*
 
-#### The Complete Red Team Execution Chain (Ticketer -> Klist -> PSExec -> SYSTEM)
-Ek hi terminal window mein mukammal red team exploitation pipeline execute hui:
+#### The Full Attack Execution Chain (Ticketer -> Klist -> PSExec -> SYSTEM)
+The entire operational sequence was executed in a unified workflow:
 
 ```bash
 # 1. Forge Ticket
@@ -322,24 +322,24 @@ impacket-psexec -k -no-pass soclab.local/normaluser01@WIN-SOCLAB.soclab.local
 ```
 
 ![32 Kali Golden Ticket Full Chain Execution](images/32_kali_golden_ticket_full_chain_ticketer_klist_psexec.png)
-*Figure 5.4: Full exploitation chain: ticket forgery, cache export, klist validation, psexec SMB connection, and `whoami` returning `nt authority\system`.*
+*Figure 5.4: Complete execution chain: ticket forgery, cache export, klist validation, psexec SMB connection, and `whoami` returning `nt authority\system`.*
 
-DC session ke andar group membership aur privilege validation:
+Remote token and group privileges inspection:
 
 ![33 DC CMD Session Group Privilege Validation](images/33_dc_cmd_session_whoami_groups_privilege_validation.png)
-*Figure 5.5: `whoami /groups` output inside the remote session confirming `Domain Admins`, `Enterprise Admins`, and `Schema Admins`.*
+*Figure 5.5: `whoami /groups` output confirming injected memberships: `Domain Admins`, `Enterprise Admins`, and `Schema Admins`.*
 
 ---
 
 ### Blue Team Deep Dive: Telemetry Triad & Detection Correlation
 
-Jab attacker ne forged TGT ko `impacket-psexec` mein present kiya, to DC par do crucial Kerberos events generate hue:
+When the forged TGT was presented via `impacket-psexec`, two primary Kerberos events were generated on the Domain Controller:
 
 #### 1. Kerberos Service Ticket Request (Event ID 4769) — Rule 100124
-Attacker ne forged TGT ko KDC ke samne pesh kiya taake wo `cifs/WIN-SOCLAB.soclab.local` service ticket hasil kar sake. KDC ne ticket options `0x40810000` ke sath Event 4769 generate kiya. Wazuh ke **Rule 100124** ne ise capture karke **Level 11** par 16 alerts generate kiye!
+The attacker presented the forged TGT to request a service ticket for `cifs/WIN-SOCLAB.soclab.local`. The KDC issued Event 4769 with Ticket Options `0x40810000`. Custom **Rule 100124** triggered on this activity, generating **16 consecutive Level 11 alerts**:
 
 ![34 Wazuh Event 4769 Document Details](images/34_wazuh_event_4769_document_details_target_service_options.png)
-*Figure 5.6: Event 4769 document details showing `TargetUserName: normaluser01`, `ServiceName: WIN-SOCLAB$`, `TicketOptions: 0x40810000`.*
+*Figure 5.6: Event 4769 document details showing `TargetUserName: normaluser01`, `ServiceName: WIN-SOCLAB$`, and `TicketOptions: 0x40810000`.*
 
 ![35 Wazuh Event 4769 Message](images/35_wazuh_event_4769_message_service_ticket_requested.png)
 *Figure 5.7: Windows Event 4769 security message confirming Kerberos service ticket was requested.*
@@ -348,7 +348,7 @@ Attacker ne forged TGT ko KDC ke samne pesh kiya taake wo `cifs/WIN-SOCLAB.socla
 *Figure 5.8: Event 4769 confirming client IP `::ffff:192.168.100.50` and AES-256 encryption (`0x12`).*
 
 #### 2. Special Privilege Assignment (Event ID 4672) — Rule 100125
-Jab LSASS ne forged PAC decode kiya, to usne session ko tamam high-tier privileges assign kar diye (`SeDebugPrivilege`, `SeBackupPrivilege`, etc.). Wazuh ke **Rule 100125** ne ise capture karke **Level 12 (Critical Privilege Assignment)** alert trigger kiya!
+When LSASS unpacked the forged PAC, it assigned elevated administrative privileges (`SeDebugPrivilege`, `SeBackupPrivilege`, `SeTakeOwnershipPrivilege`) to the logon session. Custom **Rule 100125** detected this assignment and raised a **Level 12 (Critical Privilege Assignment)** alert:
 
 ![37 Wazuh Rule 100125 Golden Ticket Administrative Logon](images/37_wazuh_rule_100125_golden_ticket_administrative_logon_level12.png)
 *Figure 5.9: Wazuh Threat Hunting dashboard showing Rule 100125 firing at Level 12 for `normaluser01`.*
@@ -363,7 +363,7 @@ Jab LSASS ne forged PAC decode kiya, to usne session ko tamam high-tier privileg
 
 ## Detection Engineering & SIEM Rules
 
-Yahan hamare teen custom rules ka mukammal XML structure diya gaya hai jo `/var/ossec/etc/rules/local_rules.xml` mein deploy hain:
+Below is the complete XML rule configuration deployed in `/var/ossec/etc/rules/local_rules.xml` on the Wazuh Manager:
 
 ```xml
 <group name="windows,kerberos,active_directory,">
@@ -418,23 +418,23 @@ Yahan hamare teen custom rules ka mukammal XML structure diya gaya hai jo `/var/
 
 ### Engineering Discoveries & Rule Architecture Notes
 1. **Windows EventChannel Decoder Hierarchy (`67020` vs `60106`):**
-   Modern Wazuh deployments mein Windows Security events jab `windows_eventchannel` se aate hain, to Event 4672 (`Special privileges assigned to new logon`) built-in rule **`67020`** par map hota hai, legacy rule `60106` par nahi. Rule 100125 ko `<if_sid>67020,60106,60103</if_sid>` se link karne se privilege assignment reliably detect hoti hai.
-2. **Kerberos TGS Service Targeting:**
-   Kerberos client jab forged TGT pesh karta hai, to wo `cifs/WIN-SOCLAB.soclab.local` ya `host/WIN-SOCLAB.soclab.local` ke liye service ticket request karta hai, `krbtgt` ke liye nahi (`krbtgt` key sirf offline ticket sign karne ke kaam aati hai). Is liye `serviceName` ko dynamic rakhna zaroori hai.
+   In modern Wazuh architectures collecting logs via `windows_eventchannel`, Windows Security Event 4672 (`Special privileges assigned to new logon`) is mapped to built-in rule **`67020`**, not legacy rule `60106`. Parenting Rule 100125 under `<if_sid>67020,60106,60103</if_sid>` guarantees consistent matching regardless of whether legacy or EventChannel collectors are in use.
+2. **Dynamic Kerberos Service Targeting:**
+   When a client utilizes a forged TGT, it requests service tickets for target hosts (e.g., `cifs/WIN-SOCLAB.soclab.local` or `host/WIN-SOCLAB.soclab.local`), NOT `krbtgt` (`krbtgt` is only used offline to sign the TGT). Filtering on `serviceName: krbtgt` causes detection silence; keeping `serviceName` open captures legitimate network service targets.
 3. **Payload String Matching via `<match>`:**
-   Event 4672 mein username field ka naam `subjectUserName` hota hai jabke Event 4624 mein `targetUserName` hota hai. Tag `<match>normaluser01</match>` use karne se field naming variations rule execution ko block nahi karti.
+   In Windows Security telemetry, Event 4672 stores the username under `subjectUserName`, whereas Event 4624 stores it under `targetUserName`. Employing `<match>normaluser01</match>` ensures payload-level matching across heterogeneous event formats.
 
 ---
 
 ## Incident Response & Remediation: The `krbtgt` Double-Reset Rule
 
-Agar network mein Golden Ticket compromise verify ho jaye, to standard user password reset karne se attacker ka access khatam **NAHI** hota, kyunke attacker ke paas poore domain ki master `krbtgt` key mojood hoti hai.
+When a Golden Ticket compromise occurs, standard remediation procedures (such as resetting user passwords or rebuilding endpoints) do **NOT** evict the adversary because the attacker possesses the master `krbtgt` key.
 
-Active Directory do password versions maintain karta hai:
-1. **Current Password Version** (Active tickets ke liye).
-2. **Previous Password Version** (Forest replication delays ke dauran existing tickets ko validate rakhne ke liye).
+Active Directory maintains **two** password versions for the `krbtgt` account:
+1. The **Current Password Version** (used to evaluate active tickets).
+2. The **Previous Password Version** (maintained to prevent service disruption during forest replication delays).
 
-Is liye adversary ko domain se baahir nikaalne ke liye **`krbtgt` password ko 2 dafa reset karna parta hai**, aur dono resets ke darmiyan replication time aur ticket lifetime ka wait karna parta hai.
+Consequently, **the `krbtgt` password must be reset twice**, allowing sufficient time between resets for Active Directory replication to propagate across all Domain Controllers and for existing tickets to expire.
 
 ```powershell
 # ==============================================================================
@@ -472,9 +472,9 @@ Write-Host "[+] KDC local ticket cache purged cleanly." -ForegroundColor Cyan
 
 ## Blue Team Interview Talking Points
 
-1. **"Why can't an attacker's Golden Ticket be revoked by resetting the user's password?"**
-   * *Answer:* Golden Tickets are encrypted and signed using the domain's secret `krbtgt` account key, completely independent of the impersonated user's password. The KDC validates tickets statelessly by checking the `krbtgt` cryptographic signature. To invalidate forged tickets, the `krbtgt` password must undergo the complete double-reset procedure.
-2. **"What is the single most definitive SIEM signature of a Golden Ticket?"**
-   * *Answer:* The **Missing AS-REQ Anomaly**. In genuine Kerberos authentication, an AS-REQ (Event 4768) always precedes a TGS-REQ (Event 4769). In a Golden Ticket attack, the TGT is forged offline; thus, Event 4769 appears with zero preceding Event 4768 events for that logon session. Additionally, tickets often exhibit anomalous lifetimes (e.g., 10 years).
-3. **"How do you stop DCSync before credentials can be stolen?"**
-   * *Answer:* Restrict and audit Active Directory replication permissions (`DS-Replication-Get-Changes-All`). Implement Wazuh Rule 100123 on Event 4662 (`AccessMask: 0x100`) filtering out legitimate Domain Controller computer accounts (`.*\$`). Any user account requesting directory replication is an immediate Severity 1 incident.
+1. **"Why does resetting an impersonated user's password fail to revoke a Golden Ticket?"**
+   * *Answer:* Golden Tickets are encrypted and digitally signed with the domain's secret `krbtgt` account key, completely independent of the target user's password. The KDC validates tickets statelessly by verifying the cryptographic `krbtgt` signature. To invalidate forged tickets, the `krbtgt` account password must undergo the complete double-reset procedure.
+2. **"What is the primary SIEM signature of a Golden Ticket?"**
+   * *Answer:* The **Missing AS-REQ Anomaly**. In normal Kerberos operations, an AS-REQ (Event 4768) precedes any TGS-REQ (Event 4769). In a Golden Ticket attack, the TGT is forged offline; hence, Event 4769 appears with zero preceding Event 4768 events for that user session. Additionally, forged tickets frequently carry abnormal lifetimes (e.g., 10 years).
+3. **"How do you detect DCSync before a Golden Ticket is forged?"**
+   * *Answer:* Audit Windows Event ID 4662 with Access Mask `0x100` (`RIGHT_DS_CONTROL_ACCESS`) and Directory Replication Extended Rights GUIDs (`1131f6aa-9c07-11d1-f79f-00c04fc2dcd2`). Filter out legitimate Domain Controller computer accounts (`.*\$`). Any standard user or workstation account requesting replication rights is an immediate Severity 1 incident.
