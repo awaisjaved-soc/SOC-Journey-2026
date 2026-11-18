@@ -338,6 +338,15 @@ When the forged TGT was presented via `impacket-psexec`, two primary Kerberos ev
 #### 1. Kerberos Service Ticket Request (Event ID 4769) — Rule 100124
 The attacker presented the forged TGT to request a service ticket for `cifs/WIN-SOCLAB.soclab.local`. The KDC issued Event 4769 with Ticket Options `0x40810000`. Custom **Rule 100124** triggered on this activity, generating **16 consecutive Level 11 alerts**:
 
+---
+
+
+<img width="960" height="452" alt="aaa" src="https://github.com/user-attachments/assets/6a0dbdaa-2e4e-405e-8661-55cd905f396d" />
+
+---
+
+
+
 ![34 Wazuh Event 4769 Document Details](images/34_wazuh_event_4769_document_details_target_service_options.png)
 *Figure 5.6: Event 4769 document details showing `TargetUserName: normaluser01`, `ServiceName: WIN-SOCLAB$`, and `TicketOptions: 0x40810000`.*
 
