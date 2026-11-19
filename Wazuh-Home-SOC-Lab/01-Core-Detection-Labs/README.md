@@ -21,7 +21,8 @@ The curriculum is structured into **two primary pillars**:
     ├── 10-Kerberos-Pre-Auth-Password-Spraying/
     ├── 11-Classic-Pass-the-Hash-NTLM/
     ├── 12-Overpass-the-Hash-Pass-the-Key/
-    └── 13-Golden-Ticket-TGT-Forgery-and-DCSync/
+    ├── 13-Golden-Ticket-TGT-Forgery-and-DCSync/
+    └── 14-Silver-Ticket-TGS-Forgery-and-SPN-Stealth/
 ```
 
 ---
@@ -54,6 +55,7 @@ Advanced Active Directory authentication security: dissecting Kerberos protocol 
 | **11** | [Classic Pass-the-Hash (PtH)](02-Kerberos-Attacks-and-Defense-Labs/11-Classic-Pass-the-Hash-NTLM/) | Post-compromise NTLM lateral movement, SMB file system traversal, Event 4624 `NtLmSsp`, and Level 12 Off-Hours alert | 4728, 4624, 4672, 5140 | T1550.002 |
 | **12** | [Overpass-the-Hash (Pass-the-Key)](02-Kerberos-Attacks-and-Defense-Labs/12-Overpass-the-Hash-Pass-the-Key/) | RFC 4757 RC4 key derivation, converting NTLM to Kerberos TGT, Event 4768 `0x17` downgrade detection, and Kerberos masquerade | 4768, 4624, 5140 | T1550.002 |
 | **13** | [Golden Ticket & DCSync](02-Kerberos-Attacks-and-Defense-Labs/13-Golden-Ticket-TGT-Forgery-and-DCSync/) | DRSUAPI replication abuse, offline TGT forgery, 10-year validity anomaly, Event 4662 & 4769 missing-link detection, krbtgt double-reset | 4662, 4769, 4624, 4672, 5140 | T1558.001, T1003.006 |
+| **14** | [Silver Ticket & SPN Stealth](02-Kerberos-Attacks-and-Defense-Labs/14-Silver-Ticket-TGS-Forgery-and-SPN-Stealth/) | Machine/service account hash harvesting, offline TGS forgery, zero-DC KDC evasion, SMB lateral movement, Event 7045 & Sysmon Event 1 | 4720, 4728, 4624, 4672, 7045, Sysmon 1 | T1558.002, T1021.002 |
 
 ---
 
