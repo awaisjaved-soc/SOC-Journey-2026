@@ -35,12 +35,13 @@ The rule pack that ships these rules to the manager lives in the goals workspace
 | [100123](Rule-100123-DCSync-Replication.md) | 13 | 4662 | Non-DC Directory Service replication — DCSync attack | **TESTED** | Lab 13 |
 | [100124](Rule-100124-Golden-Ticket-TGS-Request.md) | 11 | 4769 | Anomalous Kerberos service ticket request — Golden Ticket TGS | **TESTED** | Lab 13 |
 | [100125](Rule-100125-Golden-Ticket-Administrative-Logon.md) | 12 | 4672 / 4624 | Administrative privilege assignment on network logon — Golden Ticket takeover | **TESTED** | Lab 13 |
+| [100126](Rule-100126-PsExec-Lateral-Movement.md) | 12 | Sysmon 1 (184665) | Lateral Movement: PsExec execution detected on host via Sysmon Event 1 | **TESTED** | Lab 14 |
 
 **Status meanings:**
 - **TESTED** — the rule fired on a generated event in the lab, and the alert was observed in Threat Hunting. The file records when and what fired.
 - **UNTESTED** — the rule is written from Wazuh's documented syntax and has not been run in the lab yet. The file carries a test plan, not test evidence. Do not treat it as verified detection.
 
-**Count:** 21 custom rules — 13 tested, 8 untested.
+**Count:** 22 custom rules — 14 tested, 8 untested.
 
 ## Shadowing map
 
@@ -53,6 +54,7 @@ Shadowing is the single most important behaviour in this ruleset: when a custom 
 | **100113 / 100114** | Built-in **92653** (RDP logon, type 10) | Nov 9, 2026 | 92653 last fired Nov 8 18:08, before the custom rules loaded. After loading, every RDP logon fired 100113/100114 and 92653 went silent. |
 | **100116** | Built-in **60122** (4625, off-hours only) | Nov 9, 2026 | After 100116 loaded, every failed logon fired 100116 only — 60122 showed just 4 old hits, latest 01:16:48. During on-hours 100116 does not match, so 60122 fires again (proven by the time-flip test). |
 | **100125** | Built-in **67020** (EventChannel 4672 privilege assignment) | Nov 17, 2026 | 67020 fires at Level 3 for baseline privilege assignments. Rule 100125 shadows 67020 when `normaluser01` receives special privileges via injected PAC, escalating the incident to Level 12. |
+| **100126** | Built-in **184665** (Sysmon Event 1 Process Creation) | Nov 19, 2026 | 184665 fires at Level 3 for generic Sysmon process creation. Rule 100126 shadows 184665 when `PSEXESVC.exe` or dropped root service binaries execute, escalating the incident to Level 12. |
 
 ### Dependency chains — and the one that is broken
 
