@@ -34,7 +34,7 @@ In modern SOC detection engineering, our goal is **pre-theft detection**: alerti
 | **Monitored Agent** | Agent `001` (`the-server-agent`) — `windows_eventchannel` |
 | **Primary Telemetry** | **Sysmon Event ID 10 (`ProcessAccess`)** |
 | **Target Image** | `C:\Windows\system32\lsass.exe` |
-| **Tested SIEM Rules** | **Rule 100103** (Level 12 Threat Alert) & **Rule 100127** (Level 0 Noise Suppressor) |
+| **Tested SIEM Rules** | **Rule 100103** (Level 3 Telemetry Collector) & **Rule 100127** (Level 12 Threat Detector) |
 | **MITRE ATT&CK** | **T1003.001** (OS Credential Dumping: LSASS Memory) & **T1558** (Steal or Forge Kerberos Tickets) |
 
 ---
@@ -128,33 +128,34 @@ Get-WinEvent -LogName "Microsoft-Windows-Sysmon/Operational" -FilterXPath "*[Sys
 
 ---
 
-## Phase 3: Detection Engineering & Production SIEM Tuning
+## Phase 3: Detection Engineering & Production SIEM Tuning (2-Tier Architecture)
 
-To eliminate alert fatigue without blinding the SIEM to genuine threats, a two-tier rule structure was deployed.
+To eliminate alert fatigue from background system processes (`svchost.exe`, `VBoxService.exe`, `Taskmgr.exe`) without blinding the SIEM to genuine credential attacks, a production-grade **Two-Tier Rule Hierarchy** was deployed.
 
 ### Step 1: Rule Architecture
-1. **Parent Detector (`Rule 100103` — Level 12):** Fires on all non-whitelisted access to `lsass.exe`.
-2. **Child Suppressor (`Rule 100127` — Level 0):** Intercepts events matching `VBoxService.exe` with query-only mask `0x1400` and silently drops them.
+1. **Tier 1 — Base Telemetry Collector (`Rule 100103` — Level 3):** Captures all Sysmon Event 10 handle creations targeting `lsass.exe` at an informational level. Maintains comprehensive audit telemetry for threat hunting without firing high-severity alarms on routine Windows API queries (`0x1000`, `0x1400`).
+2. **Tier 2 — Weaponized Threat Detector (`Rule 100127` — Level 12):** Child rule inheriting from Rule 100103. Requires explicit memory read rights (`PROCESS_VM_READ` bitmask matching `0x1010`, `0x1410`, `0x1fffff`, or `0x0010`). Only triggers on weaponized memory dumping attempts.
 
 ```xml
-<!-- Custom Rule 100103: Threat Detector -->
-<rule id="100103" level="12">
+<!-- Tier 1: Base Telemetry Collector (Informational Audit Log) -->
+<rule id="100103" level="3">
   <if_group>windows</if_group>
   <field name="win.system.eventID">^10$</field>
   <field name="win.eventdata.targetImage">lsass\.exe$</field>
-  <description>Possible credential dumping: process opened LSASS (Sysmon event 10)</description>
-  <mitre>
-    <id>T1003.001</id>
-  </mitre>
-  <group>credential_access,</group>
+  <description>Sysmon Event 10: Process opened handle to LSASS</description>
+  <group>process_access,lsass_telemetry,</group>
 </rule>
 
-<!-- Custom Rule 100127: Production Tuning Filter -->
-<rule id="100127" level="0">
+<!-- Tier 2: Weaponized Memory Read Threat Detector (High Severity Alert) -->
+<rule id="100127" level="12">
   <if_sid>100103</if_sid>
-  <field name="win.eventdata.sourceImage">VBoxService\.exe$</field>
-  <field name="win.eventdata.grantedAccess">^0x1400$</field>
-  <description>Tuning: Suppress benign VirtualBox Guest Additions status queries to LSASS</description>
+  <field name="win.eventdata.grantedAccess">0x1010|0x1410|0x1fffff|0x0010</field>
+  <description>Critical alert: LSASS memory read / ticket dumping attempt</description>
+  <mitre>
+    <id>T1003.001</id>
+    <id>T1558</id>
+  </mitre>
+  <group>credential_access,lsass_memory_read,</group>
 </rule>
 ```
 
