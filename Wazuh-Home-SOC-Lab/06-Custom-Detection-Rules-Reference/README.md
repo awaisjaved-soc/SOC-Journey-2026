@@ -17,7 +17,7 @@ The rule pack that ships these rules to the manager lives in the goals workspace
 | [100100](Rule-100100-Brute-Force.md) | 10 | 4625 | 8 failed logons in 120 seconds — brute force | UNTESTED | Pack |
 | [100101](Rule-100101-RDP-Brute-Force.md) | 10 | 4625 (type 10) | 8 failed RDP logons in 120 seconds — RDP brute force | UNTESTED | Pack |
 | [100102](Rule-100102-Kerberoasting.md) | 12 | 4769 | RC4-encrypted service ticket — Kerberoasting | **TESTED** | Lab 09 |
-| [100103](Rule-100103-LSASS-Access.md) | 12 | Sysmon 10 | A process opened LSASS memory — credential dumping | UNTESTED | Pack |
+| [100103](Rule-100103-LSASS-Access.md) | 12 | Sysmon 10 | A process opened LSASS memory — credential dumping | **TESTED** | Lab 15 |
 | [100104](Rule-100104-New-Service.md) | 8 | 7045 | A new service was installed — persistence | UNTESTED | Pack |
 | [100105](Rule-100105-Privileged-Group.md) | 10 | 4728 / 4732 / 4756 | Account added to a privileged group — privilege escalation | **TESTED** | Lab 01 |
 | [100106](Rule-100106-NewCredentials-Logon.md) | 10 | 4624 (type 9) | NewCredentials logon — RunAs / possible pass-the-hash | UNTESTED | Pack |
@@ -36,12 +36,13 @@ The rule pack that ships these rules to the manager lives in the goals workspace
 | [100124](Rule-100124-Golden-Ticket-TGS-Request.md) | 11 | 4769 | Anomalous Kerberos service ticket request — Golden Ticket TGS | **TESTED** | Lab 13 |
 | [100125](Rule-100125-Golden-Ticket-Administrative-Logon.md) | 12 | 4672 / 4624 | Administrative privilege assignment on network logon — Golden Ticket takeover | **TESTED** | Lab 13 |
 | [100126](Rule-100126-PsExec-Lateral-Movement.md) | 12 | Sysmon 1 (184665) | Lateral Movement: PsExec execution detected on host via Sysmon Event 1 | **TESTED** | Lab 14 |
+| [100127](Rule-100127-LSASS-VBoxService-Tuning.md) | 0 | Sysmon 10 | Tuning: Suppress benign VirtualBox Guest Additions status queries to LSASS | **TESTED** | Lab 15 |
 
 **Status meanings:**
 - **TESTED** — the rule fired on a generated event in the lab, and the alert was observed in Threat Hunting. The file records when and what fired.
 - **UNTESTED** — the rule is written from Wazuh's documented syntax and has not been run in the lab yet. The file carries a test plan, not test evidence. Do not treat it as verified detection.
 
-**Count:** 22 custom rules — 14 tested, 8 untested.
+**Count:** 23 custom rules — 16 tested, 7 untested.
 
 ## Shadowing map
 
