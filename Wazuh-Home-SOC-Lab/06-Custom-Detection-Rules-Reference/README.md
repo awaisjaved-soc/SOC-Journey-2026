@@ -37,12 +37,105 @@ The rule pack that ships these rules to the manager lives in the goals workspace
 | [100125](Rule-100125-Golden-Ticket-Administrative-Logon.md) | 12 | 4672 / 4624 | Administrative privilege assignment on network logon — Golden Ticket takeover | **TESTED** | Lab 13 |
 | [100126](Rule-100126-PsExec-Lateral-Movement.md) | 12 | Sysmon 1 (184665) | Lateral Movement: PsExec execution detected on host via Sysmon Event 1 | **TESTED** | Lab 14 |
 | [100127](Rule-100127-LSASS-Memory-Read-Detection.md) | 12 | Sysmon 10 | Critical: Memory read rights requested on LSASS (VM_READ) | **TESTED** | Lab 15 / 16 |
+| [100128](Rule-100128-Taskmgr-LSASS-Whitelist.md) | 3 | Sysmon 10 | Whitelist: Task Manager routine diagnostic handle to LSASS | **TESTED** | Lab 15 |
+| [100129](Rule-100129-LSASS-Memory-Dump-or-Kerberos-Ticket-File-Created.md) | 13 | Sysmon 11 | CRITICAL: LSASS Memory Dump or Kerberos Ticket File Written to Disk | **TESTED** | Lab 15 |
 
 **Status meanings:**
 - **TESTED** — the rule fired on a generated event in the lab, and the alert was observed in Threat Hunting. The file records when and what fired.
 - **UNTESTED** — the rule is written from Wazuh's documented syntax and has not been run in the lab yet. The file carries a test plan, not test evidence. Do not treat it as verified detection.
 
-**Count:** 23 custom rules — 16 tested, 7 untested.
+**Count:** 25 custom rules — 18 tested, 7 untested.
+
+---
+
+## 🏛️ The 4-Tier LSASS Defense Hierarchy: Rules 100103, 100127, 100128, and 100129
+
+Credential dumping from the Local Security Authority Subsystem Service (`lsass.exe`) is one of the most critical threats in Windows Active Directory environments. However, writing a single detection rule for LSASS access inevitably leads to either **massive alert fatigue** (hundreds of false positives from routine OS daemons) or **silent blindness** (missing stealthy memory dumpers).
+
+In Lab 15, we engineered a production-grade **4-Tier Detection Hierarchy** deployed directly into `/var/ossec/etc/rules/local_rules.xml`.
+
+```
+┌────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                              THE 4-TIER LSASS DETECTION & SUPPRESSION PIPELINE                         │
+├────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                                        │
+│  [ Incoming Telemetry Stream ]                                                                         │
+│           │                                                                                            │
+│           ├──► Sysmon Event ID 10 (ProcessAccess)                                                      │
+│           │         │                                                                                  │
+│           │         ▼                                                                                  │
+│           │    [ Target: lsass.exe? ] ──► NO ──► Ignore                                                │
+│           │         │ YES                                                                              │
+│           │         ▼                                                                                  │
+│           │    ┌──────────────────────────────────────────────────────────────┐                        │
+│           │    │ TIER 1: Rule 100103 (Level 3 - Audit Base Collector)         │                        │
+│           │    │ Captures all handles silently for forensic audit trail.      │                        │
+│           │    └──────────────────────────────┬───────────────────────────────┘                        │
+│           │                                   │                                                        │
+│           │                                   ▼                                                        │
+│           │                 [ GrantedAccess has VM_READ (0x10)? ]                                      │
+│           │                 (0x1010 | 0x1410 | 0x1fffff | 0x0010)                                      │
+│           │                        │                    │                                              │
+│           │                       NO                   YES                                             │
+│           │                        │                    │                                              │
+│           │                        ▼                    ▼                                              │
+│           │             [ Log Level 3 Only ]  ┌──────────────────────────────────────────────────┐     │
+│           │             (VBoxService, svchost)│ TIER 2: Rule 100127 (Level 12 - Threat Detector) │     │
+│           │             Zero Alert Fatigue    │ Weaponized memory reading handle intercepted.    │     │
+│           │                                   └─────────────────┬────────────────────────────────┘     │
+│           │                                                     │                                      │
+│           │                                                     ▼                                      │
+│           │                                      [ SourceImage == Taskmgr.exe? ]                       │
+│           │                                             │               │                              │
+│           │                                            YES              NO                             │
+│           │                                             │               │                              │
+│           │                                             ▼               ▼                              │
+│           │                    ┌──────────────────────────────────┐  ┌───────────────────────────────┐ │
+│           │                    │ TIER 3: Rule 100128 (Level 3)    │  │ CRITICAL LEVEL 12 ALARM FIRES │ │
+│           │                    │ Whitelist suppression for Taskmgr│  │ rundll32, mimikatz, procdump  │ │
+│           │                    └──────────────────────────────────┘  └───────────────────────────────┘ │
+│           │                                                                                            │
+│           └──► Sysmon Event ID 11 (FileCreate)                                                         │
+│                     │                                                                                  │
+│                     ▼                                                                                  │
+│                [ TargetFilename matches (?i)lsass.*\.dmp|\.kirbi? ]                                    │
+│                     │ YES                                                                              │
+│                     ▼                                                                                  │
+│                ┌─────────────────────────────────────────────────────────────────────────────┐         │
+│                │ TIER 4: Rule 100129 (Level 13 - Maximum Critical Dump/Ticket File Detector) │         │
+│                │ Secondary defense line: catches dump files or carved tickets written to disk│         │
+│                └─────────────────────────────────────────────────────────────────────────────┘         │
+│                                                                                                        │
+└────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Detailed Breakdown of Differences
+
+| Feature | Tier 1: [Rule 100103](Rule-100103-LSASS-Access.md) | Tier 2: [Rule 100127](Rule-100127-LSASS-Memory-Read-Detection.md) | Tier 3: [Rule 100128](Rule-100128-Taskmgr-LSASS-Whitelist.md) | Tier 4: [Rule 100129](Rule-100129-LSASS-Memory-Dump-or-Kerberos-Ticket-File-Created.md) |
+|---|---|---|---|---|
+| **Severity Level** | **Level 3** (Informational Audit) | **Level 12** (Critical High Alarm) | **Level 3** (Whitelist Suppression) | **Level 13** (Maximum Critical Alarm) |
+| **Telemetry Event** | Sysmon Event ID **10** (`ProcessAccess`) | Sysmon Event ID **10** (`ProcessAccess`) | Sysmon Event ID **10** (`ProcessAccess`) | Sysmon Event ID **11** (`FileCreate`) |
+| **Monitored Field** | `win.eventdata.targetImage` | `win.eventdata.grantedAccess` | `win.eventdata.sourceImage` | `win.eventdata.targetFilename` |
+| **Filter Criteria** | Ends with `lsass.exe` | `0x1010 \| 0x1410 \| 0x1fffff \| 0x0010` | `Taskmgr\.exe$` | `(?i)lsass.*\.dmp\|\.kirbi` (PCRE2) |
+| **Operational Role** | Base telemetry ingestion root | Weaponized memory-read detector | Administrative false-positive suppressor | File system artifact safety net |
+| **Parent Rule** | Core `windows` group | `<if_sid>100103</if_sid>` | `<if_sid>100127</if_sid>` | Core `windows` group |
+| **SOC Action** | Silent indexing, timeline hunting | Immediate host isolation & triage | Silent indexing, routine admin log | Immediate credential revocation & quarantine |
+
+---
+
+### When Does Each Rule Fire? (Operational Matrix)
+
+| Operational Scenario | Calling Process / Action | Win32 Bitmask / Filename | Matched Rule | Resulting Severity & Action |
+|---|---|---|---|---|
+| **Hypervisor Polling Loop** | `VBoxService.exe` polls session state every 15s | `0x1400` (`QUERY_INFO`) | **Rule 100103** | **Level 3 (Silent Audit).** Zero alert noise. |
+| **System Service Status Check** | `svchost.exe` queries process status | `0x1000` (`QUERY_LIMITED`) | **Rule 100103** | **Level 3 (Silent Audit).** Zero alert noise. |
+| **Administrator Server Health Check** | Admin opens `Taskmgr.exe` to inspect CPU/RAM | `0x1fffff` (`ALL_ACCESS`) | **Rule 100128** | **Level 3 (Suppressed).** Matches 100103 $\rightarrow$ passes to 100127 $\rightarrow$ demoted by 100128. |
+| **Living-off-the-Land Memory Dump** | `rundll32.exe comsvcs.dll, MiniDump` | `0x1fffff` / `0x1410` | **Rule 100127** | **Level 12 (Critical Alert).** Immediate alert on SOC dashboard. |
+| **Third-Party Credential Dumper** | `procdump.exe -ma lsass.exe` / `mimikatz` | `0x1010` / `0x0010` | **Rule 100127** | **Level 12 (Critical Alert).** Immediate alert on SOC dashboard. |
+| **Memory Dump Written to Disk** | Dump file written to `C:\Users\Public\lsass.dmp` | `lsass.dmp` | **Rule 100129** | **Level 13 (Max Critical).** Immediate file creation alert. |
+| **Harvested Kerberos Tickets Dropped** | Mimikatz `sekurlsa::tickets /export` | `[0;12a45]-2-0-40e10000.kirbi` | **Rule 100129** | **Level 13 (Max Critical).** Immediate ticket carving alert. |
+
+---
 
 ## Shadowing map
 
@@ -56,6 +149,9 @@ Shadowing is the single most important behaviour in this ruleset: when a custom 
 | **100116** | Built-in **60122** (4625, off-hours only) | Nov 9, 2026 | After 100116 loaded, every failed logon fired 100116 only — 60122 showed just 4 old hits, latest 01:16:48. During on-hours 100116 does not match, so 60122 fires again (proven by the time-flip test). |
 | **100125** | Built-in **67020** (EventChannel 4672 privilege assignment) | Nov 17, 2026 | 67020 fires at Level 3 for baseline privilege assignments. Rule 100125 shadows 67020 when `normaluser01` receives special privileges via injected PAC, escalating the incident to Level 12. |
 | **100126** | Built-in **184665** (Sysmon Event 1 Process Creation) | Nov 19, 2026 | 184665 fires at Level 3 for generic Sysmon process creation. Rule 100126 shadows 184665 when `PSEXESVC.exe` or dropped root service binaries execute, escalating the incident to Level 12. |
+| **100127** | Parent **100103** (Base LSASS Handle Collector) | Nov 23, 2026 | Rule 100103 logs handles at Level 3. Rule 100127 shadows 100103 whenever memory-read permissions (`0x1010`, `0x1410`, `0x1fffff`, `0x0010`) are requested, escalating to Level 12. |
+| **100128** | Parent **100127** (Weaponized LSASS Memory Read) | Nov 23, 2026 | Rule 100127 alerts at Level 12 for handles with `0x1fffff`. Rule 100128 shadows 100127 when `sourceImage` is `Taskmgr.exe`, demoting the diagnostic event back to Level 3. |
+| **100129** | Built-in Sysmon Event 11 rules (`FileCreate`) | Nov 23, 2026 | Built-in Sysmon rules index file creations at Level 3. Rule 100129 matches filenames matching `lsass.*\.dmp` or `\.kirbi`, escalating to Level 13. |
 
 ### Dependency chains — and the one that is broken
 
@@ -64,6 +160,8 @@ Shadowing is the single most important behaviour in this ruleset: when a custom 
 | **100111** | **100105** (parent) + **60109** (matched) | Sound. 100111 chains on 100105, not on 60141, precisely because 60141 is shadowed on privileged 4728s and would never fire. |
 | **100112** | **92653** (parent) + **100111** (matched) | **BROKEN — redesign required.** 100112 chains on `<if_sid>92653</if_sid>`, but 92653 is now shadowed by 100113/100114 and no longer fires on type-10 logons. The RDP link of the chain can never trigger. The fix is to re-parent 100112 on 100113/100114 (or on a 4624 rule that actually fires) before the Lab 03 test. Do not test 100112 as written and expect it to fire. |
 | **100116** | **60122** (parent) | Sound. 60122 still fires on-hours (when 100116 does not match), so the parent is alive — 100116 only suppresses it during off-hours. |
+| **100127** | **100103** (parent) | Sound. Inherits from base LSASS handle rule 100103; triggers on weaponized `GrantedAccess` bitmasks. |
+| **100128** | **100127** (parent) | Sound. Inherits from threat rule 100127; intercepts `Taskmgr.exe` and suppresses false alarms to Level 3. |
 
 ### The rule to remember
 
