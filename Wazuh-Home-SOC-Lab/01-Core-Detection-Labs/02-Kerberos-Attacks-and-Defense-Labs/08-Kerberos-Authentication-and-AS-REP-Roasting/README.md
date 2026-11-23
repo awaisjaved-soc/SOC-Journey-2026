@@ -76,7 +76,7 @@ This lab executes a complete **AS-REP Roasting (MITRE ATT&CK T1558.004)** lifecy
              |                                                                     |
    [STAGE 2: OFFLINE PASSWORD CRACKING]                                            |
              |  3. Extracts $krb5asrep$23$... ciphertext                           |
-             |  4. Runs John the Ripper / RockYou offline -> Recovers "Password123"|
+             |  4. Runs John the Ripper / RockYou offline -> Recovers "<REDACTED_PASSWORD>"|
              |                                                                     |
    [STAGE 3: LATERAL INFILTRATION (PORT 445 SMB)]                                  |
              |  5. SMB Session Setup (victim-asrep + recovered password)           |
@@ -107,7 +107,7 @@ On the Domain Controller (`WIN-SOCLAB`), a test account was provisioned and expl
 # 1. Create fresh target account
 New-ADUser -Name "victim-asrep" -SamAccountName "victim-asrep" `
     -UserPrincipalName "victim-asrep@soclab.local" `
-    -AccountPassword (ConvertTo-SecureString "Password123" -AsPlainText -Force) `
+    -AccountPassword (ConvertTo-SecureString "<REDACTED_PASSWORD>" -AsPlainText -Force) `
     -Enabled $true -PasswordNeverExpires $true
 
 # 2. Disable Kerberos Pre-Authentication (Vulnerability Injection)
@@ -209,7 +209,7 @@ john --show /tmp/victim.hash
 
 ![09 Kali AS-REP Roast Ticket Harvest & John Crack](images/09_kali_asrep_roast_ticket_harvest_and_john_crack.png)
 
-*Impacket requested the TGT with no password, dumped `$krb5asrep$23$...` hash, and John the Ripper recovered `Password123` in under 0.5 seconds.*
+*Impacket requested the TGT with no password, dumped `$krb5asrep$23$...` hash, and John the Ripper recovered `<REDACTED_PASSWORD>` in under 0.5 seconds.*
 
 ---
 
@@ -373,7 +373,7 @@ Get-SmbSession | Where-Object { $_.ClientUserName -like "*victim-asrep*" } |
 Set-ADAccountControl -Identity "victim-asrep" -DoesNotRequirePreAuth $false
 
 # 4. Reset compromised password to high-entropy string
-Set-ADAccountPassword -Identity "victim-asrep" -NewPassword (ConvertTo-SecureString "IncidentSec!2026#Lock" -AsPlainText -Force)
+Set-ADAccountPassword -Identity "victim-asrep" -NewPassword (ConvertTo-SecureString "<REDACTED_SECURE_PASSWORD>" -AsPlainText -Force)
 
 # 5. Flush local Kerberos ticket cache
 klist purge

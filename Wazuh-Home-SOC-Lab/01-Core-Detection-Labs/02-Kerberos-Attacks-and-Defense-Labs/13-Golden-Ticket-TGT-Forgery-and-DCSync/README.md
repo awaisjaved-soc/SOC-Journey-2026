@@ -90,7 +90,7 @@ To execute a DCSync attack, an account requires specific Directory Replication p
 
 ```powershell
 # Create dedicated replication service account on Domain Controller
-New-ADUser -Name "svc-syncadmin" -SamAccountName "svc-syncadmin" -AccountPassword (ConvertTo-SecureString "SyncOpsPassword2026!" -AsPlainText -Force) -Enabled $true
+New-ADUser -Name "svc-syncadmin" -SamAccountName "svc-syncadmin" -AccountPassword (ConvertTo-SecureString "<REDACTED_PASSWORD>" -AsPlainText -Force) -Enabled $true
 
 # Elevate account to Domain Admins
 Add-ADGroupMember -Identity "Domain Admins" -Members "svc-syncadmin"
@@ -234,7 +234,7 @@ To simulate an authentic enterprise attack path, we staged an unprivileged stand
 
 ```powershell
 # Create unprivileged standard user on Domain Controller
-New-ADUser -Name "normaluser01" -SamAccountName "normaluser01" -AccountPassword (ConvertTo-SecureString "UserPass2026!" -AsPlainText -Force) -Enabled $true
+New-ADUser -Name "normaluser01" -SamAccountName "normaluser01" -AccountPassword (ConvertTo-SecureString "<REDACTED_PASSWORD>" -AsPlainText -Force) -Enabled $true
 
 # Extract object RID
 (Get-ADUser -Identity "normaluser01").SID

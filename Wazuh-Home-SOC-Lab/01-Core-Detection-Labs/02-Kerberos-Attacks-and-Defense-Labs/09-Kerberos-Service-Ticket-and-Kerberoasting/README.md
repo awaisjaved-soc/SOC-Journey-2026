@@ -126,7 +126,7 @@ In an enterprise environment, service accounts are regularly provisioned to run 
 
 ```powershell
 # 1. Create target service account
-$Password = ConvertTo-SecureString "Database123" -AsPlainText -Force
+$Password = ConvertTo-SecureString "<REDACTED_PASSWORD>" -AsPlainText -Force
 New-ADUser -Name "svc-mssql" -SamAccountName "svc-mssql" `
     -UserPrincipalName "svc-mssql@soclab.local" `
     -AccountPassword $Password -Enabled $true `
@@ -273,7 +273,7 @@ The compromised service account password was immediately rotated to a cryptograp
 
 ```powershell
 # Generate complex 32-character string and rotate
-$NewSecurePass = ConvertTo-SecureString "M9#kL2!vP9$xQ7&zW4*bN1^mC8@jR5%t" -AsPlainText -Force
+$NewSecurePass = ConvertTo-SecureString "<REDACTED_STRONG_PASSWORD>" -AsPlainText -Force
 Set-ADAccountPassword -Identity "svc-mssql" -NewPassword $NewSecurePass
 ```
 

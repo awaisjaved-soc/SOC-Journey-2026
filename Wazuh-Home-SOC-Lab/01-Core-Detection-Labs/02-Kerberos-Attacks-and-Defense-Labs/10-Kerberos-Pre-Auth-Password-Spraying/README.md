@@ -108,8 +108,8 @@ auditpol /get /subcategory:"Kerberos Authentication Service"
 Five test accounts were created in Active Directory. Four accounts received complex baseline passwords, while `spray-user03` was configured with the target sprayed password (`Winter2026!`):
 
 ```powershell
-$StrongPass = ConvertTo-SecureString "Complex#SecurePass998!" -AsPlainText -Force
-$SprayedPass = ConvertTo-SecureString "Winter2026!" -AsPlainText -Force
+$StrongPass = ConvertTo-SecureString "<REDACTED_PASSWORD>" -AsPlainText -Force
+$SprayedPass = ConvertTo-SecureString "<REDACTED_SPRAY_PASSWORD>" -AsPlainText -Force
 
 1..5 | ForEach-Object {
     $uname = "spray-user0$($_)"
