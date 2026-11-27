@@ -39,12 +39,14 @@ The rule pack that ships these rules to the manager lives in the goals workspace
 | [100127](Rule-100127-LSASS-Memory-Read-Detection.md) | 12 | Sysmon 10 | Critical: Memory read rights requested on LSASS (VM_READ) | **TESTED** | Lab 15 / 16 |
 | [100128](Rule-100128-Taskmgr-LSASS-Whitelist.md) | 3 | Sysmon 10 | Whitelist: Task Manager routine diagnostic handle to LSASS | **TESTED** | Lab 15 |
 | [100129](Rule-100129-LSASS-Memory-Dump-or-Kerberos-Ticket-File-Created.md) | 13 | Sysmon 11 | CRITICAL: LSASS Memory Dump or Kerberos Ticket File Written to Disk | **TESTED** | Lab 15 |
+| [100130](Rule-100130-Unconstrained-Delegation-Enabled.md) | 12 | 4742 | Computer account configured with Unconstrained Delegation (`%%2093`) | **TESTED** | Lab 16 |
+| [100131](Rule-100131-DC-Machine-Account-Non-DC-Logon.md) | 12 | 4624 | Domain Controller machine account (`WIN-SOCLAB$`) logged on from non-DC IP | **TESTED** | Lab 16 |
 
 **Status meanings:**
 - **TESTED** — the rule fired on a generated event in the lab, and the alert was observed in Threat Hunting. The file records when and what fired.
 - **UNTESTED** — the rule is written from Wazuh's documented syntax and has not been run in the lab yet. The file carries a test plan, not test evidence. Do not treat it as verified detection.
 
-**Count:** 25 custom rules — 18 tested, 7 untested.
+**Count:** 27 custom rules — 20 tested, 7 untested.
 
 ---
 

