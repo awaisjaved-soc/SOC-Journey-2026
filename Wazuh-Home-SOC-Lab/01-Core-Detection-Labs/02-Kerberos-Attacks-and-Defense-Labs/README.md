@@ -23,7 +23,8 @@ This master series documents the complete theory, red-team exploitation mechanic
 ├── 12-Overpass-the-Hash-Pass-the-Key/                  # MITRE T1550.002 — RFC 4757 RC4 Downgrade (0x17) & Masquerade
 ├── 13-Golden-Ticket-TGT-Forgery-and-DCSync/            # MITRE T1558.001 & T1003.006 — TGT Forgery & Directory Replication
 ├── 14-Silver-Ticket-TGS-Forgery-and-SPN-Stealth/        # MITRE T1558.002 & T1021.002 — Offline TGS Forgery & SCM Service Exec
-└── 15-LSASS-Ticket-Stealing-and-Memory-Dumping/         # MITRE T1003.001 & T1558 — ProcessAccess Handle Telemetry & Tuning
+├── 15-LSASS-Ticket-Stealing-and-Memory-Dumping/         # MITRE T1003.001 & T1558 — ProcessAccess Handle Telemetry & Tuning
+└── 16-Unconstrained-Delegation-and-PrinterBug/        # MITRE T1558 — Coerced DC TGT Theft & Rules 100130/100131
 ```
 
 | # | Lab | Attack Vector | Key Telemetry Signature | Primary SIEM Rule | MITRE ATT&CK |
@@ -35,7 +36,8 @@ This master series documents the complete theory, red-team exploitation mechanic
 | **12** | [Overpass-the-Hash](12-Overpass-the-Hash-Pass-the-Key/) | Converting stolen NTLM hash into genuine Kerberos TGT via RFC 4757 RC4-HMAC key derivation | Event 4768 (`TicketEncryptionType: 0x17` Downgrade) + Event 4624 (`Kerberos`) | Rule 100117 / 100115 | **T1550.002** |
 | **13** | [Golden Ticket & DCSync](13-Golden-Ticket-TGT-Forgery-and-DCSync/) | Directory replication abuse (DCSync) to harvest `krbtgt` master keys, offline TGT forgery, and injected administrative logon | Event 4662 (AccessMask `0x100`, Replication GUIDs) + Event 4769 (TGS with missing 4768) + Event 4672 (Administrative Privilege Assignment) | Rules 100123 (Level 13), 100124 (Level 11), 100125 (Level 12) | **T1558.001** / **T1003.006** |
 | **14** | [Silver Ticket & SPN Stealth](14-Silver-Ticket-TGS-Forgery-and-SPN-Stealth/) | Direct TGS ticket forgery targeting service SPNs/machines (0 DC KDC traffic) + PsExec lateral movement | Sysmon Event 1 (`PSEXESVC.exe`, Parent `services.exe`) + Event 7045 + Event 4672 | Rule 100126 (Level 12) / 100104 | **T1558.002** / **T1021.002** |
-| **15** | [LSASS Ticket Stealing & Memory Dumping](15-LSASS-Ticket-Stealing-and-Memory-Dumping/) | Endpoint process handle abuse (`OpenProcess`) targeting in-memory Kerberos tickets (`lsass.exe`) | Sysmon Event 10 (`TargetImage: lsass.exe`) + Rule 100127 noise suppression filter | Rule 100103 (Level 12) / 100127 (Level 0) | **T1003.001** / **T1558** |
+| **15** | [LSASS Ticket Stealing & Memory Dumping](15-LSASS-Ticket-Stealing-and-Memory-Dumping/) | Endpoint process handle abuse (`OpenProcess`) targeting in-memory Kerberos tickets (`lsass.exe`) | Sysmon Event 10 (`TargetImage: lsass.exe`) + Rule 100127 noise suppression filter | Rules 100103, 100127, 100128, 100129 | **T1003.001** / **T1558** |
+| **16** | [Unconstrained Delegation & PrinterBug](16-Unconstrained-Delegation-and-PrinterBug/) | Coercing DC machine account (`WIN-SOCLAB$`) to authenticate to a delegated host (`FAKE-SRV$`), capturing DC TGT & DCSync | Event 4742 (`%%2093`) + Event 4624 (`WIN-SOCLAB$` non-DC IP) + Event 4662 | Rules 100130, 100131, 100123 | **T1558** |
 
 ---
 
